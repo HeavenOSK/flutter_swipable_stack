@@ -1,0 +1,1 @@
+library swipable_stack;
