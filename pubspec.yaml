@@ -1,7 +1,6 @@
 name: swipable_stack
 description: A new Flutter package project.
 version: 0.0.1
-author: Ryunosuke Watanabe
 homepage: https://github.com/HeavenOSK/flutter_swipable_stack
 environment:
   sdk: ">=2.7.0 <3.0.0"
