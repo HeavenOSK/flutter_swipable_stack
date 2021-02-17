@@ -30,10 +30,6 @@ typedef SwipableStackOverlayBuilder = Widget Function(
   Alignment alignmentPerThreshold,
 );
 
-typedef JudgeSwipeDirection = SwipeDirection Function(
-  Alignment alignmentPerThreshold,
-);
-
 class SwipableStack extends StatefulWidget {
   SwipableStack({
     @required this.builder,

@@ -52,7 +52,6 @@ class _HomeState extends State<Home> {
                 print('$index, $direction');
               },
               overlayBuilder: (alignmentPerThreshold) {
-                print(alignmentPerThreshold.x);
                 final isRight = alignmentPerThreshold.x > 0;
                 final opacity = min<double>(alignmentPerThreshold.x.abs(), 1);
                 return Padding(
