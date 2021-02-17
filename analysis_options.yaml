@@ -1,0 +1,6 @@
+include: package:pedantic_mono/analysis_options.yaml
+analyzer:
+  exclude:
+    - lib/l10n/messages_*.dart
+    - lib/**/*.freezed.dart
+    - lib/**/*.g.dart
