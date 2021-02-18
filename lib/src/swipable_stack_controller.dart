@@ -8,6 +8,6 @@ class SwipableStackController extends ChangeNotifier {
   final swipableStackStateKey = GlobalKey<SwipableStackState>();
 
   void moveNext(SwipeDirection direction) {
-    swipableStackStateKey.currentState?.moveNext(direction);
+    swipableStackStateKey.currentState?.next(direction);
   }
 }

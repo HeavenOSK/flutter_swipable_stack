@@ -65,7 +65,32 @@ class SwipableStackState extends State<SwipableStack>
     duration: const Duration(milliseconds: 250),
   );
 
-  Animation<Offset>? _positionAnimation;
+  Animation<Offset> _cancelAnimation() {
+    return Tween<Offset>(
+      begin: _sessionState.currentPosition,
+      end: _sessionState.startPosition,
+    ).animate(
+      CurvedAnimation(
+        parent: _swipeCancelAnimationController,
+        curve: const ElasticOutCurve(0.95),
+      ),
+    );
+  }
+
+  Animation<Offset> swipeAnimation({
+    required Offset startPosition,
+    required Offset endPosition,
+  }) {
+    return Tween<Offset>(
+      begin: startPosition,
+      end: endPosition,
+    ).animate(
+      CurvedAnimation(
+        parent: _swipeAssistAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+  }
 
   bool get _animating =>
       _swipeCancelAnimationController.animating ||
@@ -178,7 +203,7 @@ class SwipableStackState extends State<SwipableStack>
                 _cancelSwipe();
                 return;
               }
-              _moveNext();
+              _swipeNext();
             },
             child: cards[index],
           ),
@@ -203,32 +228,24 @@ class SwipableStackState extends State<SwipableStack>
     return positionedCards;
   }
 
-  void _animatePosition() {
-    final animationValue = _positionAnimation?.value;
-    if (animationValue != null) {
-      setState(() {
-        _sessionState = _sessionState.copyWith(
-          currentPosition: animationValue,
-        );
-      });
-    }
+  void _animatePosition(Animation<Offset> positionAnimation) {
+    setState(() {
+      _sessionState = _sessionState.copyWith(
+        currentPosition: positionAnimation.value,
+      );
+    });
   }
 
   void _cancelSwipe() {
-    _positionAnimation = Tween<Offset>(
-      begin: _sessionState.currentPosition,
-      end: _sessionState.startPosition,
-    ).animate(
-      CurvedAnimation(
-        parent: _swipeCancelAnimationController,
-        curve: const ElasticOutCurve(0.95),
-      ),
-    )..addListener(_animatePosition);
+    final cancelAnimation = _cancelAnimation();
+    void _animate() {
+      _animatePosition(cancelAnimation);
+    }
 
-    /// It's done.
+    cancelAnimation.addListener(_animate);
     _swipeCancelAnimationController.forward(from: 0).then(
       (_) {
-        _positionAnimation?.removeListener(_animatePosition);
+        cancelAnimation.removeListener(_animate);
         setState(() {
           _sessionState = const SwipeSessionState();
         });
@@ -237,7 +254,7 @@ class SwipableStackState extends State<SwipableStack>
   }
 
   /// This method not calls [SwipableStack.onWillMoveNext].
-  void moveNext(SwipeDirection swipeDirection) {
+  void next(SwipeDirection swipeDirection) {
     if (!_canSwipeStart) {
       return;
     }
@@ -250,15 +267,16 @@ class SwipableStackState extends State<SwipableStack>
     final origin = _sessionState.currentPosition ?? Offset.zero;
     final moveDistance = MediaQuery.of(context).size.width * 1.04;
 
-    _positionAnimation = Tween<Offset>(
-      begin: origin,
-      end: origin + Offset(isDirectionRight ? moveDistance : -moveDistance, 0),
-    ).animate(
-      CurvedAnimation(
-        parent: _swipeAssistAnimationController,
-        curve: Curves.easeOutCubic,
-      ),
-    )..addListener(_animatePosition);
+    final animation = swipeAnimation(
+      startPosition: origin,
+      endPosition:
+          origin + Offset(isDirectionRight ? moveDistance : -moveDistance, 0),
+    );
+    void _animate() {
+      _animatePosition(animation);
+    }
+
+    animation.addListener(_animate);
 
     _swipeAssistAnimationController.forward(from: 0).then(
       (_) {
@@ -266,7 +284,7 @@ class SwipableStackState extends State<SwipableStack>
           _currentIndex,
           swipeDirection,
         );
-        _positionAnimation?.removeListener(_animatePosition);
+        animation.removeListener(_animate);
         setState(() {
           _currentIndex += 1;
           _sessionState = const SwipeSessionState();
@@ -275,7 +293,7 @@ class SwipableStackState extends State<SwipableStack>
     );
   }
 
-  void _moveNext() {
+  void _swipeNext() {
     final isDirectionRight = _sessionState.difference.dx > 0;
     final swipeDirection =
         isDirectionRight ? SwipeDirection.right : SwipeDirection.left;
@@ -288,24 +306,23 @@ class SwipableStackState extends State<SwipableStack>
     if (startPosition == null) {
       return;
     }
-    _positionAnimation = Tween<Offset>(
-      begin: startPosition,
-      end: startPosition + _sessionState.difference * multiple * 1.1,
-    ).animate(
-      CurvedAnimation(
-        parent: _swipeAssistAnimationController,
-        curve: Curves.easeOutCubic,
-      ),
-    )..addListener(_animatePosition);
 
-    /// It's done.
+    final animation = swipeAnimation(
+      startPosition: startPosition,
+      endPosition: startPosition + _sessionState.difference * multiple * 1.1,
+    );
+    void animate() {
+      _animatePosition(animation);
+    }
+
+    animation.addListener(animate);
     _swipeAssistAnimationController.forward(from: 0).then(
       (_) {
         widget.onSwipeCompleted?.call(
           _currentIndex,
           swipeDirection,
         );
-        _positionAnimation?.removeListener(_animatePosition);
+        animation.removeListener(animate);
         setState(() {
           _currentIndex += 1;
           _sessionState = const SwipeSessionState();
