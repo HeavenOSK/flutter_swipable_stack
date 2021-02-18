@@ -6,17 +6,17 @@ import 'swipe_sesion_state.dart';
 
 class SwipablePositioned extends StatelessWidget {
   const SwipablePositioned({
-    @required this.index,
-    @required this.state,
-    @required this.areaConstraints,
-    @required this.child,
-    Key key,
+    required this.index,
+    required this.state,
+    required this.areaConstraints,
+    required this.child,
+    Key? key,
   }) : super(key: key);
 
   static Widget overlay({
-    @required SwipeSessionState sessionState,
-    @required BoxConstraints areaConstraints,
-    @required Widget child,
+    required SwipeSessionState sessionState,
+    required BoxConstraints areaConstraints,
+    required Widget child,
   }) {
     return SwipablePositioned(
       state: sessionState,
@@ -33,17 +33,14 @@ class SwipablePositioned extends StatelessWidget {
   final Widget child;
   final BoxConstraints areaConstraints;
 
-  Offset get _currentPositionDiff => state.differecne ?? Offset.zero;
+  Offset get _currentPositionDiff => state.difference;
 
   bool get _isFirst => index == 0;
 
   bool get _isSecond => index == 1;
 
   double get _rotationAngle => _isFirst
-      ? -(_currentPositionDiff.dx ?? 0) /
-          areaConstraints.maxWidth *
-          math.pi /
-          24
+      ? -_currentPositionDiff.dx / areaConstraints.maxWidth * math.pi / 24
       : 0;
 
   Offset get _rotationOrigin =>
@@ -53,7 +50,7 @@ class SwipablePositioned extends StatelessWidget {
 
   double _animationProgress(BuildContext context) {
     final x = _currentPositionDiff.dx.abs();
-    final p = x != null ? x / (MediaQuery.of(context).size.width * 0.4) : 0;
+    final p = x / (MediaQuery.of(context).size.width * 0.4);
     return math.min(p.toDouble(), 1);
   }
 

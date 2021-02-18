@@ -32,7 +32,7 @@ typedef SwipableStackOverlayBuilder = Widget Function(
 
 class SwipableStack extends StatefulWidget {
   SwipableStack({
-    @required this.builder,
+    required this.builder,
     this.controller,
     this.onSwipeCompleted,
     this.onWillMoveNext,
@@ -41,11 +41,11 @@ class SwipableStack extends StatefulWidget {
   }) : super(key: controller?.swipableStackStateKey);
 
   final IndexedWidgetBuilder builder;
-  final SwipableStackController controller;
-  final SwipeCompletionCallback onSwipeCompleted;
-  final OnWillMoveNext onWillMoveNext;
-  final SwipableStackOverlayBuilder overlayBuilder;
-  final int itemCount;
+  final SwipableStackController? controller;
+  final SwipeCompletionCallback? onSwipeCompleted;
+  final OnWillMoveNext? onWillMoveNext;
+  final SwipableStackOverlayBuilder? overlayBuilder;
+  final int? itemCount;
 
   @override
   SwipableStackState createState() => SwipableStackState();
@@ -53,9 +53,19 @@ class SwipableStack extends StatefulWidget {
 
 class SwipableStackState extends State<SwipableStack>
     with TickerProviderStateMixin {
-  AnimationController _swipeCancelAnimationController;
-  AnimationController _swipeAssistAnimationController;
-  Animation<Offset> _positionAnimation;
+  late final AnimationController _swipeCancelAnimationController =
+      AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+  );
+
+  late final AnimationController _swipeAssistAnimationController =
+      AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+  );
+
+  Animation<Offset>? _positionAnimation;
 
   bool get _animating =>
       _swipeCancelAnimationController.animating ||
@@ -73,7 +83,7 @@ class SwipableStackState extends State<SwipableStack>
   var _sessionState = const SwipeSessionState();
 
   bool get _allowMoveNext {
-    final isDirectionRight = _sessionState.differecne.dx > 0;
+    final isDirectionRight = _sessionState.difference.dx > 0;
     final swipeDirection =
         isDirectionRight ? SwipeDirection.right : SwipeDirection.left;
     return widget.onWillMoveNext?.call(
@@ -81,19 +91,6 @@ class SwipableStackState extends State<SwipableStack>
           swipeDirection,
         ) ??
         true;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _swipeCancelAnimationController ??= AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _swipeAssistAnimationController ??= AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    );
   }
 
   @override
@@ -174,7 +171,7 @@ class SwipableStackState extends State<SwipableStack>
               if (_animating) {
                 return;
               }
-              final shouldCancel = (_sessionState.differecne?.dx?.abs() ?? 0) <=
+              final shouldCancel = (_sessionState.difference.dx.abs()) <=
                   constraints.maxWidth * (_defaultSwipeThreshold / 2);
 
               if (shouldCancel || !_allowMoveNext) {
@@ -194,11 +191,12 @@ class SwipableStackState extends State<SwipableStack>
           sessionState: _sessionState,
           areaConstraints: constraints,
           child: widget.overlayBuilder?.call(
-            _sessionState.differenceToAlignment(
-              areaConstraints: constraints,
-              swipeThreshold: _defaultSwipeThreshold,
-            ),
-          ),
+                _sessionState.differenceToAlignment(
+                  areaConstraints: constraints,
+                  swipeThreshold: _defaultSwipeThreshold,
+                ),
+              ) ??
+              const SizedBox.shrink(),
         ),
       );
     }
@@ -206,10 +204,11 @@ class SwipableStackState extends State<SwipableStack>
   }
 
   void _animatePosition() {
-    if (_positionAnimation != null) {
+    final animationValue = _positionAnimation?.value;
+    if (animationValue != null) {
       setState(() {
         _sessionState = _sessionState.copyWith(
-          currentPosition: _positionAnimation.value,
+          currentPosition: animationValue,
         );
       });
     }
@@ -229,7 +228,7 @@ class SwipableStackState extends State<SwipableStack>
     /// It's done.
     _swipeCancelAnimationController.forward(from: 0).then(
       (_) {
-        _positionAnimation.removeListener(_animatePosition);
+        _positionAnimation?.removeListener(_animatePosition);
         setState(() {
           _sessionState = const SwipeSessionState();
         });
@@ -267,7 +266,7 @@ class SwipableStackState extends State<SwipableStack>
           _currentIndex,
           swipeDirection,
         );
-        _positionAnimation.removeListener(_animatePosition);
+        _positionAnimation?.removeListener(_animatePosition);
         setState(() {
           _currentIndex += 1;
           _sessionState = const SwipeSessionState();
@@ -277,18 +276,21 @@ class SwipableStackState extends State<SwipableStack>
   }
 
   void _moveNext() {
-    final isDirectionRight = _sessionState.differecne.dx > 0;
+    final isDirectionRight = _sessionState.difference.dx > 0;
     final swipeDirection =
         isDirectionRight ? SwipeDirection.right : SwipeDirection.left;
 
     final deviceWidth = MediaQuery.of(context).size.width;
-    final diffXAbs = _sessionState.differecne.dx.abs();
+    final diffXAbs = _sessionState.difference.dx.abs();
     final multiple =
-        (deviceWidth - diffXAbs * 0.25) / _sessionState.differecne.dx.abs();
+        (deviceWidth - diffXAbs * 0.25) / _sessionState.difference.dx.abs();
+    final startPosition = _sessionState.currentPosition;
+    if (startPosition == null) {
+      return;
+    }
     _positionAnimation = Tween<Offset>(
-      begin: _sessionState.currentPosition,
-      end: _sessionState.currentPosition +
-          _sessionState.differecne * multiple * 1.1,
+      begin: startPosition,
+      end: startPosition + _sessionState.difference * multiple * 1.1,
     ).animate(
       CurvedAnimation(
         parent: _swipeAssistAnimationController,
@@ -303,7 +305,7 @@ class SwipableStackState extends State<SwipableStack>
           _currentIndex,
           swipeDirection,
         );
-        _positionAnimation.removeListener(_animatePosition);
+        _positionAnimation?.removeListener(_animatePosition);
         setState(() {
           _currentIndex += 1;
           _sessionState = const SwipeSessionState();
@@ -314,8 +316,8 @@ class SwipableStackState extends State<SwipableStack>
 
   @override
   void dispose() {
-    _swipeCancelAnimationController?.dispose();
-    _swipeAssistAnimationController?.dispose();
+    _swipeCancelAnimationController.dispose();
+    _swipeAssistAnimationController.dispose();
     super.dispose();
   }
 }

@@ -3,28 +3,27 @@ import 'package:flutter/material.dart';
 const double _fingerHeight = 50;
 
 extension SwipeSessionStateX on SwipeSessionState {
-  Offset get differecne {
-    if (this == null || currentPosition == null || startPosition == null) {
+  Offset get difference {
+    if (currentPosition == null || startPosition == null) {
       return Offset.zero;
     }
-    return currentPosition - startPosition;
+    return (currentPosition ?? Offset.zero) - (startPosition ?? Offset.zero);
   }
 
   Alignment differenceToAlignment({
-    @required BoxConstraints areaConstraints,
-    @required double swipeThreshold,
+    required BoxConstraints areaConstraints,
+    required double swipeThreshold,
   }) =>
       Alignment(
-        differecne.dx / (areaConstraints.maxWidth / 2),
-        differecne.dy / (areaConstraints.maxHeight / 2),
+        difference.dx / (areaConstraints.maxWidth / 2),
+        difference.dy / (areaConstraints.maxHeight / 2),
       ) /
       swipeThreshold;
 
-  Offset get localFingerPosition {
-    if (localPosition == null) {
-      return null;
-    }
-    return localPosition + const Offset(0, -_fingerHeight);
+  Offset? get localFingerPosition {
+    return localPosition != null
+        ? (localPosition ?? Offset.zero) + const Offset(0, -_fingerHeight)
+        : null;
   }
 }
 
@@ -35,9 +34,9 @@ class SwipeSessionState {
     this.localPosition,
   });
 
-  final Offset startPosition;
-  final Offset currentPosition;
-  final Offset localPosition;
+  final Offset? startPosition;
+  final Offset? currentPosition;
+  final Offset? localPosition;
 
   @override
   bool operator ==(Object other) =>
@@ -61,9 +60,9 @@ class SwipeSessionState {
       ')';
 
   SwipeSessionState copyWith({
-    Offset startPosition,
-    Offset currentPosition,
-    Offset localPosition,
+    Offset? startPosition,
+    Offset? currentPosition,
+    Offset? localPosition,
   }) =>
       SwipeSessionState(
         startPosition: startPosition ?? this.startPosition,

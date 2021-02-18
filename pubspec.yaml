@@ -3,13 +3,13 @@ description: A new Flutter package project.
 version: 0.0.1
 homepage: https://github.com/HeavenOSK/flutter_swipable_stack
 environment:
-  sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=2.12.0-0 <3.0.0"
+
 dependencies:
   flutter:
     sdk: flutter
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  pedantic_mono: 1.10.0+3
+  pedantic_mono:
 
