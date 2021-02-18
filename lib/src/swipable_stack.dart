@@ -16,6 +16,18 @@ enum SwipeDirection {
   right,
 }
 
+extension _SwipeDirectionX on SwipeDirection {
+  Offset maxMovingDistance(BuildContext context) {
+    final deviceSize = MediaQuery.of(context).size;
+    switch (this) {
+      case SwipeDirection.left:
+        return Offset(-deviceSize.width, 0) * 1.04;
+      case SwipeDirection.right:
+        return Offset(deviceSize.width, 0) * 1.04;
+    }
+  }
+}
+
 typedef SwipeCompletionCallback = void Function(
   int index,
   SwipeDirection direction,
@@ -77,7 +89,7 @@ class SwipableStackState extends State<SwipableStack>
     );
   }
 
-  Animation<Offset> swipeAnimation({
+  Animation<Offset> _swipeAnimation({
     required Offset startPosition,
     required Offset endPosition,
   }) {
@@ -146,86 +158,96 @@ class SwipableStackState extends State<SwipableStack>
     }
     if (cards.isEmpty) {
       return [];
-    }
-
-    final positionedCards = List<Widget>.generate(
-      cards.length,
-      (index) {
-        return SwipablePositioned(
-          state: _sessionState,
+    } else {
+      final positionedCards = List<Widget>.generate(
+        cards.length,
+        (index) => _buildCard(
           index: index,
-          areaConstraints: constraints,
-          child: GestureDetector(
-            onPanStart: (d) {
-              if (!_canSwipeStart) {
-                return;
-              }
+          child: cards[index],
+          constraints: constraints,
+        ),
+      ).reversed.toList();
 
-              if (_swipeCancelAnimationController.animating) {
-                _swipeCancelAnimationController
-                  ..stop()
-                  ..reset();
-              }
-              setState(() {
-                _sessionState = _sessionState.copyWith(
-                  localPosition: d.localPosition,
-                  startPosition: d.globalPosition,
-                  currentPosition: d.globalPosition,
-                );
-              });
-            },
-            onPanUpdate: (d) {
-              if (!_canSwipeStart) {
-                return;
-              }
-              if (_swipeCancelAnimationController.animating) {
-                _swipeCancelAnimationController
-                  ..stop()
-                  ..reset();
-              }
-              setState(() {
-                _sessionState = _sessionState.copyWith(
-                  localPosition: _sessionState.localPosition ?? d.localPosition,
-                  startPosition:
-                      _sessionState.startPosition ?? d.globalPosition,
-                  currentPosition: d.globalPosition,
-                );
-              });
-            },
-            onPanEnd: (d) {
-              if (_animating) {
-                return;
-              }
-              final shouldCancel = (_sessionState.difference.dx.abs()) <=
-                  constraints.maxWidth * (_defaultSwipeThreshold / 2);
-
-              if (shouldCancel || !_allowMoveNext) {
-                _cancelSwipe();
-                return;
-              }
-              _swipeNext();
-            },
-            child: cards[index],
-          ),
-        );
-      },
-    ).reversed.toList();
-    if (widget.overlayBuilder != null) {
-      positionedCards.add(
-        SwipablePositioned.overlay(
-          sessionState: _sessionState,
+      final overlay = widget.overlayBuilder?.call(
+        _sessionState.differenceToAlignment(
           areaConstraints: constraints,
-          child: widget.overlayBuilder?.call(
-                _sessionState.differenceToAlignment(
-                  areaConstraints: constraints,
-                  swipeThreshold: _defaultSwipeThreshold,
-                ),
-              ) ??
-              const SizedBox.shrink(),
+          swipeThreshold: _defaultSwipeThreshold,
         ),
       );
+      if (overlay != null) {
+        positionedCards.add(
+          SwipablePositioned.overlay(
+            sessionState: _sessionState,
+            areaConstraints: constraints,
+            child: overlay,
+          ),
+        );
+      }
+      return positionedCards;
     }
-    return positionedCards;
+  }
+
+  Widget _buildCard({
+    required int index,
+    required Widget child,
+    required BoxConstraints constraints,
+  }) {
+    return SwipablePositioned(
+      state: _sessionState,
+      index: index,
+      areaConstraints: constraints,
+      child: GestureDetector(
+        onPanStart: (d) {
+          if (!_canSwipeStart) {
+            return;
+          }
+
+          if (_swipeCancelAnimationController.animating) {
+            _swipeCancelAnimationController
+              ..stop()
+              ..reset();
+          }
+          setState(() {
+            _sessionState = _sessionState.copyWith(
+              localPosition: d.localPosition,
+              startPosition: d.globalPosition,
+              currentPosition: d.globalPosition,
+            );
+          });
+        },
+        onPanUpdate: (d) {
+          if (!_canSwipeStart) {
+            return;
+          }
+          if (_swipeCancelAnimationController.animating) {
+            _swipeCancelAnimationController
+              ..stop()
+              ..reset();
+          }
+          setState(() {
+            _sessionState = _sessionState.copyWith(
+              localPosition: _sessionState.localPosition ?? d.localPosition,
+              startPosition: _sessionState.startPosition ?? d.globalPosition,
+              currentPosition: d.globalPosition,
+            );
+          });
+        },
+        onPanEnd: (d) {
+          if (_animating) {
+            return;
+          }
+          final shouldCancel = (_sessionState.difference.dx.abs()) <=
+              constraints.maxWidth * (_defaultSwipeThreshold / 2);
+
+          if (shouldCancel || !_allowMoveNext) {
+            _cancelSwipe();
+            return;
+          }
+          _swipeNext();
+        },
+        child: child,
+      ),
+    );
   }
 
   void _animatePosition(Animation<Offset> positionAnimation) {
@@ -258,32 +280,23 @@ class SwipableStackState extends State<SwipableStack>
     if (!_canSwipeStart) {
       return;
     }
-    final isDirectionRight = swipeDirection == SwipeDirection.right;
     _sessionState = _sessionState.copyWith(
       startPosition: Offset.zero,
       currentPosition: Offset.zero,
       localPosition: Offset.zero,
     );
-    final origin = _sessionState.currentPosition ?? Offset.zero;
-    final moveDistance = MediaQuery.of(context).size.width * 1.04;
 
-    final animation = swipeAnimation(
-      startPosition: origin,
-      endPosition:
-          origin + Offset(isDirectionRight ? moveDistance : -moveDistance, 0),
+    final animation = _swipeAnimation(
+      startPosition: Offset.zero,
+      endPosition: swipeDirection.maxMovingDistance(context),
     );
     void _animate() {
       _animatePosition(animation);
     }
 
     animation.addListener(_animate);
-
     _swipeAssistAnimationController.forward(from: 0).then(
       (_) {
-        widget.onSwipeCompleted?.call(
-          _currentIndex,
-          swipeDirection,
-        );
         animation.removeListener(_animate);
         setState(() {
           _currentIndex += 1;
@@ -293,23 +306,33 @@ class SwipableStackState extends State<SwipableStack>
     );
   }
 
+  Offset _calculateSwipeDistance({
+    required Offset distance,
+    required BuildContext context,
+  }) {
+    final deviceSize = MediaQuery.of(context).size;
+    final absX = distance.dx.abs();
+    final rate = (deviceSize.width - absX) / absX;
+    return distance * rate;
+  }
+
   void _swipeNext() {
     final isDirectionRight = _sessionState.difference.dx > 0;
     final swipeDirection =
         isDirectionRight ? SwipeDirection.right : SwipeDirection.left;
 
-    final deviceWidth = MediaQuery.of(context).size.width;
-    final diffXAbs = _sessionState.difference.dx.abs();
-    final multiple =
-        (deviceWidth - diffXAbs * 0.25) / _sessionState.difference.dx.abs();
     final startPosition = _sessionState.currentPosition;
     if (startPosition == null) {
       return;
     }
 
-    final animation = swipeAnimation(
+    final animation = _swipeAnimation(
       startPosition: startPosition,
-      endPosition: startPosition + _sessionState.difference * multiple * 1.1,
+      endPosition: startPosition +
+          _calculateSwipeDistance(
+            distance: _sessionState.difference,
+            context: context,
+          ),
     );
     void animate() {
       _animatePosition(animation);
