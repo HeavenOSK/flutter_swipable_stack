@@ -87,7 +87,7 @@ class SwipableStackState extends State<SwipableStack>
   late final AnimationController _swipeAssistAnimationController =
       AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 250),
+    duration: const Duration(milliseconds: 350),
   );
 
   Animation<Offset> _cancelAnimation({
@@ -115,9 +115,22 @@ class SwipableStackState extends State<SwipableStack>
     ).animate(
       CurvedAnimation(
         parent: _swipeAssistAnimationController,
-        curve: Curves.easeOutCubic,
+        curve: Interval(
+          _startAnimationValue(),
+          1,
+          curve: const Cubic(0.7, 1, 0.73, 1),
+        ),
       ),
     );
+  }
+
+  double _startAnimationValue() {
+    final diff = _sessionState?.difference;
+    if (diff == null) {
+      return 0;
+    }
+    final ratio = diff.dx.abs() / MediaQuery.of(context).size.width;
+    return 0.15 + 0.85 * ratio;
   }
 
   bool get _animating =>
@@ -328,7 +341,7 @@ class SwipableStackState extends State<SwipableStack>
     }
 
     animation.addListener(_animate);
-    _swipeAssistAnimationController.forward(from: 0).then(
+    _swipeAssistAnimationController.forward(from: _startAnimationValue()).then(
       (_) {
         animation.removeListener(_animate);
         setState(() {
@@ -346,7 +359,7 @@ class SwipableStackState extends State<SwipableStack>
     final deviceSize = MediaQuery.of(context).size;
     final absX = distance.dx.abs();
     final rate = (deviceSize.width - absX) / absX;
-    return distance * rate * 2;
+    return Offset(distance.dx * rate * 2, distance.dy * rate);
   }
 
   void _swipeNext() {
@@ -372,7 +385,7 @@ class SwipableStackState extends State<SwipableStack>
     }
 
     animation.addListener(animate);
-    _swipeAssistAnimationController.forward(from: 0).then(
+    _swipeAssistAnimationController.forward(from: _startAnimationValue()).then(
       (_) {
         widget.onSwipeCompleted?.call(
           _currentIndex,

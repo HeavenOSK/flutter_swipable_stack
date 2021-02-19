@@ -50,7 +50,9 @@ class SwipablePositioned extends StatelessWidget {
   double _animationProgress() {
     final x = _currentPositionDiff.dx.abs();
     final p = x / (areaConstraints.maxWidth * 0.4);
-    return math.min(p.toDouble(), 1);
+    return Curves.easeOutCubic.transform(
+      math.min(p.toDouble(), 1),
+    );
   }
 
   BoxConstraints _constraints(BuildContext context) {
