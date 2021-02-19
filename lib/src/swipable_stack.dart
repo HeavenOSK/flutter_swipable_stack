@@ -14,6 +14,8 @@ extension _Animating on AnimationController {
 enum SwipeDirection {
   left,
   right,
+  up,
+  down,
 }
 
 extension _SwipeDirectionX on SwipeDirection {
@@ -24,6 +26,10 @@ extension _SwipeDirectionX on SwipeDirection {
         return Offset(-deviceSize.width, 0) * 1.04;
       case SwipeDirection.right:
         return Offset(deviceSize.width, 0) * 1.04;
+      case SwipeDirection.up:
+        return Offset(0, deviceSize.height) * 1.04;
+      case SwipeDirection.down:
+        return Offset(0, -deviceSize.height) * 1.04;
     }
   }
 }
@@ -39,8 +45,43 @@ typedef OnWillMoveNext = bool Function(
 );
 
 typedef SwipableStackOverlayBuilder = Widget Function(
-  Alignment alignmentPerThreshold,
+  SwipeDirection? direction,
+  double valuePerThreshold,
 );
+
+class PreferredSwipeDirection {
+  PreferredSwipeDirection({
+    this.direction,
+    this.rate = 0,
+  });
+
+  final SwipeDirection? direction;
+  final double rate;
+}
+
+extension _SwipeSessionStateX on SwipeSessionState {
+  SwipeDirection? preferredSwipeDirection({
+    required BoxConstraints constraints,
+    required double horizontalSwipeThreshold,
+    required double verticalSwipeThreshold,
+  }) {
+    final overHorizontalThreshold =
+        (difference.dx.abs() / constraints.maxWidth) >=
+            horizontalSwipeThreshold / 2;
+    final overVerticalThreshold =
+        (difference.dy.abs() / constraints.maxHeight) >=
+            verticalSwipeThreshold / 2;
+    if (overHorizontalThreshold && overVerticalThreshold) {
+      return null;
+    } else if (overHorizontalThreshold) {
+      return difference.dx > 0 ? SwipeDirection.right : SwipeDirection.left;
+    } else if (overVerticalThreshold) {
+      return difference.dy > 0 ? SwipeDirection.up : SwipeDirection.down;
+    } else {
+      return null;
+    }
+  }
+}
 
 // TODO(heavenOSK): Change Design
 // Change SwipeSession to be nullable
@@ -57,9 +98,10 @@ class SwipableStack extends StatefulWidget {
     this.onSwipeCompleted,
     this.onWillMoveNext,
     this.overlayBuilder,
-    this.swipeThreshold = _defaultSwipeThreshold,
+    this.verticalSwipeThreshold = _defaultSwipeThreshold,
+    this.horizontalSwipeThreshold = _defaultSwipeThreshold,
     this.itemCount,
-  })  : assert(0 <= swipeThreshold && swipeThreshold <= 1),
+  })  : assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
         super(key: controller?.swipableStackStateKey);
 
   final IndexedWidgetBuilder builder;
@@ -68,7 +110,8 @@ class SwipableStack extends StatefulWidget {
   final OnWillMoveNext? onWillMoveNext;
   final SwipableStackOverlayBuilder? overlayBuilder;
   final int? itemCount;
-  final double swipeThreshold;
+  final double horizontalSwipeThreshold;
+  final double verticalSwipeThreshold;
 
   static const double _defaultSwipeThreshold = 0.44;
 
@@ -130,7 +173,7 @@ class SwipableStackState extends State<SwipableStack>
       return 0;
     }
     final ratio = diff.dx.abs() / MediaQuery.of(context).size.width;
-    return 0.15 + 0.85 * ratio;
+    return 0.1 + 0.9 * ratio;
   }
 
   bool get _animating =>
@@ -195,24 +238,33 @@ class SwipableStackState extends State<SwipableStack>
           constraints: constraints,
         ),
       ).reversed.toList();
-      final diffAlignment = _sessionState?.differenceToAlignment(
-        areaConstraints: constraints,
-        swipeThreshold: widget.swipeThreshold,
-      );
-      if (diffAlignment != null) {
-        final overlay = widget.overlayBuilder?.call(
-          diffAlignment,
-        );
-        if (overlay != null) {
-          positionedCards.add(
-            SwipablePositioned.overlay(
-              sessionState: _sessionState ?? SwipeSessionState.notMoving(),
-              areaConstraints: constraints,
-              child: overlay,
-            ),
-          );
-        }
-      }
+      // final preferredDirection = _sessionState?.detectSwipeDirection(
+      //   constraints: constraints,
+      //   horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
+      //   verticalSwipeThreshold: widget.verticalSwipeThreshold,
+      // );
+      //
+      // if (preferredDirection != null) {
+      //   final overlay = widget.overlayBuilder?.call(
+      //     preferredDirection.direction,
+      //     preferredDirection.rate,
+      //   );
+      //   if (overlay != null) {
+      //     final session = _sessionState ?? SwipeSessionState.notMoving();
+      //     positionedCards.add(
+      //       SwipablePositioned.overlay(
+      //         sessionState: session,
+      //         preferredSwipeDirection: session.detectSwipeDirection(
+      //           constraints: constraints,
+      //           horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
+      //           verticalSwipeThreshold: widget.verticalSwipeThreshold,
+      //         ),
+      //         areaConstraints: constraints,
+      //         child: overlay,
+      //       ),
+      //     );
+      //   }
+      // }
 
       return positionedCards;
     }
@@ -223,8 +275,9 @@ class SwipableStackState extends State<SwipableStack>
     required Widget child,
     required BoxConstraints constraints,
   }) {
+    final session = _sessionState ?? SwipeSessionState.notMoving();
     return SwipablePositioned(
-      state: _sessionState ?? SwipeSessionState.notMoving(),
+      state: session,
       index: index,
       areaConstraints: constraints,
       child: GestureDetector(
@@ -271,18 +324,21 @@ class SwipableStackState extends State<SwipableStack>
           if (_animating) {
             return;
           }
-          final diff = _sessionState?.difference;
-          if (diff == null) {
-            return;
-          }
-          final shouldCancel = (diff.dx.abs()) <=
-              constraints.maxWidth * (widget.swipeThreshold / 2);
+          final preferredDirection = _sessionState?.preferredSwipeDirection(
+            constraints: constraints,
+            horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
+            verticalSwipeThreshold: widget.verticalSwipeThreshold,
+          );
 
-          if (shouldCancel || !_allowMoveNext) {
+          if (preferredDirection == null) {
             _cancelSwipe();
             return;
           }
-          _swipeNext();
+          if (!_allowMoveNext) {
+            _cancelSwipe();
+            return;
+          }
+          _swipeNext(preferredDirection);
         },
         child: child,
       ),
@@ -362,15 +418,11 @@ class SwipableStackState extends State<SwipableStack>
     return Offset(distance.dx * rate * 2, distance.dy * rate);
   }
 
-  void _swipeNext() {
+  void _swipeNext(SwipeDirection swipeDirection) {
     final currentSession = _sessionState;
     if (currentSession == null) {
       return;
     }
-
-    final isDirectionRight = currentSession.difference.dx > 0;
-    final swipeDirection =
-        isDirectionRight ? SwipeDirection.right : SwipeDirection.left;
 
     final animation = _swipeAnimation(
       startPosition: currentSession.currentPosition,

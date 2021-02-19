@@ -7,16 +7,6 @@ extension SwipeSessionStateX on SwipeSessionState {
     return currentPosition - startPosition;
   }
 
-  Alignment differenceToAlignment({
-    required BoxConstraints areaConstraints,
-    required double swipeThreshold,
-  }) =>
-      Alignment(
-        difference.dx / (areaConstraints.maxWidth / 2),
-        difference.dy / (areaConstraints.maxHeight / 2),
-      ) /
-      swipeThreshold;
-
   Offset? get localFingerPosition {
     return localPosition + const Offset(0, -_fingerHeight);
   }

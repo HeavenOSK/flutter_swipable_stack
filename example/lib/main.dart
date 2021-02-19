@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:example/card_label.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
@@ -51,9 +49,10 @@ class _HomeState extends State<Home> {
               onSwipeCompleted: (index, direction) {
                 print('$index, $direction');
               },
-              overlayBuilder: (alignmentPerThreshold) {
-                final isRight = alignmentPerThreshold.x > 0;
-                final opacity = min<double>(alignmentPerThreshold.x.abs(), 1);
+              overlayBuilder: (direction, value) {
+                final isRight = direction == SwipeDirection.right;
+                final isLeft = direction == SwipeDirection.left;
+
                 return Padding(
                   padding: EdgeInsets.symmetric(
                     vertical: _bottomAreaHeight,
@@ -62,11 +61,11 @@ class _HomeState extends State<Home> {
                   child: Stack(
                     children: [
                       Opacity(
-                        opacity: isRight ? opacity : 0,
+                        opacity: isRight ? value : 0,
                         child: CardLabel.like(),
                       ),
                       Opacity(
-                        opacity: !isRight ? opacity : 0,
+                        opacity: isLeft ? value : 0,
                         child: CardLabel.nope(),
                       ),
                     ],
