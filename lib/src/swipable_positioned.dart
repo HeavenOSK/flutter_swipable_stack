@@ -43,14 +43,13 @@ class SwipablePositioned extends StatelessWidget {
       ? -_currentPositionDiff.dx / areaConstraints.maxWidth * math.pi / 24
       : 0;
 
-  Offset get _rotationOrigin =>
-      _isFirst ? state.localPosition ?? Offset.zero : Offset.zero;
+  Offset get _rotationOrigin => _isFirst ? state.localPosition : Offset.zero;
 
-  static const double _animationRate = 0.1;
+  static const double _animationRate = 0.05;
 
-  double _animationProgress(BuildContext context) {
+  double _animationProgress() {
     final x = _currentPositionDiff.dx.abs();
-    final p = x / (MediaQuery.of(context).size.width * 0.4);
+    final p = x / (areaConstraints.maxWidth * 0.4);
     return math.min(p.toDouble(), 1);
   }
 
@@ -59,7 +58,7 @@ class SwipablePositioned extends StatelessWidget {
       return areaConstraints;
     } else if (_isSecond) {
       return areaConstraints *
-          (1 - _animationRate + _animationRate * _animationProgress(context));
+          (1 - _animationRate + _animationRate * _animationProgress());
     } else {
       return areaConstraints * (1 - _animationRate);
     }
@@ -69,10 +68,8 @@ class SwipablePositioned extends StatelessWidget {
     if (_isFirst) {
       return _currentPositionDiff;
     } else if (_isSecond) {
-      final constraintsDiff = areaConstraints *
-          (1 - _animationProgress(context)) *
-          _animationRate /
-          2;
+      final constraintsDiff =
+          areaConstraints * (1 - _animationProgress()) * _animationRate / 2;
       return Offset(
         constraintsDiff.maxWidth,
         constraintsDiff.maxHeight,

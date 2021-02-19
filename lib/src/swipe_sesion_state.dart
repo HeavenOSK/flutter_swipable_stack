@@ -4,10 +4,7 @@ const double _fingerHeight = 50;
 
 extension SwipeSessionStateX on SwipeSessionState {
   Offset get difference {
-    if (currentPosition == null || startPosition == null) {
-      return Offset.zero;
-    }
-    return (currentPosition ?? Offset.zero) - (startPosition ?? Offset.zero);
+    return currentPosition - startPosition;
   }
 
   Alignment differenceToAlignment({
@@ -21,22 +18,28 @@ extension SwipeSessionStateX on SwipeSessionState {
       swipeThreshold;
 
   Offset? get localFingerPosition {
-    return localPosition != null
-        ? (localPosition ?? Offset.zero) + const Offset(0, -_fingerHeight)
-        : null;
+    return localPosition + const Offset(0, -_fingerHeight);
   }
 }
 
 class SwipeSessionState {
   const SwipeSessionState({
-    this.startPosition,
-    this.currentPosition,
-    this.localPosition,
+    required this.startPosition,
+    required this.currentPosition,
+    required this.localPosition,
   });
 
-  final Offset? startPosition;
-  final Offset? currentPosition;
-  final Offset? localPosition;
+  factory SwipeSessionState.notMoving() {
+    return const SwipeSessionState(
+      startPosition: Offset.zero,
+      currentPosition: Offset.zero,
+      localPosition: Offset.zero,
+    );
+  }
+
+  final Offset startPosition;
+  final Offset currentPosition;
+  final Offset localPosition;
 
   @override
   bool operator ==(Object other) =>
@@ -48,9 +51,9 @@ class SwipeSessionState {
   @override
   int get hashCode =>
       runtimeType.hashCode ^
-      (startPosition?.hashCode ?? null.hashCode) ^
-      (currentPosition?.hashCode ?? null.hashCode) ^
-      (localPosition?.hashCode ?? null.hashCode);
+      startPosition.hashCode ^
+      currentPosition.hashCode ^
+      localPosition.hashCode;
 
   @override
   String toString() => '$SwipeSessionState('
