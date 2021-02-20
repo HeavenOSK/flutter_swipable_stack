@@ -86,8 +86,9 @@ class _HomeState extends State<Home> {
                 final isDown = direction == SwipeDirection.down;
                 return Padding(
                   padding: EdgeInsets.symmetric(
-                    vertical: _bottomAreaHeight * 1.3,
                     horizontal: 16,
+                  ).copyWith(
+                    top: _bottomAreaHeight * 1.3,
                   ),
                   child: Stack(
                     children: [

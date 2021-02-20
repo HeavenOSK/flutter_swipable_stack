@@ -19,7 +19,7 @@ class SwipablePositioned extends StatelessWidget {
     required SwipeSessionState sessionState,
     required BoxConstraints areaConstraints,
     required Widget child,
-    required SwipeDirectionRate swipeDirectionRate,
+    required RatePerThreshold swipeDirectionRate,
   }) {
     return SwipablePositioned(
       key: const ValueKey('overlay'),
@@ -37,7 +37,7 @@ class SwipablePositioned extends StatelessWidget {
   final SwipeSessionState state;
   final Widget child;
   final BoxConstraints areaConstraints;
-  final SwipeDirectionRate swipeDirectionRate;
+  final RatePerThreshold swipeDirectionRate;
 
   Offset get _currentPositionDiff => state.difference;
 

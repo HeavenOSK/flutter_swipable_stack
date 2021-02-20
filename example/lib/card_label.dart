@@ -47,7 +47,7 @@ class CardLabel extends StatelessWidget {
       color: SwipeDirectionColor.down,
       label: 'DOWN',
       angle: -_labelAngle,
-      alignment: Alignment(0, -0.5),
+      alignment: Alignment(0, -0.75),
     );
   }
 

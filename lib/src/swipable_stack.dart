@@ -53,7 +53,7 @@ typedef SwipableStackOverlayBuilder = Widget Function(
 );
 
 extension SwipeSessionStateX on SwipeSessionState {
-  SwipeDirectionRate swipeDirectionRate({
+  RatePerThreshold swipeDirectionRate({
     required BoxConstraints constraints,
     required double horizontalSwipeThreshold,
     required double verticalSwipeThreshold,
@@ -64,13 +64,13 @@ extension SwipeSessionStateX on SwipeSessionState {
         (verticalSwipeThreshold / 2);
     final horizontalRateGreater = horizontalRate >= verticalRate;
     if (horizontalRateGreater) {
-      return SwipeDirectionRate(
+      return RatePerThreshold(
         direction:
             difference.dx >= 0 ? SwipeDirection.right : SwipeDirection.left,
         rate: horizontalRate,
       );
     } else {
-      return SwipeDirectionRate(
+      return RatePerThreshold(
         direction: difference.dy >= 0 ? SwipeDirection.down : SwipeDirection.up,
         rate: verticalRate,
       );
@@ -95,8 +95,8 @@ extension SwipeSessionStateX on SwipeSessionState {
   }
 }
 
-class SwipeDirectionRate {
-  SwipeDirectionRate({
+class RatePerThreshold {
+  RatePerThreshold({
     required this.direction,
     required this.rate,
   }) : assert(rate >= 0);
@@ -192,7 +192,36 @@ class SwipableStackState extends State<SwipableStack>
     }
   }
 
-  AnimationController preferredAnimationController({
+  Offset _offsetToAssist({
+    required Offset difference,
+    required BuildContext context,
+    required SwipeDirection swipeDirection,
+  }) {
+    final isHorizontal = swipeDirection.isHorizontal;
+    if (isHorizontal) {
+      final adjustedHorizontally = Offset(difference.dx * 2, difference.dy);
+      final absX = adjustedHorizontally.dx.abs();
+      final rate = _distanceToAssist(
+            swipeDirection: swipeDirection,
+            context: context,
+            difference: difference,
+          ) /
+          absX;
+      return adjustedHorizontally * rate;
+    } else {
+      final adjustedVertically = Offset(difference.dx, difference.dy * 2);
+      final absY = adjustedVertically.dy.abs();
+      final rate = _distanceToAssist(
+            swipeDirection: swipeDirection,
+            context: context,
+            difference: difference,
+          ) /
+          absY;
+      return adjustedVertically * rate;
+    }
+  }
+
+  AnimationController _swipeAssistController({
     required SwipeDirection swipeDirection,
     required Offset difference,
   }) {
@@ -422,6 +451,51 @@ class SwipableStackState extends State<SwipableStack>
     );
   }
 
+  void _swipeNext(SwipeDirection swipeDirection) {
+    final currentSession = _sessionState;
+    if (currentSession == null) {
+      return;
+    }
+    if (_animatingSwipeAssistController) {
+      return;
+    }
+    _animatingSwipeAssistController = true;
+    final controller = _swipeAssistController(
+      swipeDirection: swipeDirection,
+      difference: currentSession.difference,
+    );
+    final animation = _swipeAnimation(
+      controller: controller,
+      startPosition: currentSession.currentPosition,
+      endPosition: currentSession.currentPosition +
+          _offsetToAssist(
+            difference: currentSession.difference,
+            context: context,
+            swipeDirection: swipeDirection,
+          ),
+    );
+    void animate() {
+      _animatePosition(animation);
+    }
+
+    animation.addListener(animate);
+    controller.forward().then(
+      (_) {
+        widget.onSwipeCompleted?.call(
+          _currentIndex,
+          swipeDirection,
+        );
+        animation.removeListener(animate);
+        setState(() {
+          _currentIndex += 1;
+          _sessionState = null;
+          _animatingSwipeAssistController = false;
+        });
+        controller.dispose();
+      },
+    );
+  }
+
   /// This method not calls [SwipableStack.onWillMoveNext].
   void next({
     required SwipeDirection swipeDirection,
@@ -433,7 +507,7 @@ class SwipableStackState extends State<SwipableStack>
     _animatingSwipeAssistController = true;
     final startPosition = SwipeSessionState.notMoving();
     _sessionState = startPosition;
-    final controller = preferredAnimationController(
+    final controller = _swipeAssistController(
       swipeDirection: swipeDirection,
       difference: startPosition.difference,
     );
@@ -455,80 +529,6 @@ class SwipableStackState extends State<SwipableStack>
             swipeDirection,
           );
         }
-        animation.removeListener(animate);
-        setState(() {
-          _currentIndex += 1;
-          _sessionState = null;
-          _animatingSwipeAssistController = false;
-        });
-        controller.dispose();
-      },
-    );
-  }
-
-  Offset _calculateSwipeDistance({
-    required Offset difference,
-    required BuildContext context,
-    required SwipeDirection swipeDirection,
-  }) {
-    final isHorizontal = swipeDirection.isHorizontal;
-    if (isHorizontal) {
-      final adjustedHorizontally = Offset(difference.dx * 2, difference.dy);
-      final absX = adjustedHorizontally.dx.abs();
-      final rate = _distanceToAssist(
-            swipeDirection: swipeDirection,
-            context: context,
-            difference: difference,
-          ) /
-          absX;
-      return adjustedHorizontally * rate;
-    } else {
-      final adjustedVertically = Offset(difference.dx, difference.dy * 2);
-      final absY = adjustedVertically.dy.abs();
-      final rate = _distanceToAssist(
-            swipeDirection: swipeDirection,
-            context: context,
-            difference: difference,
-          ) /
-          absY;
-      return adjustedVertically * rate;
-    }
-  }
-
-  void _swipeNext(SwipeDirection swipeDirection) {
-    final currentSession = _sessionState;
-    if (currentSession == null) {
-      return;
-    }
-    if (_animatingSwipeAssistController) {
-      return;
-    }
-    _animatingSwipeAssistController = true;
-    final controller = preferredAnimationController(
-      swipeDirection: swipeDirection,
-      difference: currentSession.difference,
-    );
-    final animation = _swipeAnimation(
-      controller: controller,
-      startPosition: currentSession.currentPosition,
-      endPosition: currentSession.currentPosition +
-          _calculateSwipeDistance(
-            difference: currentSession.difference,
-            context: context,
-            swipeDirection: swipeDirection,
-          ),
-    );
-    void animate() {
-      _animatePosition(animation);
-    }
-
-    animation.addListener(animate);
-    controller.forward().then(
-      (_) {
-        widget.onSwipeCompleted?.call(
-          _currentIndex,
-          swipeDirection,
-        );
         animation.removeListener(animate);
         setState(() {
           _currentIndex += 1;
