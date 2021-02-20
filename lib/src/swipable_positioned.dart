@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:swipable_stack/src/swipable_stack.dart';
 
 import 'swipe_sesion_state.dart';
 
@@ -10,6 +11,7 @@ class SwipablePositioned extends StatelessWidget {
     required this.state,
     required this.areaConstraints,
     required this.child,
+    required this.swipeDirectionRate,
     Key? key,
   }) : super(key: key);
 
@@ -17,11 +19,14 @@ class SwipablePositioned extends StatelessWidget {
     required SwipeSessionState sessionState,
     required BoxConstraints areaConstraints,
     required Widget child,
+    required SwipeDirectionRate swipeDirectionRate,
   }) {
     return SwipablePositioned(
+      key: const ValueKey('overlay'),
       state: sessionState,
       index: 0,
       areaConstraints: areaConstraints,
+      swipeDirectionRate: swipeDirectionRate,
       child: IgnorePointer(
         child: child,
       ),
@@ -32,6 +37,7 @@ class SwipablePositioned extends StatelessWidget {
   final SwipeSessionState state;
   final Widget child;
   final BoxConstraints areaConstraints;
+  final SwipeDirectionRate swipeDirectionRate;
 
   Offset get _currentPositionDiff => state.difference;
 
@@ -40,20 +46,20 @@ class SwipablePositioned extends StatelessWidget {
   bool get _isSecond => index == 1;
 
   double get _rotationAngle => _isFirst
-      ? -_currentPositionDiff.dx / areaConstraints.maxWidth * math.pi / 24
+      ? calculateAngle(_currentPositionDiff.dx, areaConstraints.maxWidth)
       : 0;
+
+  static double calculateAngle(double differenceX, double areaWidth) {
+    return -differenceX / areaWidth * math.pi / 24;
+  }
 
   Offset get _rotationOrigin => _isFirst ? state.localPosition : Offset.zero;
 
-  static const double _animationRate = 0.05;
+  static const double _animationRate = 0.07;
 
-  double _animationProgress() {
-    final x = _currentPositionDiff.dx.abs();
-    final p = x / (areaConstraints.maxWidth * 0.4);
-    return Curves.easeOutCubic.transform(
-      math.min(p.toDouble(), 1),
-    );
-  }
+  double _animationProgress() => Curves.easeOutCubic.transform(
+        swipeDirectionRate.animationValue,
+      );
 
   BoxConstraints _constraints(BuildContext context) {
     if (_isFirst) {
