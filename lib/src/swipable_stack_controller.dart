@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swipable_stack/src/swipe_session_state.dart';
+import 'package:swipable_stack/src/swipe_session.dart';
 
 import 'swipable_stack.dart';
 
@@ -22,29 +22,29 @@ class SwipableStackController extends ChangeNotifier {
     }
   }
 
-  SwipeSessionState? _currentSessionState;
+  SwipeSession? _currentSessionState;
 
-  SwipeSessionState? get currentSessionState => _currentSessionState;
+  SwipeSession? get currentSession => _currentSessionState;
 
-  set currentSessionState(SwipeSessionState? newValue) {
+  set currentSession(SwipeSession? newValue) {
     if (_currentSessionState != newValue) {
       _currentSessionState = newValue;
       notifyListeners();
     }
   }
 
-  SwipeSessionState? _previousSessionState;
+  SwipeSession? _previousSession;
 
-  SwipeSessionState? get previousSessionState => _previousSessionState;
+  SwipeSession? get previousSession => _previousSession;
 
-  set previousSessionState(SwipeSessionState? newValue) {
-    if (_previousSessionState != newValue) {
-      _previousSessionState = newValue;
+  set previousSession(SwipeSession? newValue) {
+    if (_previousSession != newValue) {
+      _previousSession = newValue;
       notifyListeners();
     }
   }
 
-  bool get canRewind => previousSessionState != null;
+  bool get canRewind => previousSession != null;
 
   void moveNext({
     required SwipeDirection swipeDirection,
