@@ -58,7 +58,7 @@ class SwipablePositioned extends StatelessWidget {
   static const double _animationRate = 0.07;
 
   double _animationProgress() => Curves.easeOutCubic.transform(
-        swipeDirectionRate.animationValue,
+        math.min(swipeDirectionRate.rate, 1),
       );
 
   BoxConstraints _constraints(BuildContext context) {
