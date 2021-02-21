@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:swipable_stack/src/swipable_stack.dart';
 
+import 'swipe_rate_per_threshold.dart';
 import 'swipe_session_state.dart';
 
 class SwipablePositioned extends StatelessWidget {
@@ -12,19 +12,23 @@ class SwipablePositioned extends StatelessWidget {
     required this.areaConstraints,
     required this.child,
     required this.swipeDirectionRate,
+    required this.viewFraction,
     Key? key,
-  }) : super(key: key);
+  })  : assert(0 <= viewFraction && viewFraction <= 1),
+        super(key: key);
 
   static Widget overlay({
     required SwipeSessionState sessionState,
     required BoxConstraints areaConstraints,
     required Widget child,
-    required RatePerThreshold swipeDirectionRate,
+    required SwipeRatePerThreshold swipeDirectionRate,
+    required double viewFraction,
   }) {
     return SwipablePositioned(
       key: const ValueKey('overlay'),
       state: sessionState,
       index: 0,
+      viewFraction: viewFraction,
       areaConstraints: areaConstraints,
       swipeDirectionRate: swipeDirectionRate,
       child: IgnorePointer(
@@ -37,7 +41,8 @@ class SwipablePositioned extends StatelessWidget {
   final SwipeSessionState state;
   final Widget child;
   final BoxConstraints areaConstraints;
-  final RatePerThreshold swipeDirectionRate;
+  final SwipeRatePerThreshold swipeDirectionRate;
+  final double viewFraction;
 
   Offset get _currentPositionDiff => state.difference;
 
@@ -55,7 +60,7 @@ class SwipablePositioned extends StatelessWidget {
 
   Offset get _rotationOrigin => _isFirst ? state.localPosition : Offset.zero;
 
-  static const double _animationRate = 0.08;
+  double get _animationRate => 1 - viewFraction;
 
   double _animationProgress() => Curves.easeOutCubic.transform(
         math.min(swipeDirectionRate.rate, 1),
