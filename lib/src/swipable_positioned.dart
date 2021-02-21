@@ -55,7 +55,7 @@ class SwipablePositioned extends StatelessWidget {
 
   Offset get _rotationOrigin => _isFirst ? state.localPosition : Offset.zero;
 
-  static const double _animationRate = 0.07;
+  static const double _animationRate = 0.08;
 
   double _animationProgress() => Curves.easeOutCubic.transform(
         math.min(swipeDirectionRate.rate, 1),

@@ -200,36 +200,34 @@ class SwipableStackState extends State<SwipableStack>
     final deviceSize = MediaQuery.of(context).size;
     if (swipeDirection.isHorizontal) {
       double _remainingDistance({
-        required double differenceX,
+        required double moveDistance,
         required double maxWidth,
         required double maxHeight,
       }) {
         final remaining = SwipablePositioned.calculateAngle(
-          differenceX,
+          moveDistance,
           maxWidth,
         ).abs();
         final remainingDistance = math.cos(math.pi / 2 - remaining) * maxHeight;
+        final totalDistance = moveDistance - remainingDistance;
 
-        return remainingDistance < 1
-            ? 1
-            : remainingDistance +
-                _remainingDistance(
-                  differenceX: remainingDistance,
-                  maxWidth: maxWidth,
-                  maxHeight: maxHeight,
-                );
+        return maxWidth - totalDistance < 1
+            ? moveDistance
+            : _remainingDistance(
+                moveDistance: moveDistance + remainingDistance,
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              );
       }
 
       final maxWidth = _areConstraints?.maxWidth ?? deviceSize.width;
       final maxHeight = _areConstraints?.maxHeight ?? deviceSize.height;
-
-      return deviceSize.width -
-          difference.dx.abs() +
-          _remainingDistance(
-            differenceX: maxWidth,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          );
+      final remainingDist = _remainingDistance(
+        moveDistance: maxWidth,
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+      );
+      return remainingDist - difference.dx.abs();
     } else {
       return deviceSize.height - difference.dy.abs();
     }
