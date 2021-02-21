@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'swipable_positioned.dart';
 import 'swipable_stack_controller.dart';
-import 'swipe_sesion_state.dart';
+import 'swipe_session_state.dart';
 
 extension _Animating on AnimationController {
   bool get animating =>

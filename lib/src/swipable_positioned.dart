@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/src/swipable_stack.dart';
 
-import 'swipe_sesion_state.dart';
+import 'swipe_session_state.dart';
 
 class SwipablePositioned extends StatelessWidget {
   const SwipablePositioned({
