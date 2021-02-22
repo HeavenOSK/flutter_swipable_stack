@@ -501,7 +501,7 @@ class SwipableStackState extends State<SwipableStack>
 
   /// Rewind
   void rewind() {
-    if (widget.controller.canRewind) {
+    if (!widget.controller.canRewind) {
       return;
     }
 
