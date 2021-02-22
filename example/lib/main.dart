@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:example/card_label.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
@@ -26,9 +28,9 @@ extension SwipeDirecionX on SwipeDirection {
 }
 
 const _images = [
+  'images/image_5.jpg',
   'images/image_3.jpg',
   'images/image_4.jpg',
-  'images/image_5.jpg',
 ];
 
 void main() {
@@ -58,18 +60,27 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final double _bottomAreaHeight = 100;
   SwipableStackController _controller;
+
+  void _listenController() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller = SwipableStackController();
+    _controller = SwipableStackController()..addListener(_listenController);
   }
+
+  static const double _bottomPadding = 100;
+  static const double _topPadding = 60;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('currentIndex:${_controller.currentIndex}'),
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -78,53 +89,55 @@ class _HomeState extends State<Home> {
               onSwipeCompleted: (index, direction) {
                 print('$index, $direction');
               },
-              overlayBuilder: (direction, value) {
+              overlayBuilder: (constraints, direction, valuePerThreshold) {
+                print('valuePerThreshold:$valuePerThreshold');
+                final opacity = min(valuePerThreshold, 1.0);
+
                 final isRight = direction == SwipeDirection.right;
                 final isLeft = direction == SwipeDirection.left;
-
                 final isUp = direction == SwipeDirection.up;
                 final isDown = direction == SwipeDirection.down;
                 return Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16,
                   ).copyWith(
-                    top: _bottomAreaHeight * 1.3,
+                    top: _topPadding + 16,
                   ),
                   child: Stack(
                     children: [
                       Opacity(
-                        opacity: isRight ? value : 0,
+                        opacity: isRight ? opacity : 0,
                         child: CardLabel.right(),
                       ),
                       Opacity(
-                        opacity: isLeft ? value : 0,
+                        opacity: isLeft ? opacity : 0,
                         child: CardLabel.left(),
                       ),
                       Opacity(
-                        opacity: isUp ? value : 0,
+                        opacity: isUp ? opacity : 0,
                         child: CardLabel.up(),
                       ),
                       Opacity(
-                        opacity: isDown ? value : 0,
+                        opacity: isDown ? opacity : 0,
                         child: CardLabel.down(),
                       ),
                     ],
                   ),
                 );
               },
-              builder: (_, index) {
+              builder: (context, index, constraints) {
                 final imagePath = _images[index % _images.length];
                 return Padding(
-                  key: ValueKey(imagePath),
                   padding: EdgeInsets.symmetric(
                     horizontal: 16,
+                  ).copyWith(
+                    top: _topPadding,
+                    bottom: _bottomPadding,
                   ),
-                  child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        imagePath,
-                      ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      imagePath,
                     ),
                   ),
                 );
@@ -133,16 +146,27 @@ class _HomeState extends State<Home> {
             Align(
               alignment: Alignment.bottomCenter,
               child: SizedBox(
-                height: _bottomAreaHeight,
+                height: _bottomPadding,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _BottomButton(
+                      color: _controller.canRewind
+                          ? Colors.amberAccent
+                          : Colors.grey,
+                      child: const Icon(Icons.refresh),
+                      onPressed: _controller.canRewind
+                          ? () {
+                              _controller.rewind();
+                            }
+                          : null,
+                    ),
+                    _BottomButton(
                       color: SwipeDirectionColor.left,
                       child: const Icon(Icons.arrow_back),
                       onPressed: () {
-                        _controller.moveNext(
+                        _controller.next(
                           swipeDirection: SwipeDirection.left,
                         );
                       },
@@ -150,7 +174,7 @@ class _HomeState extends State<Home> {
                     _BottomButton(
                       color: SwipeDirectionColor.up,
                       onPressed: () {
-                        _controller.moveNext(
+                        _controller.next(
                           swipeDirection: SwipeDirection.up,
                         );
                       },
@@ -159,7 +183,7 @@ class _HomeState extends State<Home> {
                     _BottomButton(
                       color: SwipeDirectionColor.right,
                       onPressed: () {
-                        _controller.moveNext(
+                        _controller.next(
                           swipeDirection: SwipeDirection.right,
                         );
                       },
@@ -168,7 +192,7 @@ class _HomeState extends State<Home> {
                     _BottomButton(
                       color: SwipeDirectionColor.down,
                       onPressed: () {
-                        _controller.moveNext(
+                        _controller.next(
                           swipeDirection: SwipeDirection.down,
                         );
                       },
@@ -182,6 +206,13 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.removeListener(_listenController);
+    _controller.dispose();
   }
 }
 
