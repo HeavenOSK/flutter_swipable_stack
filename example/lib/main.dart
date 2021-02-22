@@ -90,7 +90,6 @@ class _HomeState extends State<Home> {
                 print('$index, $direction');
               },
               overlayBuilder: (constraints, direction, valuePerThreshold) {
-                print('valuePerThreshold:$valuePerThreshold');
                 final opacity = min(valuePerThreshold, 1.0);
 
                 final isRight = direction == SwipeDirection.right;
