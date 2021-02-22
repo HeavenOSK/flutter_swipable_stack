@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-const double _fingerHeight = 50;
+import 'swipe_session.dart';
 
 /// The type of Action to use in [SwipeableStack].
 enum SwipeDirection {
@@ -10,77 +10,6 @@ enum SwipeDirection {
   right,
   up,
   down,
-}
-
-class _SwipeRatePerThreshold {
-  _SwipeRatePerThreshold({
-    required this.direction,
-    required this.rate,
-  }) : assert(rate >= 0);
-
-  final SwipeDirection direction;
-  final double rate;
-}
-
-/// The information to record swiping position for [SwipableStack].
-class _SwipeSession {
-  const _SwipeSession({
-    required this.startPosition,
-    required this.currentPosition,
-    required this.localPosition,
-  });
-
-  factory _SwipeSession.notMoving() {
-    return const _SwipeSession(
-      startPosition: Offset.zero,
-      currentPosition: Offset.zero,
-      localPosition: Offset.zero,
-    );
-  }
-
-  final Offset startPosition;
-  final Offset currentPosition;
-  final Offset localPosition;
-
-  @override
-  bool operator ==(Object other) =>
-      other is _SwipeSession &&
-      startPosition == other.startPosition &&
-      currentPosition == other.currentPosition &&
-      localPosition == other.localPosition;
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      startPosition.hashCode ^
-      currentPosition.hashCode ^
-      localPosition.hashCode;
-
-  @override
-  String toString() => '$_SwipeSession('
-      'startPosition:$startPosition,'
-      'currentPosition:$currentPosition,'
-      'localPosition:$localPosition'
-      ')';
-
-  _SwipeSession copyWith({
-    Offset? startPosition,
-    Offset? currentPosition,
-    Offset? localPosition,
-  }) =>
-      _SwipeSession(
-        startPosition: startPosition ?? this.startPosition,
-        currentPosition: currentPosition ?? this.currentPosition,
-        localPosition: localPosition ?? this.localPosition,
-      );
-
-  Offset get difference {
-    return currentPosition - startPosition;
-  }
-
-  Offset? get localFingerPosition {
-    return localPosition + const Offset(0, -_fingerHeight);
-  }
 }
 
 /// An object to manipulate the [SwipableStack].
@@ -105,28 +34,28 @@ class SwipableStackController extends ChangeNotifier {
     }
   }
 
-  _SwipeSession? _currentSessionState;
+  SwipeSession? _currentSessionState;
 
   /// The current session that user swipes.
   ///
   /// If you doesn't touch or finished the session, It would be null.
-  _SwipeSession? get currentSession => _currentSessionState;
+  SwipeSession? get currentSession => _currentSessionState;
 
-  set currentSession(_SwipeSession? newValue) {
+  set currentSession(SwipeSession? newValue) {
     if (_currentSessionState != newValue) {
       _currentSessionState = newValue;
       notifyListeners();
     }
   }
 
-  _SwipeSession? _previousSession;
+  SwipeSession? _previousSession;
 
   /// The previous session that user swipes.
   ///
   /// The recent previous session would be registered.
-  _SwipeSession? get previousSession => _previousSession;
+  SwipeSession? get previousSession => _previousSession;
 
-  set previousSession(_SwipeSession? newValue) {
+  set previousSession(SwipeSession? newValue) {
     if (_previousSession != newValue) {
       _previousSession = newValue;
       notifyListeners();
@@ -154,6 +83,16 @@ class SwipableStackController extends ChangeNotifier {
   void rewind() {
     swipableStackStateKey.currentState?._rewind();
   }
+}
+
+class _SwipeRatePerThreshold {
+  _SwipeRatePerThreshold({
+    required this.direction,
+    required this.rate,
+  }) : assert(rate >= 0);
+
+  final SwipeDirection direction;
+  final double rate;
 }
 
 extension _SwipeDirectionX on SwipeDirection {
@@ -209,7 +148,7 @@ extension _AnimationControllerX on AnimationController {
   }
 }
 
-extension _SwipeSessionX on _SwipeSession {
+extension _SwipeSessionX on SwipeSession {
   _SwipeRatePerThreshold swipeDirectionRate({
     required BoxConstraints constraints,
     required double horizontalSwipeThreshold,
@@ -468,16 +407,16 @@ class _SwipableStackState extends State<SwipableStack>
   AnimationController? _swipeAssistController;
 
   /// The current session of swipe action.
-  _SwipeSession? get currentSession => widget.controller.currentSession;
+  SwipeSession? get currentSession => widget.controller.currentSession;
 
-  set currentSession(_SwipeSession? newValue) {
+  set currentSession(SwipeSession? newValue) {
     widget.controller.currentSession = newValue;
   }
 
   /// The previous session of swipe action.
-  _SwipeSession? get previousSession => widget.controller.previousSession;
+  SwipeSession? get previousSession => widget.controller.previousSession;
 
-  set previousSession(_SwipeSession? newValue) {
+  set previousSession(SwipeSession? newValue) {
     widget.controller.previousSession = newValue;
   }
 
@@ -546,7 +485,7 @@ class _SwipableStackState extends State<SwipableStack>
           swipeDirectionRate.rate,
         );
         if (overlay != null) {
-          final session = currentSession ?? _SwipeSession.notMoving();
+          final session = currentSession ?? SwipeSession.notMoving();
           positionedCards.add(
             _SwipablePositioned.overlay(
               viewFraction: widget.viewFraction,
@@ -568,7 +507,7 @@ class _SwipableStackState extends State<SwipableStack>
     required Widget child,
     required BoxConstraints constraints,
   }) {
-    final session = currentSession ?? _SwipeSession.notMoving();
+    final session = currentSession ?? SwipeSession.notMoving();
     return _SwipablePositioned(
       key: child.key ?? ValueKey(currentIndex + index),
       session: session,
@@ -594,7 +533,7 @@ class _SwipableStackState extends State<SwipableStack>
           }
           widget.controller.previousSession;
 
-          currentSession = _SwipeSession(
+          currentSession = SwipeSession(
             localPosition: d.localPosition,
             startPosition: d.globalPosition,
             currentPosition: d.globalPosition,
@@ -613,7 +552,7 @@ class _SwipableStackState extends State<SwipableStack>
             currentPosition: d.globalPosition,
           );
           currentSession = updated ??
-              _SwipeSession(
+              SwipeSession(
                 localPosition: d.localPosition,
                 startPosition: d.globalPosition,
                 currentPosition: d.globalPosition,
@@ -792,7 +731,7 @@ class _SwipableStackState extends State<SwipableStack>
     if (_animatingSwipeAssistController) {
       return;
     }
-    final startPosition = _SwipeSession.notMoving();
+    final startPosition = SwipeSession.notMoving();
     currentSession = startPosition;
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
@@ -867,7 +806,7 @@ class _SwipablePositioned extends StatelessWidget {
         super(key: key);
 
   static Widget overlay({
-    required _SwipeSession session,
+    required SwipeSession session,
     required BoxConstraints areaConstraints,
     required Widget child,
     required _SwipeRatePerThreshold swipeDirectionRate,
@@ -887,7 +826,7 @@ class _SwipablePositioned extends StatelessWidget {
   }
 
   final int index;
-  final _SwipeSession session;
+  final SwipeSession session;
   final Widget child;
   final BoxConstraints areaConstraints;
   final _SwipeRatePerThreshold swipeDirectionRate;
