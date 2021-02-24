@@ -234,7 +234,7 @@ class SwipableStack extends StatefulWidget {
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
         assert(0 <= verticalSwipeThreshold && verticalSwipeThreshold <= 1),
-        assert(itemCount == null || itemCount > 0),
+        assert(itemCount == null || itemCount >= 0),
         super(key: controller?.swipableStackStateKey);
 
   /// Builder for items to be displayed in [SwipableStack].
@@ -603,10 +603,9 @@ class _SwipableStackState extends State<SwipableStack>
       return;
     }
 
-    setState(() {
-      currentSession = previousSession;
-      currentIndex -= 1;
-    });
+    currentSession = previousSession;
+    currentIndex -= 1;
+
     final previousPosition = previousSession?.currentPosition;
     final startPosition = previousSession?.startPosition;
     if (previousPosition == null || startPosition == null) {
