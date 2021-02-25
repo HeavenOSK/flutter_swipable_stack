@@ -11,3 +11,5 @@
 ## [0.1.1] Bug fix.
 
 ## [0.1.1-nullsafety.0] Migrate 0.1.1 to nullsafety
+
+## [0.1.2-nullsafety.2] Add caring about unbound height or width.
