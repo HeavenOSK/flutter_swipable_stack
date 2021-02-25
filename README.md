@@ -2,6 +2,7 @@
 A widget for stacking cards, which users can swipe horizontally and vertically with beautiful animations.
 
 <img src='https://user-images.githubusercontent.com/19836917/109180799-9adbda80-77ce-11eb-88e0-dbd8ad50df7d.gif' width=400px>
+ 
 # Usage
 ## `builder`
 A `SwipableStack` uses a builder to display widgets.
