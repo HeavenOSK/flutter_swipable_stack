@@ -16,4 +16,6 @@
 
 ## [0.1.2-nullsafety.2] Add caring about unbound height or width.
 
-## [0.2.0] Remove the suffix `nullsafety`. Fix README. 
+## [0.2.0] Remove the suffix `nullsafety`. Fix README.
+
+## [0.2.1] Fix typo.
