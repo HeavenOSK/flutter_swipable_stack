@@ -3,7 +3,7 @@ A widget for stacking cards, which users can swipe horizontally and vertically w
 
 <img src='https://user-images.githubusercontent.com/19836917/109180799-9adbda80-77ce-11eb-88e0-dbd8ad50df7d.gif' width=400px>
  
-(Sorry, the package name `swipable_stack` is type of `swipeable_stack`)
+(Sorry, the package name `swipable_stack` is type of swipeable stack)
  
 # Usage
 ## `builder`
