@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'swipable_stack.dart';
+
 const double _fingerHeight = 50;
 
-/// The information to record swiping position for [SwipableStack].
+/// The information to record swiping position for [SwipeableStack].
 class SwipeSession {
   const SwipeSession({
     required this.startPosition,
