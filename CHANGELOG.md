@@ -19,3 +19,9 @@
 ## [0.2.0] Remove the suffix `nullsafety`. Fix README.
 
 ## [0.2.1] Fix typo.
+
+## [0.3.0]
+- Breaking changes: 
+  - Rename from SwipableStack to SwipeableStack.
+  - Rename from SwipableStackController to SwipeableStackController.
+- Refactor duration initialization for _swipeAssistController.
