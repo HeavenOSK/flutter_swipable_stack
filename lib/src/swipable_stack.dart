@@ -303,6 +303,10 @@ class _SwipableStackState extends State<SwipableStack>
     duration: const Duration(milliseconds: 500),
   );
 
+  late final AnimationController _swipeAssistController = AnimationController(
+    vsync: this,
+  );
+
   double _distanceToAssist({
     required BuildContext context,
     required Offset difference,
@@ -375,18 +379,15 @@ class _SwipableStackState extends State<SwipableStack>
     }
   }
 
-  AnimationController _getSwipeAssistController({
+  Duration _getSwipeAssistDuration({
     required SwipeDirection swipeDirection,
     required Offset difference,
     required double distToAssist,
   }) {
     final pixelPerMilliseconds = swipeDirection.isHorizontal ? 1.25 : 2.0;
 
-    return AnimationController(
-      vsync: this,
-      duration: Duration(
-        milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 500),
-      ),
+    return Duration(
+      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 500),
     );
   }
 
@@ -397,8 +398,7 @@ class _SwipableStackState extends State<SwipableStack>
     widget.controller.currentIndex = newValue;
   }
 
-  bool get _animatingSwipeAssistController => _swipeAssistController != null;
-  AnimationController? _swipeAssistController;
+  bool get _animatingSwipeAssistController => _swipeAssistController.animating;
 
   /// The current session of swipe action.
   SwipeSession? get currentSession => widget.controller.currentSession;
@@ -681,13 +681,13 @@ class _SwipableStackState extends State<SwipableStack>
       context: context,
       difference: session.difference,
     );
-    _swipeAssistController = _getSwipeAssistController(
+    _swipeAssistController.duration = _getSwipeAssistDuration(
       distToAssist: distToAssist,
       swipeDirection: swipeDirection,
       difference: session.difference,
     );
 
-    final animation = _swipeAssistController?.swipeAnimation(
+    final animation = _swipeAssistController.swipeAnimation(
       startPosition: session.currentPosition,
       endPosition: session.currentPosition +
           _offsetToAssist(
@@ -697,31 +697,25 @@ class _SwipableStackState extends State<SwipableStack>
             swipeDirection: swipeDirection,
           ),
     );
-    if (animation == null) {
-      return;
-    }
+
     void animate() {
       _animatePosition(animation);
     }
 
     animation.addListener(animate);
-    _swipeAssistController?.forward().then(
+    _swipeAssistController.forward(from: 0).then(
       (_) {
         animation.removeListener(animate);
         widget.onSwipeCompleted?.call(
           currentIndex,
           swipeDirection,
         );
-        _swipeAssistController?.dispose();
-        _swipeAssistController = null;
         previousSession = currentSession?.copyWith();
         currentIndex += 1;
         currentSession = null;
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);
-      _swipeAssistController?.dispose();
-      _swipeAssistController = null;
       currentSession = null;
     });
   }
@@ -744,13 +738,13 @@ class _SwipableStackState extends State<SwipableStack>
       context: context,
       difference: startPosition.difference,
     );
-    _swipeAssistController = _getSwipeAssistController(
+    _swipeAssistController.duration = _getSwipeAssistDuration(
       distToAssist: distToAssist,
       swipeDirection: swipeDirection,
       difference: startPosition.difference,
     );
 
-    final animation = _swipeAssistController?.swipeAnimation(
+    final animation = _swipeAssistController.swipeAnimation(
       startPosition: startPosition.currentPosition,
       endPosition: _offsetToAssist(
         distToAssist: distToAssist,
@@ -759,15 +753,13 @@ class _SwipableStackState extends State<SwipableStack>
         swipeDirection: swipeDirection,
       ),
     );
-    if (animation == null) {
-      return;
-    }
+
     void animate() {
       _animatePosition(animation);
     }
 
     animation.addListener(animate);
-    _swipeAssistController?.forward().then(
+    _swipeAssistController.forward(from: 0).then(
       (_) {
         if (shouldCallCompletionCallback) {
           widget.onSwipeCompleted?.call(
@@ -776,16 +768,12 @@ class _SwipableStackState extends State<SwipableStack>
           );
         }
         animation.removeListener(animate);
-        _swipeAssistController?.dispose();
-        _swipeAssistController = null;
         previousSession = currentSession?.copyWith();
         currentIndex += 1;
         currentSession = null;
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);
-      _swipeAssistController?.dispose();
-      _swipeAssistController = null;
       currentSession = null;
     });
   }
@@ -793,7 +781,7 @@ class _SwipableStackState extends State<SwipableStack>
   @override
   void dispose() {
     _swipeCancelAnimationController.dispose();
-    _swipeAssistController?.dispose();
+    _swipeAssistController.dispose();
     widget.controller.removeListener(_listenController);
     super.dispose();
   }
