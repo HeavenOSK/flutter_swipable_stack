@@ -7,9 +7,9 @@ A widget for stacking cards, which users can swipe horizontally and vertically w
  
 # Usage
 ## `builder`
-A `SwipableStack` uses a builder to display widgets.
+A `SwipeableStack` uses a builder to display widgets.
 ```dart
-SwipableStack(
+SwipeableStack(
   builder: (context, index, constraints) {
     return Image.asset(imagePath);
   },
@@ -18,7 +18,7 @@ SwipableStack(
 ## `onSwipeCompleted`
 You can get completion event with `onSwipeCompleted`.
 ```dart
-SwipableStack(
+SwipeableStack(
   onSwipeCompleted: (index, direction) {
     print('$index, $direction');
   },
@@ -28,7 +28,7 @@ SwipableStack(
 ## `overlayBuilder`
 You can show overlay on the front card with `overlayBuilder`.
 ```dart
-SwipableStack(
+SwipeableStack(
   overlayBuilder: (constraints, direction, valuePerThreshold) {
     final opacity = min(valuePerThreshold, 1.0);
     final isRight = direction == SwipeDirection.right;
@@ -41,12 +41,12 @@ SwipableStack(
 ```
 
 ## `controller`
-`SwipableStackController` allows you to control swipe action & also rewind recent action.
+`SwipeableStackController` allows you to control swipe action & also rewind recent action.
  
 ```dart
-final controller = SwipableStackController();
+final controller = SwipeableStackController();
 
-SwipableStack(
+SwipeableStack(
   controller:controller,
   builder: (context, index, constraints) {
     return Image.asset(imagePath);
@@ -58,9 +58,9 @@ controller.next(
 controller.rewind();
 ```
 
-`SwipableStackController` provides to access `currentIndex` of `SwipableStack`.
+`SwipeableStackController` provides to access `currentIndex` of `SwipeableStack`.
 ```dart
-final controller = SwipableStackController();
+final controller = SwipeableStackController();
 controller.addListener(() {
   print('${_controller.currentIndex}');
 });
@@ -69,7 +69,7 @@ controller.addListener(() {
 ## `onWillMoveNext`
 You can also restrict user actions according to index or action with `onWillMoveNext`.
 ```dart
-SwipableStack(
+SwipeableStack(
   onWillMoveNext: (index, direction) {
     final allowedActions = [
       SwipeDirection.right,
