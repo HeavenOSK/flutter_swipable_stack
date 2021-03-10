@@ -609,12 +609,9 @@ class _SwipeableStackState extends State<SwipeableStack>
     currentSession = previousSession;
     currentIndex -= 1;
 
-    final previousPosition = previousSession.currentPosition;
-    final startPosition = previousSession.startPosition;
-
     final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
-      startPosition: startPosition,
-      currentPosition: previousPosition,
+      startPosition: previousSession.startPosition,
+      currentPosition: previousSession.currentPosition,
     );
     void _animate() {
       _animatePosition(cancelAnimation);
