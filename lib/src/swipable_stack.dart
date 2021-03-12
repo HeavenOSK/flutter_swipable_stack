@@ -596,32 +596,22 @@ class _SwipeableStackState extends State<SwipeableStack>
   }
 
   void _animatePosition(Animation<Offset> positionAnimation) {
-    final session = currentSession;
-    if (session == null) {
-      return;
-    }
-    currentSession = session.copyWith(
+    currentSession = currentSession?.copyWith(
       currentPosition: positionAnimation.value,
     );
   }
 
   void _rewind() {
-    if (!widget.controller.canRewind) {
+    final previousSession = this.previousSession;
+    if (previousSession == null) {
       return;
     }
-
     currentSession = previousSession;
     currentIndex -= 1;
 
-    final previousPosition = previousSession?.currentPosition;
-    final startPosition = previousSession?.startPosition;
-    if (previousPosition == null || startPosition == null) {
-      return;
-    }
-
     final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
-      startPosition: startPosition,
-      currentPosition: previousPosition,
+      startPosition: previousSession.startPosition,
+      currentPosition: previousSession.currentPosition,
     );
     void _animate() {
       _animatePosition(cancelAnimation);
@@ -631,24 +621,24 @@ class _SwipeableStackState extends State<SwipeableStack>
     _swipeCancelAnimationController.forward(from: 0).then(
       (_) {
         cancelAnimation.removeListener(_animate);
-        previousSession = null;
+        this.previousSession = null;
         currentSession = null;
       },
     ).catchError((dynamic c) {
       cancelAnimation.removeListener(_animate);
-      previousSession = null;
+      this.previousSession = null;
       currentSession = null;
     });
   }
 
   void _cancelSwipe() {
-    final session = currentSession;
-    if (session == null) {
+    final currentSession = this.currentSession;
+    if (currentSession == null) {
       return;
     }
     final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
-      startPosition: session.startPosition,
-      currentPosition: session.currentPosition,
+      startPosition: currentSession.startPosition,
+      currentPosition: currentSession.currentPosition,
     );
     void _animate() {
       _animatePosition(cancelAnimation);
@@ -658,19 +648,17 @@ class _SwipeableStackState extends State<SwipeableStack>
     _swipeCancelAnimationController.forward(from: 0).then(
       (_) {
         cancelAnimation.removeListener(_animate);
-
-        currentSession = null;
+        this.currentSession = null;
       },
     ).catchError((dynamic c) {
       cancelAnimation.removeListener(_animate);
-
-      currentSession = null;
+      this.currentSession = null;
     });
   }
 
   void _swipeNext(SwipeDirection swipeDirection) {
-    final session = currentSession;
-    if (session == null) {
+    final currentSession = this.currentSession;
+    if (currentSession == null) {
       return;
     }
     if (_animatingSwipeAssistController) {
@@ -679,20 +667,20 @@ class _SwipeableStackState extends State<SwipeableStack>
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
       context: context,
-      difference: session.difference,
+      difference: currentSession.difference,
     );
     _swipeAssistController.duration = _getSwipeAssistDuration(
       distToAssist: distToAssist,
       swipeDirection: swipeDirection,
-      difference: session.difference,
+      difference: currentSession.difference,
     );
 
     final animation = _swipeAssistController.swipeAnimation(
-      startPosition: session.currentPosition,
-      endPosition: session.currentPosition +
+      startPosition: currentSession.currentPosition,
+      endPosition: currentSession.currentPosition +
           _offsetToAssist(
             distToAssist: distToAssist,
-            difference: session.difference,
+            difference: currentSession.difference,
             context: context,
             swipeDirection: swipeDirection,
           ),
@@ -710,13 +698,13 @@ class _SwipeableStackState extends State<SwipeableStack>
           currentIndex,
           swipeDirection,
         );
-        previousSession = currentSession?.copyWith();
+        previousSession = currentSession.copyWith();
         currentIndex += 1;
-        currentSession = null;
+        this.currentSession = null;
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);
-      currentSession = null;
+      this.currentSession = null;
     });
   }
 
