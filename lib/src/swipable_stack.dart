@@ -314,6 +314,12 @@ class _SwipeableStackState extends State<SwipeableStack>
     vsync: this,
   );
 
+  late final AnimationController _rewindAnimationController =
+      AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 600),
+  );
+
   double _distanceToAssist({
     required BuildContext context,
     required Offset difference,
@@ -326,7 +332,7 @@ class _SwipeableStackState extends State<SwipeableStack>
         required double maxWidth,
         required double maxHeight,
       }) {
-        final cardAngle = _SwipablePositioned.calculateAngle(
+        final cardAngle = _SwipeablePositioned.calculateAngle(
           moveDistance,
           maxWidth,
         ).abs();
@@ -503,7 +509,7 @@ class _SwipeableStackState extends State<SwipeableStack>
         if (overlay != null) {
           final session = currentSession ?? SwipeSession.notMoving();
           positionedCards.add(
-            _SwipablePositioned.overlay(
+            _SwipeablePositioned.overlay(
               viewFraction: widget.viewFraction,
               session: session,
               swipeDirectionRate: swipeDirectionRate,
@@ -524,7 +530,7 @@ class _SwipeableStackState extends State<SwipeableStack>
     required BoxConstraints constraints,
   }) {
     final session = currentSession ?? SwipeSession.notMoving();
-    return _SwipablePositioned(
+    return _SwipeablePositioned(
       key: child.key ?? ValueKey(currentIndex + index),
       session: session,
       index: index,
@@ -618,7 +624,7 @@ class _SwipeableStackState extends State<SwipeableStack>
     currentSession = previousSession;
     currentIndex -= 1;
 
-    final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
+    final cancelAnimation = _rewindAnimationController.cancelAnimation(
       startPosition: previousSession.startPosition,
       currentPosition: previousSession.currentPosition,
     );
@@ -627,7 +633,7 @@ class _SwipeableStackState extends State<SwipeableStack>
     }
 
     cancelAnimation.addListener(_animate);
-    _swipeCancelAnimationController.forward(from: 0).then(
+    _rewindAnimationController.forward(from: 0).then(
       (_) {
         cancelAnimation.removeListener(_animate);
         this.previousSession = null;
@@ -787,13 +793,14 @@ class _SwipeableStackState extends State<SwipeableStack>
   void dispose() {
     _swipeCancelAnimationController.dispose();
     _swipeAssistController.dispose();
+    _rewindAnimationController.dispose();
     widget.controller.removeListener(_listenController);
     super.dispose();
   }
 }
 
-class _SwipablePositioned extends StatelessWidget {
-  const _SwipablePositioned({
+class _SwipeablePositioned extends StatelessWidget {
+  const _SwipeablePositioned({
     required this.index,
     required this.session,
     required this.areaConstraints,
@@ -811,7 +818,7 @@ class _SwipablePositioned extends StatelessWidget {
     required _SwipeRatePerThreshold swipeDirectionRate,
     required double viewFraction,
   }) {
-    return _SwipablePositioned(
+    return _SwipeablePositioned(
       key: const ValueKey('overlay'),
       session: session,
       index: 0,
