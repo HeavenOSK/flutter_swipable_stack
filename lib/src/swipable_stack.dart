@@ -217,9 +217,11 @@ typedef SwipeableStackItemBuilder = Widget Function(
 
 /// Builder for displaying an overlay on the most foreground card.
 typedef SwipeableStackOverlayBuilder = Widget Function(
+  BuildContext context,
   BoxConstraints constraints,
+  int index,
   SwipeDirection direction,
-  double valuePerThreshold,
+  double swipeProgress,
 );
 
 /// A widget for stacking cards, which users can swipe horizontally and
@@ -492,7 +494,9 @@ class _SwipeableStackState extends State<SwipeableStack>
 
       if (swipeDirectionRate != null) {
         final overlay = widget.overlayBuilder?.call(
+          context,
           constraints,
+          currentIndex,
           swipeDirectionRate.direction,
           swipeDirectionRate.rate,
         );
