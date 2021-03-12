@@ -69,13 +69,18 @@ class SwipeableStackController extends ChangeNotifier {
   ///
   /// You can reject [SwipeableStack.onSwipeCompleted] invocation by
   /// setting [shouldCallCompletionCallback] to false.
+  ///
+  /// You can ignore checking by [SwipeableStack#onWillMoveNext] by
+  /// setting [ignoreOnWillMoveNext] to true.
   void next({
     required SwipeDirection swipeDirection,
     bool shouldCallCompletionCallback = true,
+    bool ignoreOnWillMoveNext = false,
   }) {
     swipeableStackStateKey.currentState?._next(
       swipeDirection: swipeDirection,
       shouldCallCompletionCallback: shouldCallCompletionCallback,
+      ignoreOnWillMoveNext: ignoreOnWillMoveNext,
     );
   }
 
@@ -708,16 +713,24 @@ class _SwipeableStackState extends State<SwipeableStack>
     });
   }
 
-  /// Advance to the next card with specified [swipeDirection].
-  ///
-  /// You can reject [SwipeableStack.onSwipeCompleted] invocation by
-  /// setting [shouldCallCompletionCallback] to false.
   void _next({
     required SwipeDirection swipeDirection,
     bool shouldCallCompletionCallback = true,
+    bool ignoreOnWillMoveNext = false,
   }) {
     if (_animatingSwipeAssistController) {
       return;
+    }
+
+    if (!ignoreOnWillMoveNext) {
+      final allowMoveNext = widget.onWillMoveNext?.call(
+            currentIndex,
+            swipeDirection,
+          ) ??
+          true;
+      if (!allowMoveNext) {
+        return;
+      }
     }
     final startPosition = SwipeSession.notMoving();
     currentSession = startPosition;
