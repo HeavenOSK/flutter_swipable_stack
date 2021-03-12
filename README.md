@@ -29,8 +29,14 @@ SwipeableStack(
 You can show overlay on the front card with `overlayBuilder`.
 ```dart
 SwipeableStack(
-  overlayBuilder: (constraints, direction, valuePerThreshold) {
-    final opacity = min(valuePerThreshold, 1.0);
+  overlayBuilder: (
+    context,
+    constraints,
+    index,
+    direction,
+    swipeProgress,
+  ) {
+    final opacity = min(swipeProgress, 1.0);
     final isRight = direction == SwipeDirection.right;
     return Opacity(
       opacity: isRight ? opacity : 0,
