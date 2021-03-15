@@ -60,7 +60,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  SwipeableStackController _controller;
+  SwipableStackController _controller;
 
   void _listenController() {
     setState(() {});
@@ -69,7 +69,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _controller = SwipeableStackController()..addListener(_listenController);
+    _controller = SwipableStackController()..addListener(_listenController);
   }
 
   static const double _bottomPadding = 100;
@@ -84,7 +84,7 @@ class _HomeState extends State<Home> {
       body: SafeArea(
         child: Stack(
           children: [
-            SwipeableStack(
+            SwipableStack(
               controller: _controller,
               onSwipeCompleted: (index, direction) {
                 print('$index, $direction');

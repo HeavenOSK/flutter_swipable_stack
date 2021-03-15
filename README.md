@@ -7,9 +7,9 @@ A widget for stacking cards, which users can swipe horizontally and vertically w
  
 # Usage
 ## `builder`
-A `SwipeableStack` uses a builder to display widgets.
+A `SwipableStack` uses a builder to display widgets.
 ```dart
-SwipeableStack(
+SwipableStack(
   builder: (context, index, constraints) {
     return Image.asset(imagePath);
   },
@@ -18,7 +18,7 @@ SwipeableStack(
 ## `onSwipeCompleted`
 You can get completion event with `onSwipeCompleted`.
 ```dart
-SwipeableStack(
+SwipableStack(
   onSwipeCompleted: (index, direction) {
     print('$index, $direction');
   },
@@ -28,7 +28,7 @@ SwipeableStack(
 ## `overlayBuilder`
 You can show overlay on the front card with `overlayBuilder`.
 ```dart
-SwipeableStack(
+SwipableStack(
   overlayBuilder: (
     context,
     constraints,
@@ -47,12 +47,12 @@ SwipeableStack(
 ```
 
 ## `controller`
-`SwipeableStackController` allows you to control swipe action & also rewind recent action.
+`SwipableStackController` allows you to control swipe action & also rewind recent action.
  
 ```dart
-final controller = SwipeableStackController();
+final controller = SwipableStackController();
 
-SwipeableStack(
+SwipableStack(
   controller:controller,
   builder: (context, index, constraints) {
     return Image.asset(imagePath);
@@ -64,9 +64,9 @@ controller.next(
 controller.rewind();
 ```
 
-`SwipeableStackController` provides to access `currentIndex` of `SwipeableStack`.
+`SwipableStackController` provides to access `currentIndex` of `SwipableStack`.
 ```dart
-final controller = SwipeableStackController();
+final controller = SwipableStackController();
 controller.addListener(() {
   print('${_controller.currentIndex}');
 });
@@ -75,7 +75,7 @@ controller.addListener(() {
 ## `onWillMoveNext`
 You can also restrict user actions according to index or action with `onWillMoveNext`.
 ```dart
-SwipeableStack(
+SwipableStack(
   onWillMoveNext: (index, direction) {
     final allowedActions = [
       SwipeDirection.right,

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'swipe_session.dart';
 
-/// The type of Action to use in [SwipeableStack].
+/// The type of Action to use in [SwipableStack].
 enum SwipeDirection {
   left,
   right,
@@ -12,19 +12,19 @@ enum SwipeDirection {
   down,
 }
 
-/// An object to manipulate the [SwipeableStack].
-class SwipeableStackController extends ChangeNotifier {
-  SwipeableStackController({
+/// An object to manipulate the [SwipableStack].
+class SwipableStackController extends ChangeNotifier {
+  SwipableStackController({
     int initialIndex = 0,
   })  : _currentIndex = initialIndex,
         assert(initialIndex >= 0);
 
-  /// The key for [SwipeableStack] to control.
-  final swipeableStackStateKey = GlobalKey<_SwipeableStackState>();
+  /// The key for [SwipableStack] to control.
+  final _swipableStackStateKey = GlobalKey<_SwipableStackState>();
 
   int _currentIndex;
 
-  /// Current index of [SwipeableStack].
+  /// Current index of [SwipableStack].
   int get currentIndex => _currentIndex;
 
   set currentIndex(int newValue) {
@@ -67,17 +67,17 @@ class SwipeableStackController extends ChangeNotifier {
 
   /// Advance to the next card with specified [swipeDirection].
   ///
-  /// You can reject [SwipeableStack.onSwipeCompleted] invocation by
+  /// You can reject [SwipableStack.onSwipeCompleted] invocation by
   /// setting [shouldCallCompletionCallback] to false.
   ///
-  /// You can ignore checking by [SwipeableStack#onWillMoveNext] by
+  /// You can ignore checking by [SwipableStack#onWillMoveNext] by
   /// setting [ignoreOnWillMoveNext] to true.
   void next({
     required SwipeDirection swipeDirection,
     bool shouldCallCompletionCallback = true,
     bool ignoreOnWillMoveNext = false,
   }) {
-    swipeableStackStateKey.currentState?._next(
+    _swipableStackStateKey.currentState?._next(
       swipeDirection: swipeDirection,
       shouldCallCompletionCallback: shouldCallCompletionCallback,
       ignoreOnWillMoveNext: ignoreOnWillMoveNext,
@@ -86,7 +86,7 @@ class SwipeableStackController extends ChangeNotifier {
 
   /// Rewind the most recent action.
   void rewind() {
-    swipeableStackStateKey.currentState?._rewind();
+    _swipableStackStateKey.currentState?._rewind();
   }
 }
 
@@ -208,15 +208,15 @@ typedef OnWillMoveNext = bool Function(
   SwipeDirection swipeDirection,
 );
 
-/// Builder for items to be displayed in [SwipeableStack].
-typedef SwipeableStackItemBuilder = Widget Function(
+/// Builder for items to be displayed in [SwipableStack].
+typedef SwipableStackItemBuilder = Widget Function(
   BuildContext context,
   int index,
   BoxConstraints constraints,
 );
 
 /// Builder for displaying an overlay on the most foreground card.
-typedef SwipeableStackOverlayBuilder = Widget Function(
+typedef SwipableStackOverlayBuilder = Widget Function(
   BuildContext context,
   BoxConstraints constraints,
   int index,
@@ -226,10 +226,10 @@ typedef SwipeableStackOverlayBuilder = Widget Function(
 
 /// A widget for stacking cards, which users can swipe horizontally and
 /// vertically with beautiful animations.
-class SwipeableStack extends StatefulWidget {
-  SwipeableStack({
+class SwipableStack extends StatefulWidget {
+  SwipableStack({
     required this.builder,
-    SwipeableStackController? controller,
+    SwipableStackController? controller,
     this.onSwipeCompleted,
     this.onWillMoveNext,
     this.overlayBuilder,
@@ -237,18 +237,18 @@ class SwipeableStack extends StatefulWidget {
     this.verticalSwipeThreshold = _defaultVerticalSwipeThreshold,
     this.itemCount,
     this.viewFraction = _defaultViewFraction,
-  })  : controller = controller ?? SwipeableStackController(),
+  })  : controller = controller ?? SwipableStackController(),
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
         assert(0 <= verticalSwipeThreshold && verticalSwipeThreshold <= 1),
         assert(itemCount == null || itemCount >= 0),
-        super(key: controller?.swipeableStackStateKey);
+        super(key: controller?._swipableStackStateKey);
 
-  /// Builder for items to be displayed in [SwipeableStack].
-  final SwipeableStackItemBuilder builder;
+  /// Builder for items to be displayed in [SwipableStack].
+  final SwipableStackItemBuilder builder;
 
-  /// An object to manipulate the [SwipeableStack].
-  final SwipeableStackController controller;
+  /// An object to manipulate the [SwipableStack].
+  final SwipableStackController controller;
 
   /// Callback called when the Swipe is completed.
   final SwipeCompletionCallback? onSwipeCompleted;
@@ -264,7 +264,7 @@ class SwipeableStack extends StatefulWidget {
   /// Builder for displaying an overlay on the most foreground card.
   ///
   /// You can get same constraints of the card from this builder's parameter.
-  final SwipeableStackOverlayBuilder? overlayBuilder;
+  final SwipableStackOverlayBuilder? overlayBuilder;
 
   /// The count of items to display.
   final int? itemCount;
@@ -299,10 +299,10 @@ class SwipeableStack extends StatefulWidget {
       true;
 
   @override
-  _SwipeableStackState createState() => _SwipeableStackState();
+  _SwipableStackState createState() => _SwipableStackState();
 }
 
-class _SwipeableStackState extends State<SwipeableStack>
+class _SwipableStackState extends State<SwipableStack>
     with TickerProviderStateMixin {
   late final AnimationController _swipeCancelAnimationController =
       AnimationController(
@@ -452,10 +452,10 @@ class _SwipeableStackState extends State<SwipeableStack>
   void _assertLayout(BoxConstraints constraints) {
     assert(() {
       if (!constraints.hasBoundedHeight) {
-        throw FlutterError('SwipeableStack was given unbounded height.');
+        throw FlutterError('SwipableStack was given unbounded height.');
       }
       if (!constraints.hasBoundedWidth) {
-        throw FlutterError('SwipeableStack was given unbounded width.');
+        throw FlutterError('SwipableStack was given unbounded width.');
       }
       return true;
     }());
