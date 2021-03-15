@@ -4,7 +4,7 @@ import 'swipable_stack.dart';
 
 const double _fingerHeight = 50;
 
-/// The information to record swiping position for [SwipeableStack].
+/// The information to record swiping position for [SwipableStack].
 class SwipeSession {
   const SwipeSession({
     required this.startPosition,
