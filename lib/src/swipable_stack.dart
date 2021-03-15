@@ -310,6 +310,10 @@ class _SwipableStackState extends State<SwipableStack>
     duration: const Duration(milliseconds: 500),
   );
 
+  late final AnimationController _swipeAnimationController =
+      AnimationController(
+    vsync: this,
+  );
   late final AnimationController _swipeAssistController = AnimationController(
     vsync: this,
   );
@@ -743,13 +747,13 @@ class _SwipableStackState extends State<SwipableStack>
       context: context,
       difference: startPosition.difference,
     );
-    _swipeAssistController.duration = _getSwipeAssistDuration(
+    _swipeAnimationController.duration = _getSwipeAssistDuration(
       distToAssist: distToAssist,
       swipeDirection: swipeDirection,
       difference: startPosition.difference,
     );
 
-    final animation = _swipeAssistController.swipeAnimation(
+    final animation = _swipeAnimationController.swipeAnimation(
       startPosition: startPosition.currentPosition,
       endPosition: _offsetToAssist(
         distToAssist: distToAssist,
@@ -764,7 +768,7 @@ class _SwipableStackState extends State<SwipableStack>
     }
 
     animation.addListener(animate);
-    _swipeAssistController.forward(from: 0).then(
+    _swipeAnimationController.forward(from: 0).then(
       (_) {
         if (shouldCallCompletionCallback) {
           widget.onSwipeCompleted?.call(
@@ -786,6 +790,7 @@ class _SwipableStackState extends State<SwipableStack>
   @override
   void dispose() {
     _swipeCancelAnimationController.dispose();
+    _swipeAnimationController.dispose();
     _swipeAssistController.dispose();
     widget.controller.removeListener(_listenController);
     super.dispose();
