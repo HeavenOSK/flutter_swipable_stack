@@ -309,6 +309,11 @@ class _SwipableStackState extends State<SwipableStack>
     vsync: this,
     duration: const Duration(milliseconds: 500),
   );
+  late final AnimationController _rewindAnimationController =
+      AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+  );
 
   late final AnimationController _swipeAnimationController =
       AnimationController(
@@ -622,7 +627,7 @@ class _SwipableStackState extends State<SwipableStack>
     currentSession = previousSession;
     currentIndex -= 1;
 
-    final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
+    final cancelAnimation = _rewindAnimationController.cancelAnimation(
       startPosition: previousSession.startPosition,
       currentPosition: previousSession.currentPosition,
     );
@@ -631,7 +636,7 @@ class _SwipableStackState extends State<SwipableStack>
     }
 
     cancelAnimation.addListener(_animate);
-    _swipeCancelAnimationController.forward(from: 0).then(
+    _rewindAnimationController.forward(from: 0).then(
       (_) {
         cancelAnimation.removeListener(_animate);
         this.previousSession = null;
@@ -792,6 +797,7 @@ class _SwipableStackState extends State<SwipableStack>
     _swipeCancelAnimationController.dispose();
     _swipeAnimationController.dispose();
     _swipeAssistController.dispose();
+    _rewindAnimationController.dispose();
     widget.controller.removeListener(_listenController);
     super.dispose();
   }
