@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'swipe_session.dart';
 
+// TODO(heavenOSK): Add document for new feature.
 /// The type of Action to use in [SwipableStack].
 enum SwipeDirection {
   left,
@@ -76,11 +77,13 @@ class SwipableStackController extends ChangeNotifier {
     required SwipeDirection swipeDirection,
     bool shouldCallCompletionCallback = true,
     bool ignoreOnWillMoveNext = false,
+    Duration? duration,
   }) {
     _swipableStackStateKey.currentState?._next(
       swipeDirection: swipeDirection,
       shouldCallCompletionCallback: shouldCallCompletionCallback,
       ignoreOnWillMoveNext: ignoreOnWillMoveNext,
+      duration: duration,
     );
   }
 
@@ -287,7 +290,6 @@ class SwipableStack extends StatefulWidget {
   static const double _defaultViewFraction = 0.92;
 
   static const _defaultRewindDuration = Duration(milliseconds: 650);
-  static const _defaultSwipeAnimationDuration = Duration(milliseconds: 800);
 
   @override
   _SwipableStackState createState() => _SwipableStackState();
@@ -396,7 +398,19 @@ class _SwipableStackState extends State<SwipableStack>
     final pixelPerMilliseconds = swipeDirection.isHorizontal ? 1.25 : 2.0;
 
     return Duration(
-      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 500),
+      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 650),
+    );
+  }
+
+  Duration _getSwipeAnimationDuration({
+    required SwipeDirection swipeDirection,
+    required Offset difference,
+    required double distToAssist,
+  }) {
+    final pixelPerMilliseconds = swipeDirection.isHorizontal ? 0.78 : 1.25;
+
+    return Duration(
+      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 650),
     );
   }
 
@@ -735,8 +749,9 @@ class _SwipableStackState extends State<SwipableStack>
 
   void _next({
     required SwipeDirection swipeDirection,
-    bool shouldCallCompletionCallback = true,
-    bool ignoreOnWillMoveNext = false,
+    required bool shouldCallCompletionCallback,
+    required bool ignoreOnWillMoveNext,
+    Duration? duration,
   }) {
     if (!canAnimationStart) {
       return;
@@ -759,11 +774,12 @@ class _SwipableStackState extends State<SwipableStack>
       context: context,
       difference: startPosition.difference,
     );
-    _swipeAnimationController.duration = _getSwipeAssistDuration(
-      distToAssist: distToAssist,
-      swipeDirection: swipeDirection,
-      difference: startPosition.difference,
-    );
+    _swipeAnimationController.duration = duration ??
+        _getSwipeAnimationDuration(
+          distToAssist: distToAssist,
+          swipeDirection: swipeDirection,
+          difference: startPosition.difference,
+        );
 
     final animation = _swipeAnimationController.swipeAnimation(
       startPosition: startPosition.currentPosition,
