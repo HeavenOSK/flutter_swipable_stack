@@ -25,3 +25,12 @@
   - Rename from SwipableStack to SwipeableStack.
   - Rename from SwipableStackController to SwipeableStackController.
 - Refactor duration initialization for _swipeAssistController.
+
+## [0.4.0]
+- Breaking changes:
+  - Rename back to `Swipable` from `Swipeable` for consistency with package name.
+    - Rename from `SwipeableStack` to `SwipableStack`.
+    - Rename from `SwipeableStackController` to `SwipableStackController`.
+- Be able to change duration of swipe & rewind animation.
+- Add `ignoreOnWillMoveNext` option for SwipableStackController#next.
+- Add `context` & `index` for SwipableStack#overlayBuilder to improve customizability. 
