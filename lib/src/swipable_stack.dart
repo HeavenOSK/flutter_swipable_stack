@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'swipe_session.dart';
 
+// TODO(heavenOSK): Add document for new feature.
 /// The type of Action to use in [SwipableStack].
 enum SwipeDirection {
   left,
@@ -76,17 +77,23 @@ class SwipableStackController extends ChangeNotifier {
     required SwipeDirection swipeDirection,
     bool shouldCallCompletionCallback = true,
     bool ignoreOnWillMoveNext = false,
+    Duration? duration,
   }) {
     _swipableStackStateKey.currentState?._next(
       swipeDirection: swipeDirection,
       shouldCallCompletionCallback: shouldCallCompletionCallback,
       ignoreOnWillMoveNext: ignoreOnWillMoveNext,
+      duration: duration,
     );
   }
 
   /// Rewind the most recent action.
-  void rewind() {
-    _swipableStackStateKey.currentState?._rewind();
+  void rewind({
+    Duration duration = SwipableStack._defaultRewindDuration,
+  }) {
+    _swipableStackStateKey.currentState?._rewind(
+      duration: duration,
+    );
   }
 }
 
@@ -282,21 +289,7 @@ class SwipableStack extends StatefulWidget {
   static const double _defaultVerticalSwipeThreshold = 0.32;
   static const double _defaultViewFraction = 0.92;
 
-  /// If you want to allow only left and right swipes, set this
-  /// function to onWillMoveNext.
-  static bool allowOnlyLeftAndRight(
-    int index,
-    SwipeDirection direction,
-  ) =>
-      direction == SwipeDirection.right || direction == SwipeDirection.left;
-
-  /// If you want to allow swiping in all directions, set this
-  /// function to onWillMoveNext.
-  static bool allowAllDirection(
-    int index,
-    SwipeDirection direction,
-  ) =>
-      true;
+  static const _defaultRewindDuration = Duration(milliseconds: 650);
 
   @override
   _SwipableStackState createState() => _SwipableStackState();
@@ -308,6 +301,17 @@ class _SwipableStackState extends State<SwipableStack>
       AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 500),
+  );
+
+  late final AnimationController _rewindAnimationController =
+      AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 800),
+  );
+
+  late final AnimationController _swipeAnimationController =
+      AnimationController(
+    vsync: this,
   );
 
   late final AnimationController _swipeAssistController = AnimationController(
@@ -394,7 +398,19 @@ class _SwipableStackState extends State<SwipableStack>
     final pixelPerMilliseconds = swipeDirection.isHorizontal ? 1.25 : 2.0;
 
     return Duration(
-      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 500),
+      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 650),
+    );
+  }
+
+  Duration _getSwipeAnimationDuration({
+    required SwipeDirection swipeDirection,
+    required Offset difference,
+    required double distToAssist,
+  }) {
+    final pixelPerMilliseconds = swipeDirection.isHorizontal ? 0.78 : 1.25;
+
+    return Duration(
+      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 650),
     );
   }
 
@@ -405,7 +421,16 @@ class _SwipableStackState extends State<SwipableStack>
     widget.controller.currentIndex = newValue;
   }
 
-  bool get _animatingSwipeAssistController => _swipeAssistController.animating;
+  bool get canSwipe =>
+      !_swipeAssistController.animating &&
+      !_swipeAnimationController.animating &&
+      !_rewindAnimationController.animating;
+
+  bool get canAnimationStart =>
+      !_swipeAssistController.animating &&
+      !_swipeAnimationController.animating &&
+      !_swipeCancelAnimationController.animating &&
+      !_rewindAnimationController.animating;
 
   /// The current session of swipe action.
   SwipeSession? get currentSession => widget.controller.currentSession;
@@ -538,7 +563,7 @@ class _SwipableStackState extends State<SwipableStack>
       child: GestureDetector(
         key: child.key,
         onPanStart: (d) {
-          if (_animatingSwipeAssistController) {
+          if (!canSwipe) {
             return;
           }
 
@@ -556,7 +581,7 @@ class _SwipableStackState extends State<SwipableStack>
           );
         },
         onPanUpdate: (d) {
-          if (_animatingSwipeAssistController) {
+          if (!canSwipe) {
             return;
           }
           if (_swipeCancelAnimationController.animating) {
@@ -575,7 +600,7 @@ class _SwipableStackState extends State<SwipableStack>
               );
         },
         onPanEnd: (d) {
-          if (_animatingSwipeAssistController) {
+          if (!canSwipe) {
             return;
           }
           final swipeAssistDirection = currentSession?.swipeAssistDirection(
@@ -610,31 +635,36 @@ class _SwipableStackState extends State<SwipableStack>
     );
   }
 
-  void _rewind() {
+  void _rewind({
+    required Duration duration,
+  }) {
+    if (!canAnimationStart) {
+      return;
+    }
     final previousSession = this.previousSession;
     if (previousSession == null) {
       return;
     }
     currentSession = previousSession;
     currentIndex -= 1;
-
-    final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
+    _rewindAnimationController.duration = duration;
+    final rewindAnimation = _rewindAnimationController.cancelAnimation(
       startPosition: previousSession.startPosition,
       currentPosition: previousSession.currentPosition,
     );
     void _animate() {
-      _animatePosition(cancelAnimation);
+      _animatePosition(rewindAnimation);
     }
 
-    cancelAnimation.addListener(_animate);
-    _swipeCancelAnimationController.forward(from: 0).then(
+    rewindAnimation.addListener(_animate);
+    _rewindAnimationController.forward(from: 0).then(
       (_) {
-        cancelAnimation.removeListener(_animate);
+        rewindAnimation.removeListener(_animate);
         this.previousSession = null;
         currentSession = null;
       },
     ).catchError((dynamic c) {
-      cancelAnimation.removeListener(_animate);
+      rewindAnimation.removeListener(_animate);
       this.previousSession = null;
       currentSession = null;
     });
@@ -666,11 +696,11 @@ class _SwipableStackState extends State<SwipableStack>
   }
 
   void _swipeNext(SwipeDirection swipeDirection) {
-    final currentSession = this.currentSession;
-    if (currentSession == null) {
+    if (!canSwipe) {
       return;
     }
-    if (_animatingSwipeAssistController) {
+    final currentSession = this.currentSession;
+    if (currentSession == null) {
       return;
     }
     final distToAssist = _distanceToAssist(
@@ -719,10 +749,11 @@ class _SwipableStackState extends State<SwipableStack>
 
   void _next({
     required SwipeDirection swipeDirection,
-    bool shouldCallCompletionCallback = true,
-    bool ignoreOnWillMoveNext = false,
+    required bool shouldCallCompletionCallback,
+    required bool ignoreOnWillMoveNext,
+    Duration? duration,
   }) {
-    if (_animatingSwipeAssistController) {
+    if (!canAnimationStart) {
       return;
     }
 
@@ -743,13 +774,14 @@ class _SwipableStackState extends State<SwipableStack>
       context: context,
       difference: startPosition.difference,
     );
-    _swipeAssistController.duration = _getSwipeAssistDuration(
-      distToAssist: distToAssist,
-      swipeDirection: swipeDirection,
-      difference: startPosition.difference,
-    );
+    _swipeAnimationController.duration = duration ??
+        _getSwipeAnimationDuration(
+          distToAssist: distToAssist,
+          swipeDirection: swipeDirection,
+          difference: startPosition.difference,
+        );
 
-    final animation = _swipeAssistController.swipeAnimation(
+    final animation = _swipeAnimationController.swipeAnimation(
       startPosition: startPosition.currentPosition,
       endPosition: _offsetToAssist(
         distToAssist: distToAssist,
@@ -764,7 +796,7 @@ class _SwipableStackState extends State<SwipableStack>
     }
 
     animation.addListener(animate);
-    _swipeAssistController.forward(from: 0).then(
+    _swipeAnimationController.forward(from: 0).then(
       (_) {
         if (shouldCallCompletionCallback) {
           widget.onSwipeCompleted?.call(
@@ -786,7 +818,9 @@ class _SwipableStackState extends State<SwipableStack>
   @override
   void dispose() {
     _swipeCancelAnimationController.dispose();
+    _swipeAnimationController.dispose();
     _swipeAssistController.dispose();
+    _rewindAnimationController.dispose();
     widget.controller.removeListener(_listenController);
     super.dispose();
   }
