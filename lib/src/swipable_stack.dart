@@ -71,8 +71,10 @@ class SwipableStackController extends ChangeNotifier {
   /// You can reject [SwipableStack.onSwipeCompleted] invocation by
   /// setting [shouldCallCompletionCallback] to false.
   ///
-  /// You can ignore checking by [SwipableStack#onWillMoveNext] by
+  /// You can ignore checking with [SwipableStack#onWillMoveNext] by
   /// setting [ignoreOnWillMoveNext] to true.
+  ///
+  /// You can change animation speed by setting [duration].
   void next({
     required SwipeDirection swipeDirection,
     bool shouldCallCompletionCallback = true,
@@ -88,6 +90,8 @@ class SwipableStackController extends ChangeNotifier {
   }
 
   /// Rewind the most recent action.
+  ///
+  /// You can change animation speed by setting [duration].
   void rewind({
     Duration duration = SwipableStack._defaultRewindDuration,
   }) {
@@ -263,14 +267,9 @@ class SwipableStack extends StatefulWidget {
   /// Callback called just before launching the Swipe action.
   ///
   /// If this Callback returns false, the action will be canceled.
-  ///
-  /// CAUTION: If the call is made from the Controller, this Callback
-  /// will not be called.
   final OnWillMoveNext? onWillMoveNext;
 
   /// Builder for displaying an overlay on the most foreground card.
-  ///
-  /// You can get same constraints of the card from this builder's parameter.
   final SwipableStackOverlayBuilder? overlayBuilder;
 
   /// The count of items to display.
