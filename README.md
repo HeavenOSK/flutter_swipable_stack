@@ -86,3 +86,15 @@ SwipableStack(
 );
 ```
 
+## `swipeAssistDuration`
+
+You can set the speed the use is able to swipe through Widgets with the `swipeAssistDuration`.
+
+```dart
+SwipableStack(
+  swipeAssistDuration: Duration(milliseconds: 100),
+)
+```
+
+The default is 650ms.
+
