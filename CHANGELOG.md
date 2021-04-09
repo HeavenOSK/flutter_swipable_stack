@@ -1,3 +1,8 @@
+## [0.5.0]
+- Add `SwipableStack#swipeAssistDuration`
+  - You can change the duration for swipe assist.
+  - Thanks [rogiervandenberg](https://github.com/rogiervandenberg) :) 
+
 ## [0.4.0]
 
 - Breaking changes:

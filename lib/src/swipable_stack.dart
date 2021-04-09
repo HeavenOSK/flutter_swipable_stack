@@ -238,18 +238,18 @@ typedef SwipableStackOverlayBuilder = Widget Function(
 /// A widget for stacking cards, which users can swipe horizontally and
 /// vertically with beautiful animations.
 class SwipableStack extends StatefulWidget {
-  SwipableStack(
-      {required this.builder,
-      SwipableStackController? controller,
-      this.onSwipeCompleted,
-      this.onWillMoveNext,
-      this.overlayBuilder,
-      this.horizontalSwipeThreshold = _defaultHorizontalSwipeThreshold,
-      this.verticalSwipeThreshold = _defaultVerticalSwipeThreshold,
-      this.itemCount,
-      this.viewFraction = _defaultViewFraction,
-      this.swipeAssistDuration = _defaultSwipeAssistDuration})
-      : controller = controller ?? SwipableStackController(),
+  SwipableStack({
+    required this.builder,
+    SwipableStackController? controller,
+    this.onSwipeCompleted,
+    this.onWillMoveNext,
+    this.overlayBuilder,
+    this.horizontalSwipeThreshold = _defaultHorizontalSwipeThreshold,
+    this.verticalSwipeThreshold = _defaultVerticalSwipeThreshold,
+    this.itemCount,
+    this.viewFraction = _defaultViewFraction,
+    this.swipeAssistDuration = _defaultSwipeAssistDuration,
+  })  : controller = controller ?? SwipableStackController(),
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
         assert(0 <= verticalSwipeThreshold && verticalSwipeThreshold <= 1),
@@ -405,8 +405,10 @@ class _SwipableStackState extends State<SwipableStack>
     final pixelPerMilliseconds = swipeDirection.isHorizontal ? 1.25 : 2.0;
 
     return Duration(
-      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds,
-          widget.swipeAssistDuration.inMilliseconds),
+      milliseconds: math.min(
+        distToAssist ~/ pixelPerMilliseconds,
+        widget.swipeAssistDuration.inMilliseconds,
+      ),
     );
   }
 
