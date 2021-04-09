@@ -248,6 +248,7 @@ class SwipableStack extends StatefulWidget {
     this.verticalSwipeThreshold = _defaultVerticalSwipeThreshold,
     this.itemCount,
     this.viewFraction = _defaultViewFraction,
+    this.swipeAssistDuration = _defaultSwipeAssistDuration,
   })  : controller = controller ?? SwipableStackController(),
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
@@ -284,11 +285,18 @@ class SwipableStack extends StatefulWidget {
   /// The threshold for vertical swipes.
   final double verticalSwipeThreshold;
 
+  /// How fast should the widget be swiped out of the screen when letting go?
+  /// The faster you set this, the faster you're able to swipe another Widget
+  /// of your stack.
+  final Duration swipeAssistDuration;
+
   static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
   static const double _defaultViewFraction = 0.92;
 
   static const _defaultRewindDuration = Duration(milliseconds: 650);
+
+  static const _defaultSwipeAssistDuration = Duration(milliseconds: 650);
 
   @override
   _SwipableStackState createState() => _SwipableStackState();
@@ -397,7 +405,10 @@ class _SwipableStackState extends State<SwipableStack>
     final pixelPerMilliseconds = swipeDirection.isHorizontal ? 1.25 : 2.0;
 
     return Duration(
-      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 650),
+      milliseconds: math.min(
+        distToAssist ~/ pixelPerMilliseconds,
+        widget.swipeAssistDuration.inMilliseconds,
+      ),
     );
   }
 
