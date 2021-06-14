@@ -1,3 +1,6 @@
+## [0.6.1]
+- Fix [SwipableStackController.currentIndex] update
+
 ## [0.6.0]
 - Add the option `stackClipBehaviour` to SwipableStack
     - You can change the `clipBehavior` of Stack.

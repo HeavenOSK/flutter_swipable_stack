@@ -28,23 +28,20 @@ class SwipableStackController extends ChangeNotifier {
   /// Current index of [SwipableStack].
   int get currentIndex => _currentIndex;
 
+  set currentIndex(int newValue) {
+    if (_currentIndex == newValue) {
+      return;
+    }
+    _currentIndex = newValue;
+    notifyListeners();
+  }
+
   SwipeSession? _currentSessionState;
 
   /// The current session that user swipes.
   ///
   /// If you doesn't touch or finished the session, It would be null.
   SwipeSession? get currentSession => _currentSessionState;
-
-  void updateCurrentIndex(
-    int index, {
-    bool cancelSession = false,
-  }) {
-    if (_currentIndex == index) {
-      return;
-    }
-    _currentIndex = index;
-    notifyListeners();
-  }
 
   void updateSwipe(SwipeSession? session) {
     if (_currentSessionState == session) {
