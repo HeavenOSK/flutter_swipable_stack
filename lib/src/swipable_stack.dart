@@ -249,6 +249,7 @@ class SwipableStack extends StatefulWidget {
     this.itemCount,
     this.viewFraction = _defaultViewFraction,
     this.swipeAssistDuration = _defaultSwipeAssistDuration,
+    this.stackClipBehaviour = _defaultStackClipBehaviour,
   })  : controller = controller ?? SwipableStackController(),
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
@@ -290,6 +291,8 @@ class SwipableStack extends StatefulWidget {
   /// of your stack.
   final Duration swipeAssistDuration;
 
+  final Clip stackClipBehaviour;
+
   static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
   static const double _defaultViewFraction = 0.92;
@@ -297,6 +300,8 @@ class SwipableStack extends StatefulWidget {
   static const _defaultRewindDuration = Duration(milliseconds: 650);
 
   static const _defaultSwipeAssistDuration = Duration(milliseconds: 650);
+
+  static const _defaultStackClipBehaviour = Clip.hardEdge;
 
   @override
   _SwipableStackState createState() => _SwipableStackState();
@@ -475,6 +480,7 @@ class _SwipableStackState extends State<SwipableStack>
         _assertLayout(constraints);
         _areConstraints = constraints;
         return Stack(
+          clipBehavior: widget.stackClipBehaviour,
           children: _buildCards(
             context,
             constraints,

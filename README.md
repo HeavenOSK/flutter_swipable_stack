@@ -98,3 +98,16 @@ SwipableStack(
 
 The default is 650ms.
 
+## `stackClipBehaviour`
+
+You can set the clipBehaviour of the stack with the `stackClipBehaviour`.  
+Change it to `Clip.none` to exceed the boundaries of parent widget size.
+
+```dart
+SwipableStack(
+  stackClipBehaviour: Clip.none,
+)
+```
+
+The default is Clip.hardEdge.
+
