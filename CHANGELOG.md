@@ -1,3 +1,10 @@
+## [0.6.0]
+- Add the option `stackClipBehaviour` to SwipableStack
+    - You can change the `clipBehavior` of Stack.
+    - Thanks [envomer](https://github.com/envomer) :)
+- Optimize the update of SwipableStackController
+
+
 ## [0.5.0]
 - Add `SwipableStack#swipeAssistDuration`
   - You can change the duration for swipe assist.
