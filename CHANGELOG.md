@@ -1,3 +1,6 @@
+## [0.6.2]
+- Update state when `itemCount` is changed.
+
 ## [0.6.1]
 - Fix [SwipableStackController.currentIndex] update
 

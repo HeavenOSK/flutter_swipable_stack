@@ -478,6 +478,14 @@ class _SwipableStackState extends State<SwipableStack>
   }
 
   @override
+  void didUpdateWidget(covariant SwipableStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.itemCount != widget.itemCount) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
