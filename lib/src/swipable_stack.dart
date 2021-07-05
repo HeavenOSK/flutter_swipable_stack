@@ -38,12 +38,20 @@ class SwipableStackController extends ChangeNotifier {
 
   SwipeSession? _currentSessionState;
 
+  /// Whether the card is moving or not.
+  bool get moving => _currentSessionState != null;
+
+  SwipeSession? _previousSession;
+
+  /// Whether to rewind.
+  bool get canRewind => _previousSession != null && _currentIndex > 0;
+
   /// The current session that user swipes.
   ///
   /// If you doesn't touch or finished the session, It would be null.
   SwipeSession? get currentSession => _currentSessionState;
 
-  void updateSwipe(SwipeSession? session) {
+  void _updateSwipe(SwipeSession? session) {
     if (_currentSessionState == session) {
       return;
     }
@@ -51,39 +59,32 @@ class SwipableStackController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void initializeSessions() {
+  void _initializeSessions() {
     _currentSessionState = null;
     _previousSession = null;
     notifyListeners();
   }
 
-  void completeAction() {
+  void _completeAction() {
     _previousSession = currentSession?.copyWith();
     _currentIndex += 1;
     _currentSessionState = null;
     notifyListeners();
   }
 
-  void cancelAction() {
-    _currentSessionState = null;
-    notifyListeners();
-  }
-
-  void prepareRewind() {
+  void _prepareRewind() {
     _currentSessionState = _previousSession?.copyWith();
     _currentIndex -= 1;
     notifyListeners();
   }
 
-  SwipeSession? _previousSession;
-
-  /// The previous session that user swipes.
+  /// Reset current session.
   ///
-  /// The recent previous session would be registered.
-  SwipeSession? get previousSession => _previousSession;
-
-  /// Whether to rewind.
-  bool get canRewind => previousSession != null && _currentIndex > 0;
+  /// It's used in exceptional situation.
+  void resetCurrentSession() {
+    _currentSessionState = null;
+    notifyListeners();
+  }
 
   /// Advance to the next card with specified [swipeDirection].
   ///
@@ -131,7 +132,7 @@ class _SwipeRatePerThreshold {
 }
 
 extension _SwipeDirectionX on SwipeDirection {
-  Offset get defaultOffset {
+  Offset get _defaultOffset {
     switch (this) {
       case SwipeDirection.left:
         return const Offset(-1, 0);
@@ -144,15 +145,15 @@ extension _SwipeDirectionX on SwipeDirection {
     }
   }
 
-  bool get isHorizontal =>
+  bool get _isHorizontal =>
       this == SwipeDirection.right || this == SwipeDirection.left;
 }
 
 extension _AnimationControllerX on AnimationController {
-  bool get animating =>
+  bool get _animating =>
       status == AnimationStatus.forward || status == AnimationStatus.reverse;
 
-  Animation<Offset> cancelAnimation({
+  Animation<Offset> _cancelAnimation({
     required Offset startPosition,
     required Offset currentPosition,
   }) {
@@ -167,7 +168,7 @@ extension _AnimationControllerX on AnimationController {
     );
   }
 
-  Animation<Offset> swipeAnimation({
+  Animation<Offset> _swipeAnimation({
     required Offset startPosition,
     required Offset endPosition,
   }) {
@@ -355,13 +356,13 @@ class _SwipableStackState extends State<SwipableStack>
     required SwipeDirection swipeDirection,
   }) {
     final deviceSize = MediaQuery.of(context).size;
-    if (swipeDirection.isHorizontal) {
+    if (swipeDirection._isHorizontal) {
       double _backMoveDistance({
         required double moveDistance,
         required double maxWidth,
         required double maxHeight,
       }) {
-        final cardAngle = _SwipablePositioned.calculateAngle(
+        final cardAngle = _SwipablePositioned._calculateAngle(
           moveDistance,
           maxWidth,
         ).abs();
@@ -407,7 +408,7 @@ class _SwipableStackState extends State<SwipableStack>
     required SwipeDirection swipeDirection,
     required double distToAssist,
   }) {
-    final isHorizontal = swipeDirection.isHorizontal;
+    final isHorizontal = swipeDirection._isHorizontal;
     if (isHorizontal) {
       final adjustedHorizontally = Offset(difference.dx * 2, difference.dy);
       final absX = adjustedHorizontally.dx.abs();
@@ -426,7 +427,7 @@ class _SwipableStackState extends State<SwipableStack>
     required Offset difference,
     required double distToAssist,
   }) {
-    final pixelPerMilliseconds = swipeDirection.isHorizontal ? 1.25 : 2.0;
+    final pixelPerMilliseconds = swipeDirection._isHorizontal ? 1.25 : 2.0;
 
     return Duration(
       milliseconds: math.min(
@@ -441,7 +442,7 @@ class _SwipableStackState extends State<SwipableStack>
     required Offset difference,
     required double distToAssist,
   }) {
-    final pixelPerMilliseconds = swipeDirection.isHorizontal ? 0.78 : 1.25;
+    final pixelPerMilliseconds = swipeDirection._isHorizontal ? 0.78 : 1.25;
 
     return Duration(
       milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 650),
@@ -451,16 +452,16 @@ class _SwipableStackState extends State<SwipableStack>
   /// The index of the item which displays front.
   int get _currentIndex => widget.controller.currentIndex;
 
-  bool get canSwipe =>
-      !_swipeAssistController.animating &&
-      !_swipeAnimationController.animating &&
-      !_rewindAnimationController.animating;
+  bool get _canSwipe =>
+      !_swipeAssistController._animating &&
+      !_swipeAnimationController._animating &&
+      !_rewindAnimationController._animating;
 
-  bool get canAnimationStart =>
-      !_swipeAssistController.animating &&
-      !_swipeAnimationController.animating &&
-      !_swipeCancelAnimationController.animating &&
-      !_rewindAnimationController.animating;
+  bool get _canAnimationStart =>
+      !_swipeAssistController._animating &&
+      !_swipeAnimationController._animating &&
+      !_swipeCancelAnimationController._animating &&
+      !_rewindAnimationController._animating;
 
   /// The current session of swipe action.
   SwipeSession? get _currentSession => widget.controller.currentSession;
@@ -591,16 +592,16 @@ class _SwipableStackState extends State<SwipableStack>
       child: GestureDetector(
         key: child.key,
         onPanStart: (d) {
-          if (!canSwipe) {
+          if (!_canSwipe) {
             return;
           }
 
-          if (_swipeCancelAnimationController.animating) {
+          if (_swipeCancelAnimationController._animating) {
             _swipeCancelAnimationController
               ..stop()
               ..reset();
           }
-          widget.controller.updateSwipe(
+          widget.controller._updateSwipe(
             SwipeSession(
               localPosition: d.localPosition,
               startPosition: d.globalPosition,
@@ -609,10 +610,10 @@ class _SwipableStackState extends State<SwipableStack>
           );
         },
         onPanUpdate: (d) {
-          if (!canSwipe) {
+          if (!_canSwipe) {
             return;
           }
-          if (_swipeCancelAnimationController.animating) {
+          if (_swipeCancelAnimationController._animating) {
             _swipeCancelAnimationController
               ..stop()
               ..reset();
@@ -620,7 +621,7 @@ class _SwipableStackState extends State<SwipableStack>
           final updated = _currentSession?.copyWith(
             currentPosition: d.globalPosition,
           );
-          widget.controller.updateSwipe(
+          widget.controller._updateSwipe(
             updated ??
                 SwipeSession(
                   localPosition: d.localPosition,
@@ -630,7 +631,7 @@ class _SwipableStackState extends State<SwipableStack>
           );
         },
         onPanEnd: (d) {
-          if (!canSwipe) {
+          if (!_canSwipe) {
             return;
           }
           final swipeAssistDirection = _currentSession?.swipeAssistDirection(
@@ -660,7 +661,7 @@ class _SwipableStackState extends State<SwipableStack>
   }
 
   void _animatePosition(Animation<Offset> positionAnimation) {
-    widget.controller.updateSwipe(
+    widget.controller._updateSwipe(
       widget.controller.currentSession?.copyWith(
         currentPosition: positionAnimation.value,
       ),
@@ -670,16 +671,16 @@ class _SwipableStackState extends State<SwipableStack>
   void _rewind({
     required Duration duration,
   }) {
-    if (!canAnimationStart) {
+    if (!_canAnimationStart) {
       return;
     }
-    final previousSession = widget.controller.previousSession;
+    final previousSession = widget.controller._previousSession;
     if (previousSession == null) {
       return;
     }
-    widget.controller.prepareRewind();
+    widget.controller._prepareRewind();
     _rewindAnimationController.duration = duration;
-    final rewindAnimation = _rewindAnimationController.cancelAnimation(
+    final rewindAnimation = _rewindAnimationController._cancelAnimation(
       startPosition: previousSession.startPosition,
       currentPosition: previousSession.currentPosition,
     );
@@ -691,11 +692,11 @@ class _SwipableStackState extends State<SwipableStack>
     _rewindAnimationController.forward(from: 0).then(
       (_) {
         rewindAnimation.removeListener(_animate);
-        widget.controller.initializeSessions();
+        widget.controller._initializeSessions();
       },
     ).catchError((dynamic c) {
       rewindAnimation.removeListener(_animate);
-      widget.controller.initializeSessions();
+      widget.controller._initializeSessions();
     });
   }
 
@@ -704,7 +705,7 @@ class _SwipableStackState extends State<SwipableStack>
     if (currentSession == null) {
       return;
     }
-    final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
+    final cancelAnimation = _swipeCancelAnimationController._cancelAnimation(
       startPosition: currentSession.startPosition,
       currentPosition: currentSession.currentPosition,
     );
@@ -716,16 +717,16 @@ class _SwipableStackState extends State<SwipableStack>
     _swipeCancelAnimationController.forward(from: 0).then(
       (_) {
         cancelAnimation.removeListener(_animate);
-        widget.controller.cancelAction();
+        widget.controller.resetCurrentSession();
       },
     ).catchError((dynamic c) {
       cancelAnimation.removeListener(_animate);
-      widget.controller.cancelAction();
+      widget.controller.resetCurrentSession();
     });
   }
 
   void _swipeNext(SwipeDirection swipeDirection) {
-    if (!canSwipe) {
+    if (!_canSwipe) {
       return;
     }
     final currentSession = widget.controller.currentSession;
@@ -743,7 +744,7 @@ class _SwipableStackState extends State<SwipableStack>
       difference: currentSession.difference,
     );
 
-    final animation = _swipeAssistController.swipeAnimation(
+    final animation = _swipeAssistController._swipeAnimation(
       startPosition: currentSession.currentPosition,
       endPosition: currentSession.currentPosition +
           _offsetToAssist(
@@ -766,11 +767,11 @@ class _SwipableStackState extends State<SwipableStack>
           _currentIndex,
           swipeDirection,
         );
-        widget.controller.completeAction();
+        widget.controller._completeAction();
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);
-      widget.controller.cancelAction();
+      widget.controller.resetCurrentSession();
     });
   }
 
@@ -780,7 +781,7 @@ class _SwipableStackState extends State<SwipableStack>
     required bool ignoreOnWillMoveNext,
     Duration? duration,
   }) {
-    if (!canAnimationStart) {
+    if (!_canAnimationStart) {
       return;
     }
 
@@ -795,7 +796,7 @@ class _SwipableStackState extends State<SwipableStack>
       }
     }
     final startPosition = SwipeSession.notMoving();
-    widget.controller.updateSwipe(startPosition);
+    widget.controller._updateSwipe(startPosition);
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
       context: context,
@@ -808,11 +809,11 @@ class _SwipableStackState extends State<SwipableStack>
           difference: startPosition.difference,
         );
 
-    final animation = _swipeAnimationController.swipeAnimation(
+    final animation = _swipeAnimationController._swipeAnimation(
       startPosition: startPosition.currentPosition,
       endPosition: _offsetToAssist(
         distToAssist: distToAssist,
-        difference: swipeDirection.defaultOffset,
+        difference: swipeDirection._defaultOffset,
         context: context,
         swipeDirection: swipeDirection,
       ),
@@ -832,11 +833,11 @@ class _SwipableStackState extends State<SwipableStack>
           );
         }
         animation.removeListener(animate);
-        widget.controller.completeAction();
+        widget.controller._completeAction();
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);
-      widget.controller.cancelAction();
+      widget.controller.resetCurrentSession();
     });
   }
 
@@ -897,10 +898,10 @@ class _SwipablePositioned extends StatelessWidget {
   bool get _isSecond => index == 1;
 
   double get _rotationAngle => _isFirst
-      ? calculateAngle(_currentPositionDiff.dx, areaConstraints.maxWidth)
+      ? _calculateAngle(_currentPositionDiff.dx, areaConstraints.maxWidth)
       : 0;
 
-  static double calculateAngle(double differenceX, double areaWidth) {
+  static double _calculateAngle(double differenceX, double areaWidth) {
     return -differenceX / areaWidth * math.pi / 18;
   }
 
