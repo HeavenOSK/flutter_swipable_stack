@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:state_notifier/state_notifier.dart';
 
+import 'swipable_stack_state.dart';
 import 'swipe_session.dart';
 
 // TODO(heavenOSK): Add document for new feature.
@@ -14,8 +16,8 @@ enum SwipeDirection {
 }
 
 /// An object to manipulate the [SwipableStack].
-class SwipableStackController extends ChangeNotifier {
-  SwipableStackController();
+class SwipableStackController extends StateNotifier<SwipableStackState> {
+  SwipableStackController() : super(const SwipableStackState());
 
   /// The key for [SwipableStack] to control.
   final _swipableStackStateKey = GlobalKey<_SwipableStackState>();
@@ -51,6 +53,28 @@ class SwipableStackController extends ChangeNotifier {
   }) {
     _swipableStackStateKey.currentState?._rewind(
       duration: duration,
+    );
+  }
+
+  void _updateCurrentIndex({
+    required int currentIndex,
+  }) {
+    if (state == currentIndex) {
+      return;
+    }
+    state = state.copyWith(
+      currentIndex: currentIndex,
+    );
+  }
+
+  void _updateCanRewind({
+    required bool canRewind,
+  }) {
+    if (state.canRewind == canRewind) {
+      return;
+    }
+    state = state.copyWith(
+      canRewind: canRewind,
     );
   }
 }
@@ -293,9 +317,10 @@ class _SwipableStackState extends State<SwipableStack>
     if (_currentIndex == newValue) {
       return;
     }
-    setState(() {
-      _currentIndex = newValue;
-    });
+    _currentIndex = newValue;
+    widget.controller._updateCurrentIndex(
+      currentIndex: _currentIndex,
+    );
   }
 
   SwipeSession? _currentSessionState;
@@ -309,20 +334,22 @@ class _SwipableStackState extends State<SwipableStack>
     if (_currentSessionState == session) {
       return;
     }
-    _currentSessionState = session;
+    setState(() {
+      _currentSessionState = session;
+    });
   }
 
   void initializeSessions() {
     setState(() {
       _currentSessionState = null;
-      _previousSession = null;
+      previousSession = null;
     });
   }
 
   void completeAction() {
     setState(() {
-      _previousSession = currentSession?.copyWith();
-      _currentIndex += 1;
+      previousSession = currentSession?.copyWith();
+      currentIndex += 1;
       _currentSessionState = null;
     });
   }
@@ -335,8 +362,8 @@ class _SwipableStackState extends State<SwipableStack>
 
   void prepareRewind() {
     setState(() {
-      _currentSessionState = _previousSession?.copyWith();
-      _currentIndex -= 1;
+      _currentSessionState = previousSession?.copyWith();
+      currentIndex -= 1;
     });
   }
 
@@ -347,8 +374,18 @@ class _SwipableStackState extends State<SwipableStack>
   /// The recent previous session would be registered.
   SwipeSession? get previousSession => _previousSession;
 
+  set previousSession(SwipeSession? newValue) {
+    if (_previousSession == newValue) {
+      return;
+    }
+    _previousSession = newValue;
+    widget.controller._updateCanRewind(
+      canRewind: canRewind,
+    );
+  }
+
   /// Whether to rewind.
-  bool get canRewind => previousSession != null && _currentIndex > 0;
+  bool get canRewind => previousSession != null && currentIndex > 0;
 
   double _distanceToAssist({
     required BuildContext context,
@@ -465,16 +502,6 @@ class _SwipableStackState extends State<SwipableStack>
 
   BoxConstraints? _areConstraints;
 
-  void _listenController() {
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addListener(_listenController);
-  }
-
   @override
   void didUpdateWidget(covariant SwipableStack oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -514,9 +541,9 @@ class _SwipableStackState extends State<SwipableStack>
 
   List<Widget> _buildCards(BuildContext context, BoxConstraints constraints) {
     final cards = <Widget>[];
-    for (var index = _currentIndex;
+    for (var index = currentIndex;
         index <
-            math.min(_currentIndex + 3, widget.itemCount ?? _currentIndex + 3);
+            math.min(currentIndex + 3, widget.itemCount ?? currentIndex + 3);
         index++) {
       cards.add(
         widget.builder(
@@ -547,7 +574,7 @@ class _SwipableStackState extends State<SwipableStack>
         final overlay = widget.overlayBuilder?.call(
           context,
           constraints,
-          _currentIndex,
+          currentIndex,
           swipeDirectionRate.direction,
           swipeDirectionRate.rate,
         );
@@ -576,7 +603,7 @@ class _SwipableStackState extends State<SwipableStack>
   }) {
     final session = _currentSession ?? SwipeSession.notMoving();
     return _SwipablePositioned(
-      key: child.key ?? ValueKey(_currentIndex + index),
+      key: child.key ?? ValueKey(currentIndex + index),
       session: session,
       index: index,
       viewFraction: widget.viewFraction,
@@ -642,7 +669,7 @@ class _SwipableStackState extends State<SwipableStack>
             return;
           }
           final allowMoveNext = widget.onWillMoveNext?.call(
-                _currentIndex,
+                currentIndex,
                 swipeAssistDirection,
               ) ??
               true;
@@ -761,7 +788,7 @@ class _SwipableStackState extends State<SwipableStack>
       (_) {
         animation.removeListener(animate);
         widget.onSwipeCompleted?.call(
-          _currentIndex,
+          currentIndex,
           swipeDirection,
         );
         completeAction();
@@ -784,7 +811,7 @@ class _SwipableStackState extends State<SwipableStack>
 
     if (!ignoreOnWillMoveNext) {
       final allowMoveNext = widget.onWillMoveNext?.call(
-            _currentIndex,
+            currentIndex,
             swipeDirection,
           ) ??
           true;
@@ -825,7 +852,7 @@ class _SwipableStackState extends State<SwipableStack>
       (_) {
         if (shouldCallCompletionCallback) {
           widget.onSwipeCompleted?.call(
-            _currentIndex,
+            currentIndex,
             swipeDirection,
           );
         }
@@ -844,7 +871,6 @@ class _SwipableStackState extends State<SwipableStack>
     _swipeAnimationController.dispose();
     _swipeAssistController.dispose();
     _rewindAnimationController.dispose();
-    widget.controller.removeListener(_listenController);
     super.dispose();
   }
 }

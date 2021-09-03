@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:example/card_label.dart';
 import 'package:flutter/material.dart';
+import 'package:state_notifier/state_notifier.dart';
 import 'package:swipable_stack/swipable_stack.dart';
 
 class SwipeDirectionColor {
@@ -23,7 +24,6 @@ extension SwipeDirecionX on SwipeDirection {
       case SwipeDirection.down:
         return Color.fromRGBO(154, 85, 215, 1);
     }
-    return Colors.transparent;
   }
 }
 
@@ -54,23 +54,29 @@ class MyApp extends StatelessWidget {
 }
 
 class Home extends StatefulWidget {
-  const Home({Key key}) : super(key: key);
+  const Home({Key? key}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  SwipableStackController _controller;
-
-  void _listenController() {
-    setState(() {});
-  }
+  final _controller = SwipableStackController();
+  late final RemoveListener _removeListener;
+  int _currentIndex = 0;
+  bool _canRewind = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = SwipableStackController()..addListener(_listenController);
+    _removeListener = _controller.addListener(
+      (state) {
+        setState(() {
+          _currentIndex = state.currentIndex;
+          _canRewind = state.canRewind;
+        });
+      },
+    );
   }
 
   static const double _bottomAreaHeight = 100;
@@ -81,7 +87,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('currentIndex:${_controller.currentIndex}'),
+        title: Text('currentIndex:${_currentIndex}'),
       ),
       body: SafeArea(
         child: Column(
@@ -155,11 +161,9 @@ class _HomeState extends State<Home> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _BottomButton(
-                    color: _controller.canRewind
-                        ? Colors.amberAccent
-                        : Colors.grey,
+                    color: _canRewind ? Colors.amberAccent : Colors.grey,
                     child: const Icon(Icons.refresh),
-                    onPressed: _controller.canRewind
+                    onPressed: _canRewind
                         ? () {
                             _controller.rewind();
                           }
@@ -213,20 +217,20 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     super.dispose();
-    _controller.removeListener(_listenController);
+    _removeListener();
     _controller.dispose();
   }
 }
 
 class _BottomButton extends StatelessWidget {
   const _BottomButton({
-    Key key,
-    @required this.onPressed,
-    @required this.child,
-    @required this.color,
+    required this.onPressed,
+    required this.child,
+    required this.color,
+    Key? key,
   }) : super(key: key);
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Icon child;
   final Color color;
 
