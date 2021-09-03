@@ -15,75 +15,10 @@ enum SwipeDirection {
 
 /// An object to manipulate the [SwipableStack].
 class SwipableStackController extends ChangeNotifier {
-  SwipableStackController({
-    int initialIndex = 0,
-  })  : _currentIndex = initialIndex,
-        assert(initialIndex >= 0);
+  SwipableStackController();
 
   /// The key for [SwipableStack] to control.
   final _swipableStackStateKey = GlobalKey<_SwipableStackState>();
-
-  int _currentIndex;
-
-  /// Current index of [SwipableStack].
-  int get currentIndex => _currentIndex;
-
-  set currentIndex(int newValue) {
-    if (_currentIndex == newValue) {
-      return;
-    }
-    _currentIndex = newValue;
-    notifyListeners();
-  }
-
-  SwipeSession? _currentSessionState;
-
-  /// The current session that user swipes.
-  ///
-  /// If you doesn't touch or finished the session, It would be null.
-  SwipeSession? get currentSession => _currentSessionState;
-
-  void updateSwipe(SwipeSession? session) {
-    if (_currentSessionState == session) {
-      return;
-    }
-    _currentSessionState = session;
-    notifyListeners();
-  }
-
-  void initializeSessions() {
-    _currentSessionState = null;
-    _previousSession = null;
-    notifyListeners();
-  }
-
-  void completeAction() {
-    _previousSession = currentSession?.copyWith();
-    _currentIndex += 1;
-    _currentSessionState = null;
-    notifyListeners();
-  }
-
-  void cancelAction() {
-    _currentSessionState = null;
-    notifyListeners();
-  }
-
-  void prepareRewind() {
-    _currentSessionState = _previousSession?.copyWith();
-    _currentIndex -= 1;
-    notifyListeners();
-  }
-
-  SwipeSession? _previousSession;
-
-  /// The previous session that user swipes.
-  ///
-  /// The recent previous session would be registered.
-  SwipeSession? get previousSession => _previousSession;
-
-  /// Whether to rewind.
-  bool get canRewind => previousSession != null && _currentIndex > 0;
 
   /// Advance to the next card with specified [swipeDirection].
   ///
@@ -349,6 +284,72 @@ class _SwipableStackState extends State<SwipableStack>
     vsync: this,
   );
 
+  int _currentIndex = 0;
+
+  /// Current index of [SwipableStack].
+  int get currentIndex => _currentIndex;
+
+  set currentIndex(int newValue) {
+    if (_currentIndex == newValue) {
+      return;
+    }
+    setState(() {
+      _currentIndex = newValue;
+    });
+  }
+
+  SwipeSession? _currentSessionState;
+
+  /// The current session that user swipes.
+  ///
+  /// If you doesn't touch or finished the session, It would be null.
+  SwipeSession? get currentSession => _currentSessionState;
+
+  void updateSwipe(SwipeSession? session) {
+    if (_currentSessionState == session) {
+      return;
+    }
+    _currentSessionState = session;
+  }
+
+  void initializeSessions() {
+    setState(() {
+      _currentSessionState = null;
+      _previousSession = null;
+    });
+  }
+
+  void completeAction() {
+    setState(() {
+      _previousSession = currentSession?.copyWith();
+      _currentIndex += 1;
+      _currentSessionState = null;
+    });
+  }
+
+  void cancelAction() {
+    setState(() {
+      _currentSessionState = null;
+    });
+  }
+
+  void prepareRewind() {
+    setState(() {
+      _currentSessionState = _previousSession?.copyWith();
+      _currentIndex -= 1;
+    });
+  }
+
+  SwipeSession? _previousSession;
+
+  /// The previous session that user swipes.
+  ///
+  /// The recent previous session would be registered.
+  SwipeSession? get previousSession => _previousSession;
+
+  /// Whether to rewind.
+  bool get canRewind => previousSession != null && _currentIndex > 0;
+
   double _distanceToAssist({
     required BuildContext context,
     required Offset difference,
@@ -448,9 +449,6 @@ class _SwipableStackState extends State<SwipableStack>
     );
   }
 
-  /// The index of the item which displays front.
-  int get _currentIndex => widget.controller.currentIndex;
-
   bool get canSwipe =>
       !_swipeAssistController.animating &&
       !_swipeAnimationController.animating &&
@@ -463,7 +461,7 @@ class _SwipableStackState extends State<SwipableStack>
       !_rewindAnimationController.animating;
 
   /// The current session of swipe action.
-  SwipeSession? get _currentSession => widget.controller.currentSession;
+  SwipeSession? get _currentSession => currentSession;
 
   BoxConstraints? _areConstraints;
 
@@ -600,7 +598,7 @@ class _SwipableStackState extends State<SwipableStack>
               ..stop()
               ..reset();
           }
-          widget.controller.updateSwipe(
+          updateSwipe(
             SwipeSession(
               localPosition: d.localPosition,
               startPosition: d.globalPosition,
@@ -620,7 +618,7 @@ class _SwipableStackState extends State<SwipableStack>
           final updated = _currentSession?.copyWith(
             currentPosition: d.globalPosition,
           );
-          widget.controller.updateSwipe(
+          updateSwipe(
             updated ??
                 SwipeSession(
                   localPosition: d.localPosition,
@@ -660,8 +658,8 @@ class _SwipableStackState extends State<SwipableStack>
   }
 
   void _animatePosition(Animation<Offset> positionAnimation) {
-    widget.controller.updateSwipe(
-      widget.controller.currentSession?.copyWith(
+    updateSwipe(
+      currentSession?.copyWith(
         currentPosition: positionAnimation.value,
       ),
     );
@@ -673,11 +671,11 @@ class _SwipableStackState extends State<SwipableStack>
     if (!canAnimationStart) {
       return;
     }
-    final previousSession = widget.controller.previousSession;
+    final previousSession = this.previousSession;
     if (previousSession == null) {
       return;
     }
-    widget.controller.prepareRewind();
+    prepareRewind();
     _rewindAnimationController.duration = duration;
     final rewindAnimation = _rewindAnimationController.cancelAnimation(
       startPosition: previousSession.startPosition,
@@ -691,16 +689,16 @@ class _SwipableStackState extends State<SwipableStack>
     _rewindAnimationController.forward(from: 0).then(
       (_) {
         rewindAnimation.removeListener(_animate);
-        widget.controller.initializeSessions();
+        initializeSessions();
       },
     ).catchError((dynamic c) {
       rewindAnimation.removeListener(_animate);
-      widget.controller.initializeSessions();
+      initializeSessions();
     });
   }
 
   void _cancelSwipe() {
-    final currentSession = widget.controller.currentSession;
+    final currentSession = _currentSession;
     if (currentSession == null) {
       return;
     }
@@ -716,11 +714,11 @@ class _SwipableStackState extends State<SwipableStack>
     _swipeCancelAnimationController.forward(from: 0).then(
       (_) {
         cancelAnimation.removeListener(_animate);
-        widget.controller.cancelAction();
+        cancelAction();
       },
     ).catchError((dynamic c) {
       cancelAnimation.removeListener(_animate);
-      widget.controller.cancelAction();
+      cancelAction();
     });
   }
 
@@ -728,7 +726,7 @@ class _SwipableStackState extends State<SwipableStack>
     if (!canSwipe) {
       return;
     }
-    final currentSession = widget.controller.currentSession;
+    final currentSession = _currentSession;
     if (currentSession == null) {
       return;
     }
@@ -766,11 +764,11 @@ class _SwipableStackState extends State<SwipableStack>
           _currentIndex,
           swipeDirection,
         );
-        widget.controller.completeAction();
+        completeAction();
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);
-      widget.controller.cancelAction();
+      cancelAction();
     });
   }
 
@@ -795,7 +793,7 @@ class _SwipableStackState extends State<SwipableStack>
       }
     }
     final startPosition = SwipeSession.notMoving();
-    widget.controller.updateSwipe(startPosition);
+    updateSwipe(startPosition);
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
       context: context,
@@ -832,11 +830,11 @@ class _SwipableStackState extends State<SwipableStack>
           );
         }
         animation.removeListener(animate);
-        widget.controller.completeAction();
+        completeAction();
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);
-      widget.controller.cancelAction();
+      cancelAction();
     });
   }
 
