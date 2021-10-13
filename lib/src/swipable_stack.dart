@@ -269,6 +269,7 @@ class SwipableStack extends StatefulWidget {
     this.viewFraction = _defaultViewFraction,
     this.swipeAssistDuration = _defaultSwipeAssistDuration,
     this.stackClipBehaviour = _defaultStackClipBehaviour,
+    this.allowVerticalSwipe = true,
   })  : controller = controller ?? SwipableStackController(),
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
@@ -311,6 +312,9 @@ class SwipableStack extends StatefulWidget {
   final Duration swipeAssistDuration;
 
   final Clip stackClipBehaviour;
+
+  /// Allow vertical swipe
+  final bool allowVerticalSwipe;
 
   static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
@@ -617,8 +621,12 @@ class _SwipableStackState extends State<SwipableStack>
               ..stop()
               ..reset();
           }
+          //do not update dy if vertical swipe is not allowed
           final updated = _currentSession?.copyWith(
-            currentPosition: d.globalPosition,
+            currentPosition: widget.allowVerticalSwipe
+                ? d.globalPosition
+                : Offset(
+                    d.globalPosition.dx, _currentSession!.currentPosition.dy),
           );
           widget.controller.updateSwipe(
             updated ??
