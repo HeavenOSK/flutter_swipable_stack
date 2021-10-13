@@ -1,7 +1,10 @@
+## [0.7.0+1]
+- Fix typo on CHANGELOG
+
 ## [0.7.0]
 - Add `allowVerticalSwipe` otpion
     - An option to controll the interaction for vertical swipe
-    - Thanks [kevsjh](hhttps://github.com/kevsjh) :)
+    - Thanks [kevsjh](https://github.com/kevsjh) :)
 
 
 ## [0.6.2]
