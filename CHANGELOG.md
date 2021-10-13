@@ -1,3 +1,9 @@
+## [0.7.0]
+- Add `allowVerticalSwipe` otpion
+    - An option to controll the interaction for vertical swipe
+    - Thanks [kevsjh](hhttps://github.com/kevsjh) :)
+
+
 ## [0.6.2]
 - Update state when `itemCount` is changed.
 
