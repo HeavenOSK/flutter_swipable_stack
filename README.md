@@ -125,4 +125,18 @@ SwipableStack(
 
 The default is true.
 
+## `swipeTopAnchor`
+
+Set the swipe anchor with `swipeTopAnchor`.  
+Changing to `false` to have card anchor at the bottom during swipe
+
+```dart
+SwipableStack(
+  swipeTopAnchor: false,
+)
+```
+
+The default is true.
+
+
 
