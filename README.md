@@ -111,3 +111,18 @@ SwipableStack(
 
 The default is Clip.hardEdge.
 
+
+## `allowVerticalSwipe`
+
+Disable vertical swipe with `allowVerticalSwipe`.  
+Changing to `false` disable vertical swipe capabilities
+
+```dart
+SwipableStack(
+  allowVerticalSwipe: false,
+)
+```
+
+The default is true.
+
+
