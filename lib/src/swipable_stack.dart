@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'swipe_session.dart';
 
-// TODO(heavenOSK): Add document for new feature.
 /// The type of Action to use in [SwipableStack].
 enum SwipeDirection {
   left,
