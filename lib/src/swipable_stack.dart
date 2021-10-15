@@ -4,13 +4,18 @@ import 'package:flutter/material.dart';
 
 import 'swipe_session.dart';
 
-// TODO(heavenOSK): Add document for new feature.
 /// The type of Action to use in [SwipableStack].
 enum SwipeDirection {
   left,
   right,
   up,
   down,
+}
+
+/// Where to anchor the card during swipe
+enum SwipeAnchor {
+  top,
+  bottom,
 }
 
 /// An object to manipulate the [SwipableStack].
@@ -270,6 +275,7 @@ class SwipableStack extends StatefulWidget {
     this.swipeAssistDuration = _defaultSwipeAssistDuration,
     this.stackClipBehaviour = _defaultStackClipBehaviour,
     this.allowVerticalSwipe = true,
+    this.swipeAnchor = SwipeAnchor.top,
   })  : controller = controller ?? SwipableStackController(),
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
@@ -315,6 +321,9 @@ class SwipableStack extends StatefulWidget {
 
   /// Allow vertical swipe
   final bool allowVerticalSwipe;
+
+  /// Where should the card be anchored on during swipe rotation
+  final SwipeAnchor swipeAnchor;
 
   static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
@@ -586,6 +595,7 @@ class _SwipableStackState extends State<SwipableStack>
       session: session,
       index: index,
       viewFraction: widget.viewFraction,
+      swipeAnchor: widget.swipeAnchor,
       swipeDirectionRate: session.swipeDirectionRate(
         constraints: constraints,
         horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
@@ -867,6 +877,7 @@ class _SwipablePositioned extends StatelessWidget {
     required this.child,
     required this.swipeDirectionRate,
     required this.viewFraction,
+    this.swipeAnchor = SwipeAnchor.top,
     Key? key,
   })  : assert(0 <= viewFraction && viewFraction <= 1),
         super(key: key);
@@ -897,6 +908,7 @@ class _SwipablePositioned extends StatelessWidget {
   final BoxConstraints areaConstraints;
   final _SwipeRatePerThreshold swipeDirectionRate;
   final double viewFraction;
+  final SwipeAnchor swipeAnchor;
 
   Offset get _currentPositionDiff => session.difference;
 
@@ -905,7 +917,9 @@ class _SwipablePositioned extends StatelessWidget {
   bool get _isSecond => index == 1;
 
   double get _rotationAngle => _isFirst
-      ? calculateAngle(_currentPositionDiff.dx, areaConstraints.maxWidth)
+      ? swipeAnchor == SwipeAnchor.top
+          ? calculateAngle(_currentPositionDiff.dx, areaConstraints.maxWidth)
+          : -calculateAngle(_currentPositionDiff.dx, areaConstraints.maxWidth)
       : 0;
 
   static double calculateAngle(double differenceX, double areaWidth) {

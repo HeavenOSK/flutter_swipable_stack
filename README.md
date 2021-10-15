@@ -125,4 +125,19 @@ SwipableStack(
 
 The default is true.
 
+## `swipeTopAnchor`
+
+Set the swipe anchor with `swipeAnchor` with the following enum
+SwipeAnchor.top : card rotation on bottom and anchored on top
+SwipeAnchor.bottom : card rotation on top and anchored on bottom
+
+```dart
+SwipableStack(
+  swipeAnchor: SwipeAnchor.top,
+)
+```
+
+The default is SwipeAnchor.top.
+
+
 
