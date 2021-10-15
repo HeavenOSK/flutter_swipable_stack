@@ -29,8 +29,6 @@
 .pub-cache/
 .pub/
 build/
-pubspec.lock
-example/pubspec.lock
 
 # Android related
 **/android/**/gradle-wrapper.jar
@@ -74,3 +72,5 @@ example/pubspec.lock
 !**/ios/**/default.mode2v3
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
+
+.vscode

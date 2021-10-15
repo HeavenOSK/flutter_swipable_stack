@@ -1,3 +1,8 @@
+## [0.7.1]
+- Add `swipeAnchor` otpion
+    - An option for setting anchor positon of swipe.
+    - Thanks [kevsjh](https://github.com/kevsjh) :)
+
 ## [0.7.0+1]
 - Fix typo on CHANGELOG
 
