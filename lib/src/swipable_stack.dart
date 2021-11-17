@@ -2,262 +2,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'swipe_session.dart';
-
-/// The type of Action to use in [SwipableStack].
-enum SwipeDirection {
-  left,
-  right,
-  up,
-  down,
-}
-
-/// Where to anchor the card during swipe
-enum SwipeAnchor {
-  top,
-  bottom,
-}
-
-/// An object to manipulate the [SwipableStack].
-class SwipableStackController extends ChangeNotifier {
-  SwipableStackController({
-    int initialIndex = 0,
-  })  : _currentIndex = initialIndex,
-        assert(initialIndex >= 0);
-
-  /// The key for [SwipableStack] to control.
-  final _swipableStackStateKey = GlobalKey<_SwipableStackState>();
-
-  int _currentIndex;
-
-  /// Current index of [SwipableStack].
-  int get currentIndex => _currentIndex;
-
-  set currentIndex(int newValue) {
-    if (_currentIndex == newValue) {
-      return;
-    }
-    _currentIndex = newValue;
-    notifyListeners();
-  }
-
-  SwipeSession? _currentSessionState;
-
-  /// The current session that user swipes.
-  ///
-  /// If you doesn't touch or finished the session, It would be null.
-  SwipeSession? get currentSession => _currentSessionState;
-
-  void updateSwipe(SwipeSession? session) {
-    if (_currentSessionState == session) {
-      return;
-    }
-    _currentSessionState = session;
-    notifyListeners();
-  }
-
-  void initializeSessions() {
-    _currentSessionState = null;
-    _previousSession = null;
-    notifyListeners();
-  }
-
-  void completeAction() {
-    _previousSession = currentSession?.copyWith();
-    _currentIndex += 1;
-    _currentSessionState = null;
-    notifyListeners();
-  }
-
-  void cancelAction() {
-    _currentSessionState = null;
-    notifyListeners();
-  }
-
-  void prepareRewind() {
-    _currentSessionState = _previousSession?.copyWith();
-    _currentIndex -= 1;
-    notifyListeners();
-  }
-
-  SwipeSession? _previousSession;
-
-  /// The previous session that user swipes.
-  ///
-  /// The recent previous session would be registered.
-  SwipeSession? get previousSession => _previousSession;
-
-  /// Whether to rewind.
-  bool get canRewind => previousSession != null && _currentIndex > 0;
-
-  /// Advance to the next card with specified [swipeDirection].
-  ///
-  /// You can reject [SwipableStack.onSwipeCompleted] invocation by
-  /// setting [shouldCallCompletionCallback] to false.
-  ///
-  /// You can ignore checking with [SwipableStack#onWillMoveNext] by
-  /// setting [ignoreOnWillMoveNext] to true.
-  ///
-  /// You can change animation speed by setting [duration].
-  void next({
-    required SwipeDirection swipeDirection,
-    bool shouldCallCompletionCallback = true,
-    bool ignoreOnWillMoveNext = false,
-    Duration? duration,
-  }) {
-    _swipableStackStateKey.currentState?._next(
-      swipeDirection: swipeDirection,
-      shouldCallCompletionCallback: shouldCallCompletionCallback,
-      ignoreOnWillMoveNext: ignoreOnWillMoveNext,
-      duration: duration,
-    );
-  }
-
-  /// Rewind the most recent action.
-  ///
-  /// You can change animation speed by setting [duration].
-  void rewind({
-    Duration duration = SwipableStack._defaultRewindDuration,
-  }) {
-    _swipableStackStateKey.currentState?._rewind(
-      duration: duration,
-    );
-  }
-}
-
-class _SwipeRatePerThreshold {
-  _SwipeRatePerThreshold({
-    required this.direction,
-    required this.rate,
-  }) : assert(rate >= 0);
-
-  final SwipeDirection direction;
-  final double rate;
-}
-
-extension _SwipeDirectionX on SwipeDirection {
-  Offset get defaultOffset {
-    switch (this) {
-      case SwipeDirection.left:
-        return const Offset(-1, 0);
-      case SwipeDirection.right:
-        return const Offset(1, 0);
-      case SwipeDirection.up:
-        return const Offset(0, -1);
-      case SwipeDirection.down:
-        return const Offset(0, 1);
-    }
-  }
-
-  bool get isHorizontal =>
-      this == SwipeDirection.right || this == SwipeDirection.left;
-}
-
-extension _AnimationControllerX on AnimationController {
-  bool get animating =>
-      status == AnimationStatus.forward || status == AnimationStatus.reverse;
-
-  Animation<Offset> cancelAnimation({
-    required Offset startPosition,
-    required Offset currentPosition,
-  }) {
-    return Tween<Offset>(
-      begin: currentPosition,
-      end: startPosition,
-    ).animate(
-      CurvedAnimation(
-        parent: this,
-        curve: const ElasticOutCurve(0.95),
-      ),
-    );
-  }
-
-  Animation<Offset> swipeAnimation({
-    required Offset startPosition,
-    required Offset endPosition,
-  }) {
-    return Tween<Offset>(
-      begin: startPosition,
-      end: endPosition,
-    ).animate(
-      CurvedAnimation(
-        parent: this,
-        curve: const Cubic(0.7, 1, 0.73, 1),
-      ),
-    );
-  }
-}
-
-extension _SwipeSessionX on SwipeSession {
-  _SwipeRatePerThreshold swipeDirectionRate({
-    required BoxConstraints constraints,
-    required double horizontalSwipeThreshold,
-    required double verticalSwipeThreshold,
-  }) {
-    final horizontalRate = (difference.dx.abs() / constraints.maxWidth) /
-        (horizontalSwipeThreshold / 2);
-    final verticalRate = (difference.dy.abs() / constraints.maxHeight) /
-        (verticalSwipeThreshold / 2);
-    final horizontalRateGreater = horizontalRate >= verticalRate;
-    if (horizontalRateGreater) {
-      return _SwipeRatePerThreshold(
-        direction:
-            difference.dx >= 0 ? SwipeDirection.right : SwipeDirection.left,
-        rate: horizontalRate,
-      );
-    } else {
-      return _SwipeRatePerThreshold(
-        direction: difference.dy >= 0 ? SwipeDirection.down : SwipeDirection.up,
-        rate: verticalRate,
-      );
-    }
-  }
-
-  SwipeDirection? swipeAssistDirection({
-    required BoxConstraints constraints,
-    required double horizontalSwipeThreshold,
-    required double verticalSwipeThreshold,
-  }) {
-    final directionRate = swipeDirectionRate(
-      constraints: constraints,
-      horizontalSwipeThreshold: horizontalSwipeThreshold,
-      verticalSwipeThreshold: verticalSwipeThreshold,
-    );
-    if (directionRate.rate < 1) {
-      return null;
-    } else {
-      return directionRate.direction;
-    }
-  }
-}
-
-/// Callback called when the Swipe is completed.
-typedef SwipeCompletionCallback = void Function(
-  int index,
-  SwipeDirection direction,
-);
-
-/// Callback called just before launching the Swipe action.
-typedef OnWillMoveNext = bool Function(
-  int index,
-  SwipeDirection swipeDirection,
-);
-
-/// Builder for items to be displayed in [SwipableStack].
-typedef SwipableStackItemBuilder = Widget Function(
-  BuildContext context,
-  int index,
-  BoxConstraints constraints,
-);
-
-/// Builder for displaying an overlay on the most foreground card.
-typedef SwipableStackOverlayBuilder = Widget Function(
-  BuildContext context,
-  BoxConstraints constraints,
-  int index,
-  SwipeDirection direction,
-  double swipeProgress,
-);
+part 'animation/animation.dart';
+part 'callback/callbacks.dart';
+part 'enum/swipe_anchor.dart';
+part 'enum/swipe_direction.dart';
+part 'model/swipe_rate_per_threshold.dart';
+part 'model/swipe_session.dart';
+part 'swipable_stack_controller.dart';
 
 /// A widget for stacking cards, which users can swipe horizontally and
 /// vertically with beautiful animations.
@@ -476,7 +227,7 @@ class _SwipableStackState extends State<SwipableStack>
       !_rewindAnimationController.animating;
 
   /// The current session of swipe action.
-  SwipeSession? get _currentSession => widget.controller.currentSession;
+  _SwipeSession? get _currentSession => widget.controller.currentSession;
 
   BoxConstraints? _areConstraints;
 
@@ -567,7 +318,7 @@ class _SwipableStackState extends State<SwipableStack>
           swipeDirectionRate.rate,
         );
         if (overlay != null) {
-          final session = _currentSession ?? SwipeSession.notMoving();
+          final session = _currentSession ?? _SwipeSession.notMoving();
           positionedCards.add(
             _SwipablePositioned.overlay(
               viewFraction: widget.viewFraction,
@@ -589,7 +340,7 @@ class _SwipableStackState extends State<SwipableStack>
     required Widget child,
     required BoxConstraints constraints,
   }) {
-    final session = _currentSession ?? SwipeSession.notMoving();
+    final session = _currentSession ?? _SwipeSession.notMoving();
     return _SwipablePositioned(
       key: child.key ?? ValueKey(_currentIndex + index),
       session: session,
@@ -615,7 +366,7 @@ class _SwipableStackState extends State<SwipableStack>
               ..reset();
           }
           widget.controller.updateSwipe(
-            SwipeSession(
+            _SwipeSession(
               localPosition: d.localPosition,
               startPosition: d.globalPosition,
               currentPosition: d.globalPosition,
@@ -640,7 +391,7 @@ class _SwipableStackState extends State<SwipableStack>
           );
           widget.controller.updateSwipe(
             updated ??
-                SwipeSession(
+                _SwipeSession(
                   localPosition: d.localPosition,
                   startPosition: d.globalPosition,
                   currentPosition: d.globalPosition,
@@ -812,7 +563,7 @@ class _SwipableStackState extends State<SwipableStack>
         return;
       }
     }
-    final startPosition = SwipeSession.notMoving();
+    final startPosition = _SwipeSession.notMoving();
     widget.controller.updateSwipe(startPosition);
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
@@ -883,7 +634,7 @@ class _SwipablePositioned extends StatelessWidget {
         super(key: key);
 
   static Widget overlay({
-    required SwipeSession session,
+    required _SwipeSession session,
     required BoxConstraints areaConstraints,
     required Widget child,
     required _SwipeRatePerThreshold swipeDirectionRate,
@@ -903,7 +654,7 @@ class _SwipablePositioned extends StatelessWidget {
   }
 
   final int index;
-  final SwipeSession session;
+  final _SwipeSession session;
   final Widget child;
   final BoxConstraints areaConstraints;
   final _SwipeRatePerThreshold swipeDirectionRate;

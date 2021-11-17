@@ -1,19 +1,17 @@
-import 'package:flutter/material.dart';
-
-import 'swipable_stack.dart';
+part of '../swipable_stack.dart';
 
 const double _fingerHeight = 50;
 
 /// The information to record swiping position for [SwipableStack].
-class SwipeSession {
-  const SwipeSession({
+class _SwipeSession {
+  const _SwipeSession({
     required this.startPosition,
     required this.currentPosition,
     required this.localPosition,
   });
 
-  factory SwipeSession.notMoving() {
-    return const SwipeSession(
+  factory _SwipeSession.notMoving() {
+    return const _SwipeSession(
       startPosition: Offset.zero,
       currentPosition: Offset.zero,
       localPosition: Offset.zero,
@@ -31,7 +29,7 @@ class SwipeSession {
 
   @override
   bool operator ==(Object other) =>
-      other is SwipeSession &&
+      other is _SwipeSession &&
       startPosition == other.startPosition &&
       currentPosition == other.currentPosition &&
       localPosition == other.localPosition;
@@ -44,18 +42,18 @@ class SwipeSession {
       localPosition.hashCode;
 
   @override
-  String toString() => '$SwipeSession('
+  String toString() => '$_SwipeSession('
       'startPosition:$startPosition,'
       'currentPosition:$currentPosition,'
       'localPosition:$localPosition'
       ')';
 
-  SwipeSession copyWith({
+  _SwipeSession copyWith({
     Offset? startPosition,
     Offset? currentPosition,
     Offset? localPosition,
   }) =>
-      SwipeSession(
+      _SwipeSession(
         startPosition: startPosition ?? this.startPosition,
         currentPosition: currentPosition ?? this.currentPosition,
         localPosition: localPosition ?? this.localPosition,
