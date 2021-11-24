@@ -1,6 +1,6 @@
 part of '../swipable_stack.dart';
 
-const double _fingerHeight = 50;
+// const double _fingerHeight = 50;
 
 /// The information to record swiping position for [SwipableStack].
 class _SwipableStackPosition {
@@ -63,6 +63,6 @@ class _SwipableStackPosition {
 
   /// Adjusted [local] for user's finger.
   Offset? get localFingerPosition {
-    return local + const Offset(0, -_fingerHeight);
+    return local + const Offset(0, -0);
   }
 }
