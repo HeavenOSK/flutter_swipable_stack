@@ -3,69 +3,66 @@ part of '../swipable_stack.dart';
 const double _fingerHeight = 50;
 
 /// The information to record swiping position for [SwipableStack].
-class _SwipeSession {
-  const _SwipeSession({
-    required this.startPosition,
-    required this.currentPosition,
-    required this.localPosition,
+class _SwipableStackPosition {
+  const _SwipableStackPosition({
+    required this.start,
+    required this.current,
+    required this.local,
   });
 
-  factory _SwipeSession.notMoving() {
-    return const _SwipeSession(
-      startPosition: Offset.zero,
-      currentPosition: Offset.zero,
-      localPosition: Offset.zero,
+  factory _SwipableStackPosition.notMoving() {
+    return const _SwipableStackPosition(
+      start: Offset.zero,
+      current: Offset.zero,
+      local: Offset.zero,
     );
   }
 
   /// The start point of swipe action.
-  final Offset startPosition;
+  final Offset start;
 
   /// The current point of swipe action.
-  final Offset currentPosition;
+  final Offset current;
 
   /// The point which user is touching in the component.
-  final Offset localPosition;
+  final Offset local;
 
   @override
   bool operator ==(Object other) =>
-      other is _SwipeSession &&
-      startPosition == other.startPosition &&
-      currentPosition == other.currentPosition &&
-      localPosition == other.localPosition;
+      other is _SwipableStackPosition &&
+      start == other.start &&
+      current == other.current &&
+      local == other.local;
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^
-      startPosition.hashCode ^
-      currentPosition.hashCode ^
-      localPosition.hashCode;
+      runtimeType.hashCode ^ start.hashCode ^ current.hashCode ^ local.hashCode;
 
   @override
-  String toString() => '$_SwipeSession('
-      'startPosition:$startPosition,'
-      'currentPosition:$currentPosition,'
-      'localPosition:$localPosition'
+  String toString() => '$_SwipableStackPosition('
+      'startPosition:$start,'
+      'currentPosition:$current,'
+      'localPosition:$local'
       ')';
 
-  _SwipeSession copyWith({
+  _SwipableStackPosition copyWith({
     Offset? startPosition,
     Offset? currentPosition,
     Offset? localPosition,
   }) =>
-      _SwipeSession(
-        startPosition: startPosition ?? this.startPosition,
-        currentPosition: currentPosition ?? this.currentPosition,
-        localPosition: localPosition ?? this.localPosition,
+      _SwipableStackPosition(
+        start: startPosition ?? start,
+        current: currentPosition ?? current,
+        local: localPosition ?? local,
       );
 
-  /// Difference offset from [startPosition] to [currentPosition] .
+  /// Difference offset from [start] to [current] .
   Offset get difference {
-    return currentPosition - startPosition;
+    return current - start;
   }
 
-  /// Adjusted [localPosition] for user's finger.
+  /// Adjusted [local] for user's finger.
   Offset? get localFingerPosition {
-    return localPosition + const Offset(0, -_fingerHeight);
+    return local + const Offset(0, -_fingerHeight);
   }
 }

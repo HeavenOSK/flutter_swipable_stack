@@ -23,14 +23,14 @@ class SwipableStackController extends ChangeNotifier {
     notifyListeners();
   }
 
-  _SwipeSession? _currentSessionState;
+  _SwipableStackPosition? _currentSessionState;
 
   /// The current session that user swipes.
   ///
   /// If you doesn't touch or finished the session, It would be null.
-  _SwipeSession? get currentSession => _currentSessionState;
+  _SwipableStackPosition? get currentSession => _currentSessionState;
 
-  void _updateSwipe(_SwipeSession? session) {
+  void _updateSwipe(_SwipableStackPosition? session) {
     if (_currentSessionState == session) {
       return;
     }
@@ -62,7 +62,7 @@ class SwipableStackController extends ChangeNotifier {
     notifyListeners();
   }
 
-  _SwipeSession? _previousSession;
+  _SwipableStackPosition? _previousSession;
 
   /// Whether to rewind.
   bool get canRewind => _previousSession != null && _currentIndex > 0;

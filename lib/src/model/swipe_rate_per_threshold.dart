@@ -10,7 +10,7 @@ class _SwipeRatePerThreshold {
   final double rate;
 }
 
-extension _SwipeSessionX on _SwipeSession {
+extension _SwipableStackPositionX on _SwipableStackPosition {
   _SwipeRatePerThreshold swipeDirectionRate({
     required BoxConstraints constraints,
     required double horizontalSwipeThreshold,

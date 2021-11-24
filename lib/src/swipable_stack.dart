@@ -227,7 +227,7 @@ class _SwipableStackState extends State<SwipableStack>
       !_rewindAnimationController.animating;
 
   /// The current session of swipe action.
-  _SwipeSession? get _currentSession => widget.controller.currentSession;
+  _SwipableStackPosition? get _currentSession => widget.controller.currentSession;
 
   BoxConstraints? _areConstraints;
 
@@ -318,7 +318,7 @@ class _SwipableStackState extends State<SwipableStack>
           swipeDirectionRate.rate,
         );
         if (overlay != null) {
-          final session = _currentSession ?? _SwipeSession.notMoving();
+          final session = _currentSession ?? _SwipableStackPosition.notMoving();
           positionedCards.add(
             _SwipablePositioned.overlay(
               viewFraction: widget.viewFraction,
@@ -340,7 +340,7 @@ class _SwipableStackState extends State<SwipableStack>
     required Widget child,
     required BoxConstraints constraints,
   }) {
-    final session = _currentSession ?? _SwipeSession.notMoving();
+    final session = _currentSession ?? _SwipableStackPosition.notMoving();
     return _SwipablePositioned(
       key: child.key ?? ValueKey(_currentIndex + index),
       session: session,
@@ -366,10 +366,10 @@ class _SwipableStackState extends State<SwipableStack>
               ..reset();
           }
           widget.controller._updateSwipe(
-            _SwipeSession(
-              localPosition: d.localPosition,
-              startPosition: d.globalPosition,
-              currentPosition: d.globalPosition,
+            _SwipableStackPosition(
+              local: d.localPosition,
+              start: d.globalPosition,
+              current: d.globalPosition,
             ),
           );
         },
@@ -387,14 +387,14 @@ class _SwipableStackState extends State<SwipableStack>
             currentPosition: widget.allowVerticalSwipe
                 ? d.globalPosition
                 : Offset(
-                    d.globalPosition.dx, _currentSession!.currentPosition.dy),
+                    d.globalPosition.dx, _currentSession!.current.dy),
           );
           widget.controller._updateSwipe(
             updated ??
-                _SwipeSession(
-                  localPosition: d.localPosition,
-                  startPosition: d.globalPosition,
-                  currentPosition: d.globalPosition,
+                _SwipableStackPosition(
+                  local: d.localPosition,
+                  start: d.globalPosition,
+                  current: d.globalPosition,
                 ),
           );
         },
@@ -449,8 +449,8 @@ class _SwipableStackState extends State<SwipableStack>
     widget.controller._prepareRewind();
     _rewindAnimationController.duration = duration;
     final rewindAnimation = _rewindAnimationController.cancelAnimation(
-      startPosition: previousSession.startPosition,
-      currentPosition: previousSession.currentPosition,
+      startPosition: previousSession.start,
+      currentPosition: previousSession.current,
     );
     void _animate() {
       _animatePosition(rewindAnimation);
@@ -474,8 +474,8 @@ class _SwipableStackState extends State<SwipableStack>
       return;
     }
     final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
-      startPosition: currentSession.startPosition,
-      currentPosition: currentSession.currentPosition,
+      startPosition: currentSession.start,
+      currentPosition: currentSession.current,
     );
     void _animate() {
       _animatePosition(cancelAnimation);
@@ -513,8 +513,8 @@ class _SwipableStackState extends State<SwipableStack>
     );
 
     final animation = _swipeAssistController.swipeAnimation(
-      startPosition: currentSession.currentPosition,
-      endPosition: currentSession.currentPosition +
+      startPosition: currentSession.current,
+      endPosition: currentSession.current +
           _offsetToAssist(
             distToAssist: distToAssist,
             difference: currentSession.difference,
@@ -563,7 +563,7 @@ class _SwipableStackState extends State<SwipableStack>
         return;
       }
     }
-    final startPosition = _SwipeSession.notMoving();
+    final startPosition = _SwipableStackPosition.notMoving();
     widget.controller._updateSwipe(startPosition);
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
@@ -578,7 +578,7 @@ class _SwipableStackState extends State<SwipableStack>
         );
 
     final animation = _swipeAnimationController.swipeAnimation(
-      startPosition: startPosition.currentPosition,
+      startPosition: startPosition.current,
       endPosition: _offsetToAssist(
         distToAssist: distToAssist,
         difference: swipeDirection.defaultOffset,
@@ -634,7 +634,7 @@ class _SwipablePositioned extends StatelessWidget {
         super(key: key);
 
   static Widget overlay({
-    required _SwipeSession session,
+    required _SwipableStackPosition session,
     required BoxConstraints areaConstraints,
     required Widget child,
     required _SwipeRatePerThreshold swipeDirectionRate,
@@ -654,7 +654,7 @@ class _SwipablePositioned extends StatelessWidget {
   }
 
   final int index;
-  final _SwipeSession session;
+  final _SwipableStackPosition session;
   final Widget child;
   final BoxConstraints areaConstraints;
   final _SwipeRatePerThreshold swipeDirectionRate;
@@ -677,7 +677,7 @@ class _SwipablePositioned extends StatelessWidget {
     return -differenceX / areaWidth * math.pi / 18;
   }
 
-  Offset get _rotationOrigin => _isFirst ? session.localPosition : Offset.zero;
+  Offset get _rotationOrigin => _isFirst ? session.local : Offset.zero;
 
   double get _animationRate => 1 - viewFraction;
 
