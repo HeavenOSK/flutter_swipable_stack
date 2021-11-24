@@ -365,7 +365,7 @@ class _SwipableStackState extends State<SwipableStack>
               ..stop()
               ..reset();
           }
-          widget.controller.updateSwipe(
+          widget.controller._updateSwipe(
             _SwipeSession(
               localPosition: d.localPosition,
               startPosition: d.globalPosition,
@@ -389,7 +389,7 @@ class _SwipableStackState extends State<SwipableStack>
                 : Offset(
                     d.globalPosition.dx, _currentSession!.currentPosition.dy),
           );
-          widget.controller.updateSwipe(
+          widget.controller._updateSwipe(
             updated ??
                 _SwipeSession(
                   localPosition: d.localPosition,
@@ -429,7 +429,7 @@ class _SwipableStackState extends State<SwipableStack>
   }
 
   void _animatePosition(Animation<Offset> positionAnimation) {
-    widget.controller.updateSwipe(
+    widget.controller._updateSwipe(
       widget.controller.currentSession?.copyWith(
         currentPosition: positionAnimation.value,
       ),
@@ -442,11 +442,11 @@ class _SwipableStackState extends State<SwipableStack>
     if (!canAnimationStart) {
       return;
     }
-    final previousSession = widget.controller.previousSession;
+    final previousSession = widget.controller._previousSession;
     if (previousSession == null) {
       return;
     }
-    widget.controller.prepareRewind();
+    widget.controller._prepareRewind();
     _rewindAnimationController.duration = duration;
     final rewindAnimation = _rewindAnimationController.cancelAnimation(
       startPosition: previousSession.startPosition,
@@ -460,11 +460,11 @@ class _SwipableStackState extends State<SwipableStack>
     _rewindAnimationController.forward(from: 0).then(
       (_) {
         rewindAnimation.removeListener(_animate);
-        widget.controller.initializeSessions();
+        widget.controller._initializeSessions();
       },
     ).catchError((dynamic c) {
       rewindAnimation.removeListener(_animate);
-      widget.controller.initializeSessions();
+      widget.controller._initializeSessions();
     });
   }
 
@@ -535,7 +535,7 @@ class _SwipableStackState extends State<SwipableStack>
           _currentIndex,
           swipeDirection,
         );
-        widget.controller.completeAction();
+        widget.controller._completeAction();
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);
@@ -564,7 +564,7 @@ class _SwipableStackState extends State<SwipableStack>
       }
     }
     final startPosition = _SwipeSession.notMoving();
-    widget.controller.updateSwipe(startPosition);
+    widget.controller._updateSwipe(startPosition);
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
       context: context,
@@ -601,7 +601,7 @@ class _SwipableStackState extends State<SwipableStack>
           );
         }
         animation.removeListener(animate);
-        widget.controller.completeAction();
+        widget.controller._completeAction();
       },
     ).catchError((dynamic c) {
       animation.removeListener(animate);

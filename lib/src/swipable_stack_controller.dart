@@ -30,7 +30,7 @@ class SwipableStackController extends ChangeNotifier {
   /// If you doesn't touch or finished the session, It would be null.
   _SwipeSession? get currentSession => _currentSessionState;
 
-  void updateSwipe(_SwipeSession? session) {
+  void _updateSwipe(_SwipeSession? session) {
     if (_currentSessionState == session) {
       return;
     }
@@ -38,13 +38,13 @@ class SwipableStackController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void initializeSessions() {
+  void _initializeSessions() {
     _currentSessionState = null;
     _previousSession = null;
     notifyListeners();
   }
 
-  void completeAction() {
+  void _completeAction() {
     _previousSession = currentSession?.copyWith();
     _currentIndex += 1;
     _currentSessionState = null;
@@ -56,7 +56,7 @@ class SwipableStackController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void prepareRewind() {
+  void _prepareRewind() {
     _currentSessionState = _previousSession?.copyWith();
     _currentIndex -= 1;
     notifyListeners();
@@ -64,13 +64,8 @@ class SwipableStackController extends ChangeNotifier {
 
   _SwipeSession? _previousSession;
 
-  /// The previous session that user swipes.
-  ///
-  /// The recent previous session would be registered.
-  _SwipeSession? get previousSession => _previousSession;
-
   /// Whether to rewind.
-  bool get canRewind => previousSession != null && _currentIndex > 0;
+  bool get canRewind => _previousSession != null && _currentIndex > 0;
 
   /// Advance to the next card with specified [swipeDirection].
   ///
