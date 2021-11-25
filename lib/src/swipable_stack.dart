@@ -26,7 +26,7 @@ class SwipableStack extends StatefulWidget {
     this.swipeAssistDuration = _defaultSwipeAssistDuration,
     this.stackClipBehaviour = _defaultStackClipBehaviour,
     this.allowVerticalSwipe = true,
-    this.swipeAnchor = SwipeAnchor.top,
+    this.swipeAnchor,
   })  : controller = controller ?? SwipableStackController(),
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
@@ -74,7 +74,7 @@ class SwipableStack extends StatefulWidget {
   final bool allowVerticalSwipe;
 
   /// Where should the card be anchored on during swipe rotation
-  final SwipeAnchor swipeAnchor;
+  final SwipeAnchor? swipeAnchor;
 
   static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
@@ -567,7 +567,7 @@ class _SwipablePositioned extends StatelessWidget {
     required this.child,
     required this.swipeDirectionRate,
     required this.viewFraction,
-    this.swipeAnchor = SwipeAnchor.top,
+    this.swipeAnchor,
     Key? key,
   })  : assert(0 <= viewFraction && viewFraction <= 1),
         super(key: key);
@@ -598,7 +598,7 @@ class _SwipablePositioned extends StatelessWidget {
   final BoxConstraints areaConstraints;
   final _SwipeRatePerThreshold swipeDirectionRate;
   final double viewFraction;
-  final SwipeAnchor swipeAnchor;
+  final SwipeAnchor? swipeAnchor;
 
   Offset get _currentPositionDiff => session.difference;
 
@@ -606,14 +606,28 @@ class _SwipablePositioned extends StatelessWidget {
 
   bool get _isSecond => index == 1;
 
-  double get _rotationAngle => _isFirst
-      ? swipeAnchor == SwipeAnchor.top
-          ? calculateAngle(_currentPositionDiff.dx, areaConstraints.maxWidth)
-          : -calculateAngle(_currentPositionDiff.dx, areaConstraints.maxWidth)
-      : 0;
+  bool get _swipingTop => session.start.dy < areaConstraints.maxHeight / 2;
 
-  static double calculateAngle(double differenceX, double areaWidth) {
-    return -differenceX / areaWidth * math.pi / 18;
+  double get _rotationAngle {
+    if (!_isFirst) {
+      return 0;
+    }
+    final angle = calculateAngle(
+      _currentPositionDiff.dx,
+      areaConstraints.maxWidth,
+    );
+    switch (swipeAnchor) {
+      case SwipeAnchor.top:
+        return angle;
+      case SwipeAnchor.bottom:
+        return -angle;
+      case null:
+        return _swipingTop ? -angle : angle;
+    }
+  }
+
+  double calculateAngle(double differenceX, double areaWidth) {
+    return -differenceX / areaWidth * math.pi / 180 * 15;
   }
 
   Offset get _rotationOrigin => _isFirst ? session.local : Offset.zero;
