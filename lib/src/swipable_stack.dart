@@ -209,7 +209,7 @@ class _SwipableStackState extends State<SwipableStack>
     required Offset difference,
     required double distToAssist,
   }) {
-    final pixelPerMilliseconds = swipeDirection.isHorizontal ? 1.25 : 2.0;
+    final pixelPerMilliseconds = swipeDirection.isHorizontal ? 1.5 : 2;
 
     return Duration(
       milliseconds: math.min(
@@ -224,10 +224,10 @@ class _SwipableStackState extends State<SwipableStack>
     required Offset difference,
     required double distToAssist,
   }) {
-    final pixelPerMilliseconds = swipeDirection.isHorizontal ? 0.78 : 1.25;
+    final rate = swipeDirection.isHorizontal ? 0.85 : 0.7;
 
     return Duration(
-      milliseconds: (450 * pixelPerMilliseconds).toInt(),
+      milliseconds: (450 * rate).toInt(),
     );
   }
 
