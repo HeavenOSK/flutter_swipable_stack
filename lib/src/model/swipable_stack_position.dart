@@ -25,12 +25,12 @@ class _SwipableStackPosition {
         case SwipeDirection.left:
           return Offset(
             areaConstraints.maxWidth * 0.8,
-            areaConstraints.maxHeight * 0.2,
+            areaConstraints.maxHeight * 0.4,
           );
         case SwipeDirection.right:
           return Offset(
             areaConstraints.maxWidth * 0.2,
-            areaConstraints.maxHeight * 0.2,
+            areaConstraints.maxHeight * 0.4,
           );
         case SwipeDirection.up:
           return Offset(
