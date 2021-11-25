@@ -4,9 +4,10 @@ extension _AnimationControllerX on AnimationController {
   bool get animating =>
       status == AnimationStatus.forward || status == AnimationStatus.reverse;
 
-  Animation<Offset> cancelAnimation({
+  Animation<Offset> tweenCurvedAnimation({
     required Offset startPosition,
     required Offset currentPosition,
+    required Curve curve,
   }) {
     return Tween<Offset>(
       begin: currentPosition,
@@ -14,7 +15,7 @@ extension _AnimationControllerX on AnimationController {
     ).animate(
       CurvedAnimation(
         parent: this,
-        curve: const ElasticOutCurve(0.95),
+        curve: curve,
       ),
     );
   }
