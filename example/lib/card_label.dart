@@ -79,7 +79,7 @@ class CardLabel extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 32,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.4,
               color: color,

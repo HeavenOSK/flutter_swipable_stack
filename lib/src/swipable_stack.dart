@@ -83,11 +83,13 @@ class SwipableStack extends StatefulWidget {
   /// Where should the card be anchored on during swipe rotation
   final SwipeAnchor? swipeAnchor;
 
+  /// A curve to animate the card when canceling the swipe.
   final Curve cancelAnimationCurve;
 
+  /// A curve to animate the card when rewinding the swipe.
   final Curve rewindAnimationCurve;
 
-  static const double _defaultHorizontalSwipeThreshold = 0.8;
+  static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
   static const double _defaultViewFraction = 0.94;
 
