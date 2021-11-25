@@ -1,7 +1,5 @@
 part of '../swipable_stack.dart';
 
-const double _fingerHeight = 100;
-
 /// The information to record swiping position for [SwipableStack].
 class _SwipableStackPosition {
   const _SwipableStackPosition({
@@ -26,13 +24,13 @@ class _SwipableStackPosition {
       switch (direction) {
         case SwipeDirection.left:
           return Offset(
-            areaConstraints.maxWidth - _fingerHeight,
-            areaConstraints.maxHeight - _fingerHeight,
+            areaConstraints.maxWidth * 0.8,
+            areaConstraints.maxHeight * 0.2,
           );
         case SwipeDirection.right:
           return Offset(
-            _fingerHeight,
-            areaConstraints.maxHeight - _fingerHeight,
+            areaConstraints.maxWidth * 0.2,
+            areaConstraints.maxHeight * 0.2,
           );
         case SwipeDirection.up:
           return Offset(
