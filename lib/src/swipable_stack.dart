@@ -113,57 +113,7 @@ class _SwipableStackState extends State<SwipableStack>
     vsync: this,
   );
 
-  double _distanceToAssist({
-    required BuildContext context,
-    required Offset difference,
-    required SwipeDirection swipeDirection,
-  }) {
-    final deviceSize = MediaQuery.of(context).size;
-    if (swipeDirection.isHorizontal) {
-      double _backMoveDistance({
-        required double moveDistance,
-        required double maxWidth,
-        required double maxHeight,
-      }) {
-        final cardAngle = _SwipablePositioned.calculateAngle(
-          moveDistance,
-          maxWidth,
-        ).abs();
-        return math.cos(math.pi / 2 - cardAngle) * maxHeight;
-      }
-
-      double _remainingDistance({
-        required double moveDistance,
-        required double maxWidth,
-        required double maxHeight,
-      }) {
-        final backMoveDistance = _backMoveDistance(
-          moveDistance: moveDistance,
-          maxHeight: maxHeight,
-          maxWidth: maxWidth,
-        );
-        final diff = maxWidth - (moveDistance - backMoveDistance);
-        return diff < 1
-            ? moveDistance
-            : _remainingDistance(
-                moveDistance: moveDistance + diff,
-                maxWidth: maxWidth,
-                maxHeight: maxHeight,
-              );
-      }
-
-      final maxWidth = _areConstraints?.maxWidth ?? deviceSize.width;
-      final maxHeight = _areConstraints?.maxHeight ?? deviceSize.height;
-      final maxDistance = _remainingDistance(
-        moveDistance: maxWidth,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-      );
-      return maxDistance - difference.dx.abs();
-    } else {
-      return deviceSize.height - difference.dy.abs();
-    }
-  }
+  double get _distToAssist => _areConstraints!.maxWidth * 1.25;
 
   Offset _offsetToAssist({
     required Offset difference,
@@ -509,13 +459,8 @@ class _SwipableStackState extends State<SwipableStack>
     if (currentSession == null) {
       return;
     }
-    final distToAssist = _distanceToAssist(
-      swipeDirection: swipeDirection,
-      context: context,
-      difference: currentSession.difference,
-    );
     _swipeAssistController.duration = _getSwipeAssistDuration(
-      distToAssist: distToAssist,
+      distToAssist: _distToAssist,
       swipeDirection: swipeDirection,
       difference: currentSession.difference,
     );
@@ -524,7 +469,7 @@ class _SwipableStackState extends State<SwipableStack>
       startPosition: currentSession.current,
       endPosition: currentSession.current +
           _offsetToAssist(
-            distToAssist: distToAssist,
+            distToAssist: _distToAssist,
             difference: currentSession.difference,
             context: context,
             swipeDirection: swipeDirection,
@@ -573,14 +518,10 @@ class _SwipableStackState extends State<SwipableStack>
     }
     final startPosition = _SwipableStackPosition.notMoving();
     widget.controller._updateSwipe(startPosition);
-    final distToAssist = _distanceToAssist(
-      swipeDirection: swipeDirection,
-      context: context,
-      difference: startPosition.difference,
-    );
+
     _swipeAnimationController.duration = duration ??
         _getSwipeAnimationDuration(
-          distToAssist: distToAssist,
+          distToAssist: _distToAssist,
           swipeDirection: swipeDirection,
           difference: startPosition.difference,
         );
@@ -588,7 +529,7 @@ class _SwipableStackState extends State<SwipableStack>
     final animation = _swipeAnimationController.swipeAnimation(
       startPosition: startPosition.current,
       endPosition: _offsetToAssist(
-        distToAssist: distToAssist,
+        distToAssist: _distToAssist,
         difference: swipeDirection.defaultOffset,
         context: context,
         swipeDirection: swipeDirection,
