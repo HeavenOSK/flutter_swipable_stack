@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:sprung/sprung.dart';
 
 part 'animation/animation.dart';
 part 'callback/callbacks.dart';
@@ -26,8 +27,14 @@ class SwipableStack extends StatefulWidget {
     this.swipeAssistDuration = _defaultSwipeAssistDuration,
     this.stackClipBehaviour = _defaultStackClipBehaviour,
     this.allowVerticalSwipe = true,
+    Curve? cancelAnimationCurve,
+    Curve? rewindAnimationCurve,
     this.swipeAnchor,
   })  : controller = controller ?? SwipableStackController(),
+        cancelAnimationCurve =
+            cancelAnimationCurve ?? _defaultCancelAnimationCurve,
+        rewindAnimationCurve =
+            rewindAnimationCurve ?? _defaultRewindAnimationCurve,
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
         assert(0 <= verticalSwipeThreshold && verticalSwipeThreshold <= 1),
@@ -76,7 +83,11 @@ class SwipableStack extends StatefulWidget {
   /// Where should the card be anchored on during swipe rotation
   final SwipeAnchor? swipeAnchor;
 
-  static const double _defaultHorizontalSwipeThreshold = 0.44;
+  final Curve cancelAnimationCurve;
+
+  final Curve rewindAnimationCurve;
+
+  static const double _defaultHorizontalSwipeThreshold = 0.8;
   static const double _defaultVerticalSwipeThreshold = 0.32;
   static const double _defaultViewFraction = 0.94;
 
@@ -85,6 +96,12 @@ class SwipableStack extends StatefulWidget {
   static const _defaultSwipeAssistDuration = Duration(milliseconds: 650);
 
   static const _defaultStackClipBehaviour = Clip.hardEdge;
+
+  static final _defaultCancelAnimationCurve = Sprung.custom(
+    damping: 17,
+    mass: 0.5,
+  );
+  static const _defaultRewindAnimationCurve = ElasticOutCurve(0.95);
 
   @override
   _SwipableStackState createState() => _SwipableStackState();
@@ -208,7 +225,7 @@ class _SwipableStackState extends State<SwipableStack>
     final pixelPerMilliseconds = swipeDirection.isHorizontal ? 0.78 : 1.25;
 
     return Duration(
-      milliseconds: math.min(distToAssist ~/ pixelPerMilliseconds, 650),
+      milliseconds: (450 * pixelPerMilliseconds).toInt(),
     );
   }
 
@@ -461,9 +478,10 @@ class _SwipableStackState extends State<SwipableStack>
     }
     widget.controller._prepareRewind();
     _rewindAnimationController.duration = duration;
-    final rewindAnimation = _rewindAnimationController.cancelAnimation(
+    final rewindAnimation = _rewindAnimationController.tweenCurvedAnimation(
       startPosition: previousSession.start,
       currentPosition: previousSession.current,
+      curve: widget.rewindAnimationCurve,
     );
     void _animate() {
       _animatePosition(rewindAnimation);
@@ -486,9 +504,11 @@ class _SwipableStackState extends State<SwipableStack>
     if (currentSession == null) {
       return;
     }
-    final cancelAnimation = _swipeCancelAnimationController.cancelAnimation(
+    final cancelAnimation =
+        _swipeCancelAnimationController.tweenCurvedAnimation(
       startPosition: currentSession.start,
       currentPosition: currentSession.current,
+      curve: widget.cancelAnimationCurve,
     );
     void _animate() {
       _animatePosition(cancelAnimation);
