@@ -61,8 +61,8 @@ class CardLabel extends StatelessWidget {
     return Container(
       alignment: alignment,
       padding: const EdgeInsets.symmetric(
-        vertical: 20,
-        horizontal: 12,
+        vertical: 36,
+        horizontal: 36,
       ),
       child: Transform.rotate(
         angle: angle,
@@ -79,7 +79,7 @@ class CardLabel extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 36,
+              fontSize: 32,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.4,
               color: color,

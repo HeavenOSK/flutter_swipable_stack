@@ -1,3 +1,8 @@
+## [0.8.0]
+- Improve cancel & rewind animation
+  - Added new options `cancelAnimationCurve` & `rewindAnimationCurve`
+- Fix detectable area bug.
+- Improve example.
 ## [0.7.1]
 - Add `swipeAnchor` otpion
     - An option for setting anchor positon of swipe.

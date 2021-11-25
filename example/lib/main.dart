@@ -75,40 +75,38 @@ class _HomeState extends State<Home> {
 
   static const double _bottomAreaHeight = 100;
 
-  static const EdgeInsets _padding = EdgeInsets.all(16);
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('currentIndex:${_controller.currentIndex}'),
-      ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              child: SwipableStack(
-                controller: _controller,
-                stackClipBehaviour: Clip.none,
-                onSwipeCompleted: (index, direction) {
-                  print('$index, $direction');
-                },
-                overlayBuilder: (
-                  context,
-                  constraints,
-                  index,
-                  direction,
-                  swipeProgress,
-                ) {
-                  final opacity = min(swipeProgress, 1.0);
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SwipableStack(
+                  controller: _controller,
+                  stackClipBehaviour: Clip.none,
+                  onSwipeCompleted: (index, direction) {
+                    print('$index, $direction');
+                  },
+                  horizontalSwipeThreshold: 0.8,
+                  verticalSwipeThreshold: 0.8,
+                  overlayBuilder: (
+                    context,
+                    constraints,
+                    index,
+                    direction,
+                    swipeProgress,
+                  ) {
+                    final opacity = min(swipeProgress, 1.0);
 
-                  final isRight = direction == SwipeDirection.right;
-                  final isLeft = direction == SwipeDirection.left;
-                  final isUp = direction == SwipeDirection.up;
-                  final isDown = direction == SwipeDirection.down;
-                  return Padding(
-                    padding: _padding * 3,
-                    child: Stack(
+                    final isRight = direction == SwipeDirection.right;
+                    final isLeft = direction == SwipeDirection.left;
+                    final isUp = direction == SwipeDirection.up;
+                    final isDown = direction == SwipeDirection.down;
+                    return Stack(
                       children: [
                         Opacity(
                           opacity: isRight ? opacity : 0,
@@ -127,81 +125,136 @@ class _HomeState extends State<Home> {
                           child: CardLabel.down(),
                         ),
                       ],
-                    ),
-                  );
-                },
-                builder: (context, index, constraints) {
-                  final imagePath = _images[index % _images.length];
-                  return Padding(
-                    padding: _padding,
-                    child: Center(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Image.asset(
-                            imagePath,
-                            height: constraints.maxHeight,
+                    );
+                  },
+                  builder: (context, index, constraints) {
+                    final itemIndex = index % _images.length;
+                    final imagePath = _images[itemIndex];
+                    return ClipRRect(
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                image: DecorationImage(
+                                  image: AssetImage(imagePath),
+                                  fit: BoxFit.cover,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    offset: const Offset(0, 2),
+                                    blurRadius: 26,
+                                    color: Colors.black.withOpacity(0.08),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.vertical(
+                                  bottom: Radius.circular(14),
+                                ),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: <Color>[
+                                    Colors.black12.withOpacity(0),
+                                    Colors.black12.withOpacity(.4),
+                                    Colors.black12.withOpacity(.82),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Sample No.${itemIndex + 1}',
+                                  style: theme.textTheme.headline6.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: _bottomAreaHeight)
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: SizedBox(
+                  height: _bottomAreaHeight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _BottomButton(
+                        color: _controller.canRewind
+                            ? Colors.amberAccent
+                            : Colors.grey,
+                        child: const Icon(Icons.refresh),
+                        onPressed: _controller.canRewind
+                            ? () {
+                                _controller.rewind();
+                              }
+                            : null,
+                      ),
+                      _BottomButton(
+                        color: SwipeDirectionColor.left,
+                        child: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          _controller.next(
+                            swipeDirection: SwipeDirection.left,
                           );
                         },
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(
-              height: _bottomAreaHeight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _BottomButton(
-                    color: _controller.canRewind
-                        ? Colors.amberAccent
-                        : Colors.grey,
-                    child: const Icon(Icons.refresh),
-                    onPressed: _controller.canRewind
-                        ? () {
-                            _controller.rewind();
-                          }
-                        : null,
+                      _BottomButton(
+                        color: SwipeDirectionColor.up,
+                        onPressed: () {
+                          _controller.next(
+                            swipeDirection: SwipeDirection.up,
+                          );
+                        },
+                        child: const Icon(Icons.arrow_upward),
+                      ),
+                      _BottomButton(
+                        color: SwipeDirectionColor.right,
+                        onPressed: () {
+                          _controller.next(
+                            swipeDirection: SwipeDirection.right,
+                          );
+                        },
+                        child: const Icon(Icons.arrow_forward),
+                      ),
+                      _BottomButton(
+                        color: SwipeDirectionColor.down,
+                        onPressed: () {
+                          _controller.next(
+                            swipeDirection: SwipeDirection.down,
+                          );
+                        },
+                        child: const Icon(Icons.arrow_downward),
+                      ),
+                    ],
                   ),
-                  _BottomButton(
-                    color: SwipeDirectionColor.left,
-                    child: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      _controller.next(
-                        swipeDirection: SwipeDirection.left,
-                      );
-                    },
-                  ),
-                  _BottomButton(
-                    color: SwipeDirectionColor.up,
-                    onPressed: () {
-                      _controller.next(
-                        swipeDirection: SwipeDirection.up,
-                      );
-                    },
-                    child: const Icon(Icons.arrow_upward),
-                  ),
-                  _BottomButton(
-                    color: SwipeDirectionColor.right,
-                    onPressed: () {
-                      _controller.next(
-                        swipeDirection: SwipeDirection.right,
-                      );
-                    },
-                    child: const Icon(Icons.arrow_forward),
-                  ),
-                  _BottomButton(
-                    color: SwipeDirectionColor.down,
-                    onPressed: () {
-                      _controller.next(
-                        swipeDirection: SwipeDirection.down,
-                      );
-                    },
-                    child: const Icon(Icons.arrow_downward),
-                  ),
-                ],
+                ),
               ),
             ),
           ],

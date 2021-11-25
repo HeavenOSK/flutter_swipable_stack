@@ -1,12 +1,13 @@
 name: swipable_stack
 description: A widget for stacking cards, which users can swipe horizontally and vertically with beautiful animations.
-version: 0.7.1
+version: 0.8.0
 homepage: https://github.com/HeavenOSK/flutter_swipable_stack
 environment:
   sdk: ">=2.13.0 <3.0.0"
 dependencies:
   flutter:
     sdk: flutter
+  sprung: ^3.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
