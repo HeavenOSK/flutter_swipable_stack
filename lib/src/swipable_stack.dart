@@ -576,7 +576,10 @@ class _SwipableStackState extends State<SwipableStack>
         return;
       }
     }
-    final startPosition = _SwipableStackPosition.notMoving();
+    final startPosition = _SwipableStackPosition.readyToSwipeAnimation(
+      direction: swipeDirection,
+      areaConstraints: _areConstraints!,
+    );
     widget.controller._updateSwipe(startPosition);
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
@@ -690,7 +693,7 @@ class _SwipablePositioned extends StatelessWidget {
     }
   }
 
-  double calculateAngle(double differenceX, double areaWidth) {
+  static double calculateAngle(double differenceX, double areaWidth) {
     return -differenceX / areaWidth * math.pi / 180 * 15;
   }
 
