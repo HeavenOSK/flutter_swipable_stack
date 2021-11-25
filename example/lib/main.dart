@@ -75,8 +75,6 @@ class _HomeState extends State<Home> {
 
   static const double _bottomAreaHeight = 100;
 
-  static const EdgeInsets _padding = EdgeInsets.all(16);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,6 +84,7 @@ class _HomeState extends State<Home> {
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 16),
             Expanded(
               child: SwipableStack(
                 controller: _controller,
@@ -106,43 +105,37 @@ class _HomeState extends State<Home> {
                   final isLeft = direction == SwipeDirection.left;
                   final isUp = direction == SwipeDirection.up;
                   final isDown = direction == SwipeDirection.down;
-                  return Padding(
-                    padding: _padding * 3,
-                    child: Stack(
-                      children: [
-                        Opacity(
-                          opacity: isRight ? opacity : 0,
-                          child: CardLabel.right(),
-                        ),
-                        Opacity(
-                          opacity: isLeft ? opacity : 0,
-                          child: CardLabel.left(),
-                        ),
-                        Opacity(
-                          opacity: isUp ? opacity : 0,
-                          child: CardLabel.up(),
-                        ),
-                        Opacity(
-                          opacity: isDown ? opacity : 0,
-                          child: CardLabel.down(),
-                        ),
-                      ],
-                    ),
+                  return Stack(
+                    children: [
+                      Opacity(
+                        opacity: isRight ? opacity : 0,
+                        child: CardLabel.right(),
+                      ),
+                      Opacity(
+                        opacity: isLeft ? opacity : 0,
+                        child: CardLabel.left(),
+                      ),
+                      Opacity(
+                        opacity: isUp ? opacity : 0,
+                        child: CardLabel.up(),
+                      ),
+                      Opacity(
+                        opacity: isDown ? opacity : 0,
+                        child: CardLabel.down(),
+                      ),
+                    ],
                   );
                 },
                 builder: (context, index, constraints) {
                   final imagePath = _images[index % _images.length];
-                  return Padding(
-                    padding: _padding,
-                    child: Center(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Image.asset(
-                            imagePath,
-                            height: constraints.maxHeight,
-                          );
-                        },
-                      ),
+                  return Center(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Image.asset(
+                          imagePath,
+                          height: constraints.maxHeight,
+                        );
+                      },
                     ),
                   );
                 },

@@ -78,7 +78,7 @@ class SwipableStack extends StatefulWidget {
 
   static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
-  static const double _defaultViewFraction = 0.92;
+  static const double _defaultViewFraction = 0.94;
 
   static const _defaultRewindDuration = Duration(milliseconds: 650);
 
@@ -701,9 +701,16 @@ class _SwipablePositioned extends StatelessWidget {
 
   double get _animationRate => 1 - viewFraction;
 
-  double _animationProgress() => Curves.easeOutCubic.transform(
-        math.min(swipeDirectionRate.rate, 1),
-      );
+  double _animationProgress() {
+    final offset = Offset(
+      areaConstraints.maxWidth / 2,
+      0,
+    );
+    final rate = _currentPositionDiff.distanceSquared / offset.distanceSquared;
+    return Curves.easeOutCubic.transform(
+      math.min(rate, 1),
+    );
+  }
 
   BoxConstraints _constraints(BuildContext context) {
     if (_isFirst) {
