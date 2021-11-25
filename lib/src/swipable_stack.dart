@@ -176,6 +176,8 @@ class _SwipableStackState extends State<SwipableStack>
       !_swipeCancelAnimationController.animating &&
       !_rewindAnimationController.animating;
 
+  bool get _rewinding => _rewindAnimationController.animating;
+
   /// The current session of swipe action.
   _SwipableStackPosition? get _currentSession =>
       widget.controller.currentSession;
@@ -358,6 +360,9 @@ class _SwipableStackState extends State<SwipableStack>
   Widget? _buildOverlay({
     required BoxConstraints constraints,
   }) {
+    if (_rewinding) {
+      return null;
+    }
     final swipeDirectionRate = _currentSession?.swipeDirectionRate(
       constraints: constraints,
       horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
