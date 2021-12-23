@@ -1,3 +1,8 @@
+## [0.8.1]
+- BugFix for [[Invalid value: Not in inclusive range #34
+  ](https://github.com/HeavenOSK/flutter_swipable_stack/issues/34)]
+  - Thanks to [@martesabt](https://github.com/martesabt) for the bug report.
+
 ## [0.8.0]
 - Improve cancel & rewind animation
   - Added new options `cancelAnimationCurve` & `rewindAnimationCurve`
