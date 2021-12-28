@@ -63,7 +63,7 @@ class ExampleCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sample No.$name',
+                  name,
                   style: theme.textTheme.headline6!.copyWith(
                     color: Colors.white,
                   ),

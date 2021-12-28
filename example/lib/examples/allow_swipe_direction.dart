@@ -10,14 +10,22 @@ const _images = [
   'images/image_4.jpg',
 ];
 
-class BasicDemo extends StatefulWidget {
-  const BasicDemo({Key? key}) : super(key: key);
+class IgnoreVerticalSwipeExample extends StatefulWidget {
+  const IgnoreVerticalSwipeExample._({Key? key}) : super(key: key);
+
+  static Route<void> route() {
+    return MaterialPageRoute(
+      builder: (context) => IgnoreVerticalSwipeExample._(),
+    );
+  }
 
   @override
-  _BasicDemoState createState() => _BasicDemoState();
+  _IgnoreVerticalSwipeExampleState createState() =>
+      _IgnoreVerticalSwipeExampleState();
 }
 
-class _BasicDemoState extends State<BasicDemo> {
+class _IgnoreVerticalSwipeExampleState
+    extends State<IgnoreVerticalSwipeExample> {
   late final SwipableStackController _controller;
 
   void _listenController() {
@@ -49,11 +57,23 @@ class _BasicDemoState extends State<BasicDemo> {
                 child: SwipableStack(
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
+                  onWillMoveNext: (index, swipeDirection) {
+                    // Return true for the desired swipe direction.
+                    switch (swipeDirection) {
+                      case SwipeDirection.left:
+                      case SwipeDirection.right:
+                        return true;
+                      case SwipeDirection.up:
+                      case SwipeDirection.down:
+                        return false;
+                    }
+                  },
                   onSwipeCompleted: (index, direction) {
                     print('$index, $direction');
                   },
                   horizontalSwipeThreshold: 0.8,
-                  verticalSwipeThreshold: 0.8,
+                  // Set max value to ignore vertical threshold.
+                  verticalSwipeThreshold: 1,
                   overlayBuilder: (
                     context,
                     constraints,
