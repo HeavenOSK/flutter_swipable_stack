@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
             body: ListView(
               children: [
                 ListTile(
-                  title: Text('Basic'),
+                  title: Text('BasicExample'),
                   onTap: () {
                     Navigator.push(
                       context,

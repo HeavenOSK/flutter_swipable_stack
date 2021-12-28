@@ -55,6 +55,8 @@ class _SwipeAnchorExampleState extends State<SwipeAnchorExample> {
                 child: SwipableStack(
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
+                  // If you want to change the position of anchor for cards,
+                  // set [swipeAnchor].
                   swipeAnchor: SwipeAnchor.bottom,
                   onWillMoveNext: (index, swipeDirection) {
                     // Return true for the desired swipe direction.

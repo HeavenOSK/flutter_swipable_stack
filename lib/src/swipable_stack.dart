@@ -493,6 +493,7 @@ class _SwipableStackState extends State<SwipableStack>
       session: session,
       swipeDirectionRate: swipeDirectionRate,
       areaConstraints: constraints,
+      swipeAnchor: widget.swipeAnchor,
       child: overlay,
     );
   }
@@ -693,7 +694,7 @@ class _SwipablePositioned extends StatelessWidget {
     required this.child,
     required this.swipeDirectionRate,
     required this.viewFraction,
-    this.swipeAnchor,
+    required this.swipeAnchor,
     Key? key,
   })  : assert(0 <= viewFraction && viewFraction <= 1),
         super(key: key);
@@ -704,6 +705,7 @@ class _SwipablePositioned extends StatelessWidget {
     required Widget child,
     required _SwipeRatePerThreshold swipeDirectionRate,
     required double viewFraction,
+    required SwipeAnchor? swipeAnchor,
   }) {
     return _SwipablePositioned(
       key: const ValueKey('overlay'),
@@ -712,6 +714,7 @@ class _SwipablePositioned extends StatelessWidget {
       viewFraction: viewFraction,
       areaConstraints: areaConstraints,
       swipeDirectionRate: swipeDirectionRate,
+      swipeAnchor: swipeAnchor,
       child: IgnorePointer(
         child: child,
       ),
