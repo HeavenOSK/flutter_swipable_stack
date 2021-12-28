@@ -1,8 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:example/theme/colors.dart';
 import 'package:flutter/material.dart';
-
-import 'main.dart';
 
 const _labelAngle = math.pi / 2 * 0.2;
 
