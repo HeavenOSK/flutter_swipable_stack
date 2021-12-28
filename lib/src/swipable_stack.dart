@@ -422,6 +422,34 @@ class _SwipableStackState extends State<SwipableStack>
         );
       },
     ).reversed.toList();
+    // preparing rewind
+    if (widget.controller.canRewind) {
+      final rewindTargetIndex = _currentIndex - 1;
+      final child = widget.builder(
+        context,
+        rewindTargetIndex,
+        constraints,
+      );
+      final previousSession = widget.controller._previousSession;
+      if (previousSession != null) {
+        cards.add(
+          _SwipablePositioned(
+            key: child.key ?? ValueKey(rewindTargetIndex),
+            session: previousSession,
+            index: -1,
+            viewFraction: widget.viewFraction,
+            swipeAnchor: widget.swipeAnchor,
+            swipeDirectionRate: previousSession.swipeDirectionRate(
+              constraints: constraints,
+              horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
+              verticalSwipeThreshold: widget.verticalSwipeThreshold,
+            ),
+            areaConstraints: constraints,
+            child: child,
+          ),
+        );
+      }
+    }
 
     if (cards.isEmpty) {
       return [];
@@ -700,6 +728,8 @@ class _SwipablePositioned extends StatelessWidget {
 
   Offset get _currentPositionDiff => session.difference;
 
+  bool get _isRewindTarget => index < 0;
+
   bool get _isFirst => index == 0;
 
   bool get _isSecond => index == 1;
@@ -785,9 +815,12 @@ class _SwipablePositioned extends StatelessWidget {
         origin: _rotationOrigin,
         child: ConstrainedBox(
           constraints: _constraints(context),
-          child: IgnorePointer(
-            ignoring: !_isFirst,
-            child: child,
+          child: Opacity(
+            opacity: _isRewindTarget ? 0 : 1,
+            child: IgnorePointer(
+              ignoring: !_isFirst,
+              child: child,
+            ),
           ),
         ),
       ),

@@ -23,7 +23,6 @@ extension SwipeDirecionX on SwipeDirection {
       case SwipeDirection.down:
         return Color.fromRGBO(154, 85, 215, 1);
     }
-    return Colors.transparent;
   }
 }
 
@@ -54,14 +53,14 @@ class MyApp extends StatelessWidget {
 }
 
 class Home extends StatefulWidget {
-  const Home({Key key}) : super(key: key);
+  const Home({Key? key}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  SwipableStackController _controller;
+  late final SwipableStackController _controller;
 
   void _listenController() {
     setState(() {});
@@ -180,7 +179,7 @@ class _HomeState extends State<Home> {
                               children: [
                                 Text(
                                   'Sample No.${itemIndex + 1}',
-                                  style: theme.textTheme.headline6.copyWith(
+                                  style: theme.textTheme.headline6!.copyWith(
                                     color: Colors.white,
                                   ),
                                 ),
@@ -210,11 +209,8 @@ class _HomeState extends State<Home> {
                             ? Colors.amberAccent
                             : Colors.grey,
                         child: const Icon(Icons.refresh),
-                        onPressed: _controller.canRewind
-                            ? () {
-                                _controller.rewind();
-                              }
-                            : null,
+                        onPressed:
+                            _controller.canRewind ? _controller.rewind : null,
                       ),
                       _BottomButton(
                         color: SwipeDirectionColor.left,
@@ -273,13 +269,13 @@ class _HomeState extends State<Home> {
 
 class _BottomButton extends StatelessWidget {
   const _BottomButton({
-    Key key,
-    @required this.onPressed,
-    @required this.child,
-    @required this.color,
+    required this.onPressed,
+    required this.child,
+    required this.color,
+    Key? key,
   }) : super(key: key);
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Icon child;
   final Color color;
 
