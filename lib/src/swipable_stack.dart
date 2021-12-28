@@ -422,6 +422,34 @@ class _SwipableStackState extends State<SwipableStack>
         );
       },
     ).reversed.toList();
+    // preparing rewind
+    if (widget.controller.canRewind) {
+      final rewindTargetIndex = _currentIndex - 1;
+      final child = widget.builder(
+        context,
+        rewindTargetIndex,
+        constraints,
+      );
+      final previousSession = widget.controller._previousSession;
+      if (previousSession != null) {
+        cards.add(
+          _SwipablePositioned(
+            key: child.key ?? ValueKey(rewindTargetIndex),
+            session: previousSession,
+            index: -1,
+            viewFraction: widget.viewFraction,
+            swipeAnchor: widget.swipeAnchor,
+            swipeDirectionRate: previousSession.swipeDirectionRate(
+              constraints: constraints,
+              horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
+              verticalSwipeThreshold: widget.verticalSwipeThreshold,
+            ),
+            areaConstraints: constraints,
+            child: child,
+          ),
+        );
+      }
+    }
 
     if (cards.isEmpty) {
       return [];
@@ -465,6 +493,7 @@ class _SwipableStackState extends State<SwipableStack>
       session: session,
       swipeDirectionRate: swipeDirectionRate,
       areaConstraints: constraints,
+      swipeAnchor: widget.swipeAnchor,
       child: overlay,
     );
   }
@@ -665,7 +694,7 @@ class _SwipablePositioned extends StatelessWidget {
     required this.child,
     required this.swipeDirectionRate,
     required this.viewFraction,
-    this.swipeAnchor,
+    required this.swipeAnchor,
     Key? key,
   })  : assert(0 <= viewFraction && viewFraction <= 1),
         super(key: key);
@@ -676,6 +705,7 @@ class _SwipablePositioned extends StatelessWidget {
     required Widget child,
     required _SwipeRatePerThreshold swipeDirectionRate,
     required double viewFraction,
+    required SwipeAnchor? swipeAnchor,
   }) {
     return _SwipablePositioned(
       key: const ValueKey('overlay'),
@@ -684,6 +714,7 @@ class _SwipablePositioned extends StatelessWidget {
       viewFraction: viewFraction,
       areaConstraints: areaConstraints,
       swipeDirectionRate: swipeDirectionRate,
+      swipeAnchor: swipeAnchor,
       child: IgnorePointer(
         child: child,
       ),
@@ -699,6 +730,8 @@ class _SwipablePositioned extends StatelessWidget {
   final SwipeAnchor? swipeAnchor;
 
   Offset get _currentPositionDiff => session.difference;
+
+  bool get _isRewindTarget => index < 0;
 
   bool get _isFirst => index == 0;
 
@@ -785,9 +818,12 @@ class _SwipablePositioned extends StatelessWidget {
         origin: _rotationOrigin,
         child: ConstrainedBox(
           constraints: _constraints(context),
-          child: IgnorePointer(
-            ignoring: !_isFirst,
-            child: child,
+          child: Opacity(
+            opacity: _isRewindTarget ? 0 : 1,
+            child: IgnorePointer(
+              ignoring: !_isFirst,
+              child: child,
+            ),
           ),
         ),
       ),

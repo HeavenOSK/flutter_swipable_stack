@@ -1,18 +1,17 @@
 import 'dart:math' as math;
 
+import 'package:example/theme/colors.dart';
 import 'package:flutter/material.dart';
-
-import 'main.dart';
 
 const _labelAngle = math.pi / 2 * 0.2;
 
 class CardLabel extends StatelessWidget {
   const CardLabel._({
-    @required this.color,
-    @required this.label,
-    @required this.angle,
-    @required this.alignment,
-    Key key,
+    required this.color,
+    required this.label,
+    required this.angle,
+    required this.alignment,
+    Key? key,
   }) : super(key: key);
 
   factory CardLabel.right() {

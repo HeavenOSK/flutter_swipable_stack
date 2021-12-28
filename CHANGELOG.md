@@ -1,3 +1,8 @@
+## [1.0.0]
+- Add examples
+- Update README
+- Bug fixes
+ 
 ## [0.8.1]
 - BugFix for [[Invalid value: Not in inclusive range #34
   ](https://github.com/HeavenOSK/flutter_swipable_stack/issues/34)]
