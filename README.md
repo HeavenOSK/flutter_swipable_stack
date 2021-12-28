@@ -1,7 +1,7 @@
 # swipable_stack
-A widget for stacking cards, which users can swipe horizontally and vertically with beautiful animations.
+A widget for stacking cards, which users can swipe horizontally and vertically with beautiful animations like Tinder UI.
 
-<video src='https://user-images.githubusercontent.com/19836917/143433024-f9c99561-aae9-4b1d-8f0d-d1ee7301f83b.MP4' width=400px ></video>
+![demo](https://github.com/HeavenOSK/gif_repository/blob/main/swipable_stack/demo.gif?raw=true)
  
 (Sorry, the package name `swipable_stack` is typo of swipeable stack)
  
