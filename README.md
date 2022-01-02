@@ -88,7 +88,7 @@ SwipableStack(
 
 ## `swipeAssistDuration`
 
-You can set the speed the use is able to swipe through Widgets with the `swipeAssistDuration`.
+You can set the speed the user is able to swipe through Widgets with the `swipeAssistDuration`.
 
 ```dart
 SwipableStack(
