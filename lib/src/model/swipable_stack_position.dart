@@ -22,6 +22,8 @@ class _SwipableStackPosition {
   }) {
     Offset localPosition() {
       switch (direction) {
+        case SwipeDirection.none:
+          return Offset.zero;
         case SwipeDirection.left:
           return Offset(
             areaConstraints.maxWidth * 0.8,

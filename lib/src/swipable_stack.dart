@@ -396,6 +396,12 @@ class _SwipableStackState extends State<SwipableStack>
       return [];
     }
 
+    final swipeDirectionRate = _currentSession?.swipeDirectionRate(
+      constraints: constraints,
+      horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
+      verticalSwipeThreshold: widget.verticalSwipeThreshold,
+    );
+
     final session = _currentSession ?? _SwipableStackPosition.notMoving();
     final cards = List<Widget>.generate(
       stackCount,
@@ -404,7 +410,10 @@ class _SwipableStackState extends State<SwipableStack>
         final child = widget.builder(
           context,
           itemIndex,
+          index,
           constraints,
+          swipeDirectionRate?.direction ?? SwipeDirection.none,
+          swipeDirectionRate?.rate ?? 0.0,
         );
         return _SwipablePositioned(
           key: child.key ?? ValueKey(_currentIndex + index),
@@ -428,7 +437,10 @@ class _SwipableStackState extends State<SwipableStack>
       final child = widget.builder(
         context,
         rewindTargetIndex,
+        -1,
         constraints,
+        swipeDirectionRate?.direction ?? SwipeDirection.none,
+        swipeDirectionRate?.rate ?? 0.0,
       );
       final previousSession = widget.controller._previousSession;
       if (previousSession != null) {
@@ -456,6 +468,7 @@ class _SwipableStackState extends State<SwipableStack>
     }
     final overlay = _buildOverlay(
       constraints: constraints,
+      swipeDirectionRate: swipeDirectionRate,
     );
     if (overlay != null) {
       cards.add(overlay);
@@ -465,15 +478,11 @@ class _SwipableStackState extends State<SwipableStack>
 
   Widget? _buildOverlay({
     required BoxConstraints constraints,
+    required _SwipeRatePerThreshold? swipeDirectionRate,
   }) {
     if (_rewinding) {
       return null;
     }
-    final swipeDirectionRate = _currentSession?.swipeDirectionRate(
-      constraints: constraints,
-      horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
-      verticalSwipeThreshold: widget.verticalSwipeThreshold,
-    );
     if (swipeDirectionRate == null) {
       return null;
     }

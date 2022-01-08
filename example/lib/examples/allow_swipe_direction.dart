@@ -63,6 +63,7 @@ class _IgnoreVerticalSwipeExampleState
                       case SwipeDirection.left:
                       case SwipeDirection.right:
                         return true;
+                      case SwipeDirection.none:
                       case SwipeDirection.up:
                       case SwipeDirection.down:
                         return false;
@@ -85,7 +86,7 @@ class _IgnoreVerticalSwipeExampleState
                     swipeProgress: swipeProgress,
                     direction: direction,
                   ),
-                  builder: (context, index, constraints) {
+                  builder: (context, index, stackIndex, constraints, direction, progress) {
                     final itemIndex = index % _images.length;
                     return ExampleCard(
                       name: 'Sample No.${itemIndex + 1}',

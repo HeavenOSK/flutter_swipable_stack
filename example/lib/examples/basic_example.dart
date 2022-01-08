@@ -60,22 +60,23 @@ class _BasicExampleState extends State<BasicExample> {
                   },
                   horizontalSwipeThreshold: 0.8,
                   verticalSwipeThreshold: 0.8,
-                  overlayBuilder: (
-                    context,
-                    constraints,
-                    index,
-                    direction,
-                    swipeProgress,
-                  ) =>
-                      CardOverlay(
-                    swipeProgress: swipeProgress,
-                    direction: direction,
-                  ),
-                  builder: (context, index, constraints) {
+                  builder: (context, index, stackIndex, constraints, direction, swipeProgress) {
                     final itemIndex = index % _images.length;
-                    return ExampleCard(
-                      name: 'Sample No.${itemIndex + 1}',
-                      assetPath: _images[itemIndex],
+                    // for efficiency reasons
+                    if(stackIndex > 1) return SizedBox();
+
+                    return Stack(
+                      children: [
+                        ExampleCard(
+                          name: 'Sample No.${itemIndex + 1}',
+                          assetPath: _images[itemIndex],
+                        ),
+                        // more custom overlay possible than with overlayBuilder
+                        if(stackIndex == 0) CardOverlay(
+                          swipeProgress: swipeProgress,
+                          direction: direction,
+                        )
+                      ],
                     );
                   },
                 ),

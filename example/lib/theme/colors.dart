@@ -11,6 +11,8 @@ class SwipeDirectionColor {
 extension SwipeDirecionX on SwipeDirection {
   Color get color {
     switch (this) {
+      case SwipeDirection.none:
+        return Colors.transparent;
       case SwipeDirection.right:
         return Color.fromRGBO(70, 195, 120, 1);
       case SwipeDirection.left:

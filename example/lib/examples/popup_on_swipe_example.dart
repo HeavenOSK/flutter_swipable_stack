@@ -83,7 +83,7 @@ class _PopupOnSwipeExampleState extends State<PopupOnSwipeExample> {
                     swipeProgress: swipeProgress,
                     direction: direction,
                   ),
-                  builder: (context, index, constraints) {
+                  builder: (context, index, stackIndex, constraints, direction, progress) {
                     final itemIndex = index % _images.length;
                     return ExampleCard(
                       name: 'Sample No.${itemIndex + 1}',

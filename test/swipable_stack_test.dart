@@ -27,7 +27,7 @@ Widget _buildApp({
     home: Scaffold(
       body: SwipableStack(
         itemCount: cardCount,
-        builder: (context, index, constraints) {
+        builder: (context, index, stackIndex, constraints, direction, progress) {
           final color = _cardColors[index % _cardColors.length];
           return _buildCard(
             color: color,
