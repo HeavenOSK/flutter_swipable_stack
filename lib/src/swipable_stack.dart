@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:sprung/sprung.dart';
+import 'package:swipable_stack/src/model/swipe_properties.dart';
 
 part 'animation/animation.dart';
 part 'callback/callbacks.dart';
@@ -409,11 +410,13 @@ class _SwipableStackState extends State<SwipableStack>
         final itemIndex = _currentIndex + index;
         final child = widget.builder(
           context,
-          itemIndex,
-          index,
-          constraints,
-          swipeDirectionRate?.direction ?? SwipeDirection.none,
-          swipeDirectionRate?.rate ?? 0.0,
+          ItemSwipeProperties(
+            index: itemIndex,
+            stackIndex: index,
+            constraints: constraints,
+            direction: swipeDirectionRate?.direction,
+            swipeProgress: swipeDirectionRate?.rate ?? 0.0,
+          ),
         );
         return _SwipablePositioned(
           key: child.key ?? ValueKey(_currentIndex + index),
@@ -436,11 +439,12 @@ class _SwipableStackState extends State<SwipableStack>
       final rewindTargetIndex = _currentIndex - 1;
       final child = widget.builder(
         context,
-        rewindTargetIndex,
-        -1,
-        constraints,
-        swipeDirectionRate?.direction ?? SwipeDirection.none,
-        swipeDirectionRate?.rate ?? 0.0,
+        ItemSwipeProperties(
+            index: rewindTargetIndex,
+            stackIndex: -1,
+            constraints: constraints,
+            direction: swipeDirectionRate?.direction,
+            swipeProgress: swipeDirectionRate?.rate ?? 0.0),
       );
       final previousSession = widget.controller._previousSession;
       if (previousSession != null) {
@@ -487,12 +491,13 @@ class _SwipableStackState extends State<SwipableStack>
       return null;
     }
     final overlay = widget.overlayBuilder?.call(
-      context,
-      constraints,
-      _currentIndex,
-      swipeDirectionRate.direction,
-      swipeDirectionRate.rate,
-    );
+        context,
+        OverlaySwipeProperties(
+          index: _currentIndex,
+          constraints: constraints,
+          direction: swipeDirectionRate.direction,
+          swipeProgress: swipeDirectionRate.rate,
+        ));
     if (overlay == null) {
       return null;
     }

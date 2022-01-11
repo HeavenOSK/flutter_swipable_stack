@@ -63,7 +63,6 @@ class _IgnoreVerticalSwipeExampleState
                       case SwipeDirection.left:
                       case SwipeDirection.right:
                         return true;
-                      case SwipeDirection.none:
                       case SwipeDirection.up:
                       case SwipeDirection.down:
                         return false;
@@ -77,17 +76,14 @@ class _IgnoreVerticalSwipeExampleState
                   verticalSwipeThreshold: 1,
                   overlayBuilder: (
                     context,
-                    constraints,
-                    index,
-                    direction,
-                    swipeProgress,
+                    properties,
                   ) =>
                       CardOverlay(
-                    swipeProgress: swipeProgress,
-                    direction: direction,
+                    swipeProgress: properties.swipeProgress,
+                    direction: properties.direction,
                   ),
-                  builder: (context, index, stackIndex, constraints, direction, progress) {
-                    final itemIndex = index % _images.length;
+                  builder: (context, properties) {
+                    final itemIndex = properties.index % _images.length;
                     return ExampleCard(
                       name: 'Sample No.${itemIndex + 1}',
                       assetPath: _images[itemIndex],

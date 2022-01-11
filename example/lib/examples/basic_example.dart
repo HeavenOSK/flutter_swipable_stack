@@ -60,10 +60,8 @@ class _BasicExampleState extends State<BasicExample> {
                   },
                   horizontalSwipeThreshold: 0.8,
                   verticalSwipeThreshold: 0.8,
-                  builder: (context, index, stackIndex, constraints, direction, swipeProgress) {
-                    final itemIndex = index % _images.length;
-                    // for efficiency reasons
-                    if(stackIndex > 1) return SizedBox();
+                  builder: (context, properties) {
+                    final itemIndex = properties.index % _images.length;
 
                     return Stack(
                       children: [
@@ -72,10 +70,12 @@ class _BasicExampleState extends State<BasicExample> {
                           assetPath: _images[itemIndex],
                         ),
                         // more custom overlay possible than with overlayBuilder
-                        if(stackIndex == 0) CardOverlay(
-                          swipeProgress: swipeProgress,
-                          direction: direction,
-                        )
+                        if (properties.stackIndex == 0 &&
+                            properties.direction != null)
+                          CardOverlay(
+                            swipeProgress: properties.swipeProgress,
+                            direction: properties.direction!,
+                          )
                       ],
                     );
                   },

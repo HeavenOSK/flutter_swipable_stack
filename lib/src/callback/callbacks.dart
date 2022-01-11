@@ -15,18 +15,11 @@ typedef OnWillMoveNext = bool Function(
 /// Builder for items to be displayed in [SwipableStack].
 typedef SwipableStackItemBuilder = Widget Function(
   BuildContext context,
-  int index,
-  int stackIndex,
-  BoxConstraints constraints,
-  SwipeDirection direction,
-  double swipeProgress,
+  ItemSwipeProperties swipeProperty,
 );
 
 /// Builder for displaying an overlay on the most foreground card.
 typedef SwipableStackOverlayBuilder = Widget Function(
   BuildContext context,
-  BoxConstraints constraints,
-  int index,
-  SwipeDirection direction,
-  double swipeProgress,
+  OverlaySwipeProperties swipeProperty,
 );

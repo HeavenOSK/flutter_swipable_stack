@@ -2,7 +2,6 @@ part of '../swipable_stack.dart';
 
 /// The type of Action to use in [SwipableStack].
 enum SwipeDirection {
-  none,
   left,
   right,
   up,
@@ -12,8 +11,6 @@ enum SwipeDirection {
 extension _SwipeDirectionX on SwipeDirection {
   Offset get defaultOffset {
     switch (this) {
-      case SwipeDirection.none:
-        return Offset.zero;
       case SwipeDirection.left:
         return const Offset(-1, 0);
       case SwipeDirection.right:
