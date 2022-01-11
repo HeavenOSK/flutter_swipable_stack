@@ -1,3 +1,8 @@
+## [1.1.0]
+- Improve builder & overlayBuilder
+  - You can get more information in builder from `SwipeProperties`(e.g. `stackIndex`)
+  - BREAKING: bundled a lot of parameters of the builder into `SwipeProperties`.
+  - Thanks to [MaddinMade](https://github.com/MaddinMade)
 ## [1.0.0]
 - Add examples
 - Update README

@@ -10,7 +10,7 @@ A widget for stacking cards, which users can swipe horizontally and vertically w
 A `SwipableStack` uses a builder to display widgets.
 ```dart
 SwipableStack(
-  builder: (context, index, constraints) {
+  builder: (context, properties) {
     return Image.asset(imagePath);
   },
 ),
@@ -29,15 +29,9 @@ SwipableStack(
 You can show overlay on the front card with `overlayBuilder`.
 ```dart
 SwipableStack(
-  overlayBuilder: (
-    context,
-    constraints,
-    index,
-    direction,
-    swipeProgress,
-  ) {
-    final opacity = min(swipeProgress, 1.0);
-    final isRight = direction == SwipeDirection.right;
+  overlayBuilder: (context, properties) {
+    final opacity = min(properties.swipeProgress, 1.0);
+    final isRight = properties.direction == SwipeDirection.right;
     return Opacity(
       opacity: isRight ? opacity : 0,
       child: CardLabel.right(),
@@ -54,7 +48,7 @@ final controller = SwipableStackController();
 
 SwipableStack(
   controller:controller,
-  builder: (context, index, constraints) {
+  builder: (context, properties) {
     return Image.asset(imagePath);
   },
 );
@@ -88,7 +82,7 @@ SwipableStack(
 
 ## `swipeAssistDuration`
 
-You can set the speed the use is able to swipe through Widgets with the `swipeAssistDuration`.
+You can set the speed the user is able to swipe through Widgets with the `swipeAssistDuration`.
 
 ```dart
 SwipableStack(

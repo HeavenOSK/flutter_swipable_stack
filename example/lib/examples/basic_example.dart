@@ -1,6 +1,7 @@
 import 'package:example/widgets/bottom_buttons_row.dart';
 import 'package:example/widgets/card_overlay.dart';
 import 'package:example/widgets/example_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
 
@@ -15,7 +16,7 @@ class BasicExample extends StatefulWidget {
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => BasicExample._(),
+      builder: (context) => const BasicExample._(),
     );
   }
 
@@ -39,8 +40,9 @@ class _BasicExampleState extends State<BasicExample> {
   @override
   void dispose() {
     super.dispose();
-    _controller.removeListener(_listenController);
-    _controller.dispose();
+    _controller
+      ..removeListener(_listenController)
+      ..dispose();
   }
 
   @override
@@ -51,31 +53,34 @@ class _BasicExampleState extends State<BasicExample> {
           children: [
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: SwipableStack(
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
                   onSwipeCompleted: (index, direction) {
-                    print('$index, $direction');
+                    if (kDebugMode) {
+                      print('$index, $direction');
+                    }
                   },
                   horizontalSwipeThreshold: 0.8,
                   verticalSwipeThreshold: 0.8,
-                  overlayBuilder: (
-                    context,
-                    constraints,
-                    index,
-                    direction,
-                    swipeProgress,
-                  ) =>
-                      CardOverlay(
-                    swipeProgress: swipeProgress,
-                    direction: direction,
-                  ),
-                  builder: (context, index, constraints) {
-                    final itemIndex = index % _images.length;
-                    return ExampleCard(
-                      name: 'Sample No.${itemIndex + 1}',
-                      assetPath: _images[itemIndex],
+                  builder: (context, properties) {
+                    final itemIndex = properties.index % _images.length;
+
+                    return Stack(
+                      children: [
+                        ExampleCard(
+                          name: 'Sample No.${itemIndex + 1}',
+                          assetPath: _images[itemIndex],
+                        ),
+                        // more custom overlay possible than with overlayBuilder
+                        if (properties.stackIndex == 0 &&
+                            properties.direction != null)
+                          CardOverlay(
+                            swipeProgress: properties.swipeProgress,
+                            direction: properties.direction!,
+                          )
+                      ],
                     );
                   },
                 ),

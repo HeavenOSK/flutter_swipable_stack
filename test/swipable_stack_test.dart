@@ -27,11 +27,11 @@ Widget _buildApp({
     home: Scaffold(
       body: SwipableStack(
         itemCount: cardCount,
-        builder: (context, index, constraints) {
-          final color = _cardColors[index % _cardColors.length];
+        builder: (context, properties) {
+          final color = _cardColors[properties.index % _cardColors.length];
           return _buildCard(
             color: color,
-            index: index,
+            index: properties.index,
           );
         },
       ),

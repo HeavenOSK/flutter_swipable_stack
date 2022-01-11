@@ -1,6 +1,7 @@
 import 'package:example/widgets/bottom_buttons_row.dart';
 import 'package:example/widgets/card_overlay.dart';
 import 'package:example/widgets/example_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
 
@@ -15,7 +16,7 @@ class IgnoreVerticalSwipeExample extends StatefulWidget {
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => IgnoreVerticalSwipeExample._(),
+      builder: (context) => const IgnoreVerticalSwipeExample._(),
     );
   }
 
@@ -41,8 +42,9 @@ class _IgnoreVerticalSwipeExampleState
   @override
   void dispose() {
     super.dispose();
-    _controller.removeListener(_listenController);
-    _controller.dispose();
+    _controller
+      ..removeListener(_listenController)
+      ..dispose();
   }
 
   @override
@@ -53,7 +55,7 @@ class _IgnoreVerticalSwipeExampleState
           children: [
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: SwipableStack(
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
@@ -69,24 +71,23 @@ class _IgnoreVerticalSwipeExampleState
                     }
                   },
                   onSwipeCompleted: (index, direction) {
-                    print('$index, $direction');
+                    if (kDebugMode) {
+                      print('$index, $direction');
+                    }
                   },
                   horizontalSwipeThreshold: 0.8,
                   // Set max value to ignore vertical threshold.
                   verticalSwipeThreshold: 1,
                   overlayBuilder: (
                     context,
-                    constraints,
-                    index,
-                    direction,
-                    swipeProgress,
+                    properties,
                   ) =>
                       CardOverlay(
-                    swipeProgress: swipeProgress,
-                    direction: direction,
+                    swipeProgress: properties.swipeProgress,
+                    direction: properties.direction,
                   ),
-                  builder: (context, index, constraints) {
-                    final itemIndex = index % _images.length;
+                  builder: (context, properties) {
+                    final itemIndex = properties.index % _images.length;
                     return ExampleCard(
                       name: 'Sample No.${itemIndex + 1}',
                       assetPath: _images[itemIndex],
