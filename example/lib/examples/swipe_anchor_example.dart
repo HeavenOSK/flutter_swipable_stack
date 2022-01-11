@@ -77,17 +77,14 @@ class _SwipeAnchorExampleState extends State<SwipeAnchorExample> {
                   verticalSwipeThreshold: 1,
                   overlayBuilder: (
                     context,
-                    constraints,
-                    index,
-                    direction,
-                    swipeProgress,
+                    properties,
                   ) =>
                       CardOverlay(
-                    swipeProgress: swipeProgress,
-                    direction: direction,
+                    swipeProgress: properties.swipeProgress,
+                    direction: properties.direction,
                   ),
-                  builder: (context, index, constraints) {
-                    final itemIndex = index % _images.length;
+                  builder: (context, properties) {
+                    final itemIndex = properties.index % _images.length;
                     return ExampleCard(
                       name: 'Sample No.${itemIndex + 1}',
                       assetPath: _images[itemIndex],
