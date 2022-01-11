@@ -1,6 +1,7 @@
 import 'package:example/widgets/bottom_buttons_row.dart';
 import 'package:example/widgets/card_overlay.dart';
 import 'package:example/widgets/example_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
 
@@ -15,7 +16,7 @@ class SwipeAnchorExample extends StatefulWidget {
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => SwipeAnchorExample._(),
+      builder: (context) => const SwipeAnchorExample._(),
     );
   }
 
@@ -39,8 +40,9 @@ class _SwipeAnchorExampleState extends State<SwipeAnchorExample> {
   @override
   void dispose() {
     super.dispose();
-    _controller.removeListener(_listenController);
-    _controller.dispose();
+    _controller
+      ..removeListener(_listenController)
+      ..dispose();
   }
 
   @override
@@ -51,7 +53,7 @@ class _SwipeAnchorExampleState extends State<SwipeAnchorExample> {
           children: [
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: SwipableStack(
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
@@ -70,7 +72,9 @@ class _SwipeAnchorExampleState extends State<SwipeAnchorExample> {
                     }
                   },
                   onSwipeCompleted: (index, direction) {
-                    print('$index, $direction');
+                    if (kDebugMode) {
+                      print('$index, $direction');
+                    }
                   },
                   horizontalSwipeThreshold: 0.8,
                   // Set max value to ignore vertical threshold.
