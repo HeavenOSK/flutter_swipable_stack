@@ -94,9 +94,4 @@ class _SwipableStackPosition {
   Offset get difference {
     return current - start;
   }
-
-  /// Adjusted [local] for user's finger.
-  Offset? get localFingerPosition {
-    return local + const Offset(0, -0);
-  }
 }

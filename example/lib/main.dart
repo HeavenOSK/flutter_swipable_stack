@@ -6,10 +6,14 @@ import 'package:flutter/material.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(
+    const MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -23,12 +27,12 @@ class MyApp extends StatelessWidget {
         builder: (context) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('swipable_stack demo'),
+              title: const Text('swipable_stack demo'),
             ),
             body: ListView(
               children: [
                 ListTile(
-                  title: Text('BasicExample'),
+                  title: const Text('BasicExample'),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -37,7 +41,7 @@ class MyApp extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  title: Text('IgnoreVerticalSwipeExample'),
+                  title: const Text('IgnoreVerticalSwipeExample'),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -46,7 +50,7 @@ class MyApp extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  title: Text('PopupOnSwipeExample'),
+                  title: const Text('PopupOnSwipeExample'),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -55,7 +59,7 @@ class MyApp extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  title: Text('SwipeAnchorExample'),
+                  title: const Text('SwipeAnchorExample'),
                   onTap: () {
                     Navigator.push(
                       context,

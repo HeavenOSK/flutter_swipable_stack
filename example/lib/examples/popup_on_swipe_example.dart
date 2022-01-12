@@ -1,6 +1,7 @@
 import 'package:example/widgets/bottom_buttons_row.dart';
 import 'package:example/widgets/card_overlay.dart';
 import 'package:example/widgets/example_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
 
@@ -15,7 +16,7 @@ class PopupOnSwipeExample extends StatefulWidget {
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => PopupOnSwipeExample._(),
+      builder: (context) => const PopupOnSwipeExample._(),
     );
   }
 
@@ -39,20 +40,21 @@ class _PopupOnSwipeExampleState extends State<PopupOnSwipeExample> {
   @override
   void dispose() {
     super.dispose();
-    _controller.removeListener(_listenController);
-    _controller.dispose();
+    _controller
+      ..removeListener(_listenController)
+      ..dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final pointCount = 0;
+    const pointCount = 0;
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: SwipableStack(
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
@@ -68,7 +70,9 @@ class _PopupOnSwipeExampleState extends State<PopupOnSwipeExample> {
                     return true;
                   },
                   onSwipeCompleted: (index, direction) {
-                    print('$index, $direction');
+                    if (kDebugMode) {
+                      print('$index, $direction');
+                    }
                   },
                   horizontalSwipeThreshold: 0.8,
                   verticalSwipeThreshold: 0.8,
@@ -114,7 +118,7 @@ class _PopUp {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Example Popup'),
-        content: Text(
+        content: const Text(
           'Example message\n'
           '- You need more points. \n'
           '- Your account is not available\n',
@@ -124,7 +128,7 @@ class _PopUp {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('CLOSE'),
+            child: const Text('CLOSE'),
           ),
         ],
       ),

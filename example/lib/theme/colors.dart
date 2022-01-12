@@ -12,13 +12,13 @@ extension SwipeDirecionX on SwipeDirection {
   Color get color {
     switch (this) {
       case SwipeDirection.right:
-        return Color.fromRGBO(70, 195, 120, 1);
+        return const Color.fromRGBO(70, 195, 120, 1);
       case SwipeDirection.left:
-        return Color.fromRGBO(220, 90, 108, 1);
+        return const Color.fromRGBO(220, 90, 108, 1);
       case SwipeDirection.up:
-        return Color.fromRGBO(83, 170, 232, 1);
+        return const Color.fromRGBO(83, 170, 232, 1);
       case SwipeDirection.down:
-        return Color.fromRGBO(154, 85, 215, 1);
+        return const Color.fromRGBO(154, 85, 215, 1);
     }
   }
 }
