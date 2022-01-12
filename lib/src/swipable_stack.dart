@@ -88,7 +88,7 @@ class SwipableStack extends StatefulWidget {
   ///
   /// If this Callback returns false,
   /// the passed direction is given less priority.
-  final OnWillMoveNext allowDirection;
+  final AllowDirection allowDirection;
 
   /// Where should the card be anchored on during swipe rotation
   final SwipeAnchor? swipeAnchor;
@@ -144,7 +144,9 @@ class _SwipableStackState extends State<SwipableStack>
     vsync: this,
   );
 
-  Set<SwipeDirection> _allowedDirections = {};
+  Set<SwipeDirection> get _allowedDirections => SwipeDirection.values
+      .where((d) => widget.allowDirection.call(_currentIndex, d))
+      .toSet();
 
   double _distanceToAssist({
     required BuildContext context,
@@ -285,9 +287,6 @@ class _SwipableStackState extends State<SwipableStack>
         setState(() {});
       });
     }
-    _allowedDirections = SwipeDirection.values
-        .where((d) => widget.allowDirection.call(_currentIndex, d))
-        .toSet();
   }
 
   @override
@@ -412,12 +411,14 @@ class _SwipableStackState extends State<SwipableStack>
       return [];
     }
 
+    final allowedDirections = _allowedDirections;
+
     final session = _currentSession ?? _SwipableStackPosition.notMoving();
     final swipeDirectionRate = session.swipeDirectionRate(
       constraints: constraints,
       horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
       verticalSwipeThreshold: widget.verticalSwipeThreshold,
-      allowedDirections: _allowedDirections,
+      allowedDirections: allowedDirections,
     );
 
     final cards = List<Widget>.generate(
@@ -473,7 +474,7 @@ class _SwipableStackState extends State<SwipableStack>
               constraints: constraints,
               horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
               verticalSwipeThreshold: widget.verticalSwipeThreshold,
-              allowedDirections: _allowedDirections,
+              allowedDirections: allowedDirections,
             ),
             areaConstraints: constraints,
             child: child,

@@ -12,6 +12,12 @@ typedef OnWillMoveNext = bool Function(
   SwipeDirection swipeDirection,
 );
 
+/// Function for defining the allowed swipes.
+typedef AllowDirection = bool Function(
+    int index,
+    SwipeDirection swipeDirection,
+    );
+
 /// Builder for items to be displayed in [SwipableStack].
 typedef SwipableStackItemBuilder = Widget Function(
   BuildContext context,
