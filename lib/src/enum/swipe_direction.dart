@@ -8,6 +8,14 @@ enum SwipeDirection {
   down,
 }
 
+extension SwipeDirectionX on SwipeDirection{
+  bool get isHorizontal =>
+      this == SwipeDirection.right || this == SwipeDirection.left;
+
+  bool get isVertical =>
+      this == SwipeDirection.up || this == SwipeDirection.down;
+}
+
 extension _SwipeDirectionX on SwipeDirection {
   Offset get defaultOffset {
     switch (this) {
@@ -21,7 +29,4 @@ extension _SwipeDirectionX on SwipeDirection {
         return const Offset(0, 1);
     }
   }
-
-  bool get isHorizontal =>
-      this == SwipeDirection.right || this == SwipeDirection.left;
 }
