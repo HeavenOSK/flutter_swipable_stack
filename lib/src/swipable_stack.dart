@@ -30,7 +30,6 @@ class SwipableStack extends StatefulWidget {
     this.swipeAssistDuration = _defaultSwipeAssistDuration,
     this.stackClipBehaviour = _defaultStackClipBehaviour,
     this.allowVerticalSwipe = true,
-    this.allowDirection = _defaultAllowDirection,
     Curve? cancelAnimationCurve,
     Curve? rewindAnimationCurve,
     this.swipeAnchor,
@@ -58,12 +57,6 @@ class SwipableStack extends StatefulWidget {
   ///
   /// If this Callback returns false, the action will be canceled.
   final OnWillMoveNext? onWillMoveNext;
-
-  /// Function for defining the allowed swipes. Defaults to () => true.
-  ///
-  /// If this Callback returns false,
-  /// the passed direction is given less priority.
-  final OnWillMoveNext allowDirection;
 
   /// Builder for displaying an overlay on the most foreground card.
   final SwipableStackOverlayBuilder? overlayBuilder;
@@ -115,8 +108,6 @@ class SwipableStack extends StatefulWidget {
   );
   static const _defaultRewindAnimationCurve = ElasticOutCurve(0.95);
 
-  static bool _defaultAllowDirection(int i, SwipeDirection d) => true;
-
   @override
   _SwipableStackState createState() => _SwipableStackState();
 }
@@ -143,8 +134,6 @@ class _SwipableStackState extends State<SwipableStack>
   late final AnimationController _swipeAssistController = AnimationController(
     vsync: this,
   );
-
-  Set<SwipeDirection> _allowedDirections = {};
 
   double _distanceToAssist({
     required BuildContext context,
@@ -285,9 +274,6 @@ class _SwipableStackState extends State<SwipableStack>
         setState(() {});
       });
     }
-    _allowedDirections = SwipeDirection.values
-        .where((d) => widget.allowDirection.call(_currentIndex, d))
-        .toSet();
   }
 
   @override
@@ -357,7 +343,6 @@ class _SwipableStackState extends State<SwipableStack>
               constraints: constraints,
               horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
               verticalSwipeThreshold: widget.verticalSwipeThreshold,
-              allowedDirections: _allowedDirections,
             );
 
             if (swipeAssistDirection == null) {
@@ -412,13 +397,13 @@ class _SwipableStackState extends State<SwipableStack>
       return [];
     }
 
-    final session = _currentSession ?? _SwipableStackPosition.notMoving();
-    final swipeDirectionRate = session.swipeDirectionRate(
+    final swipeDirectionRate = _currentSession?.swipeDirectionRate(
       constraints: constraints,
       horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
       verticalSwipeThreshold: widget.verticalSwipeThreshold,
-      allowedDirections: _allowedDirections,
     );
+
+    final session = _currentSession ?? _SwipableStackPosition.notMoving();
     final cards = List<Widget>.generate(
       stackCount,
       (index) {
@@ -429,9 +414,8 @@ class _SwipableStackState extends State<SwipableStack>
             index: itemIndex,
             stackIndex: index,
             constraints: constraints,
-            direction:
-                _currentSession == null ? null : swipeDirectionRate.direction,
-            swipeProgress: swipeDirectionRate.rate,
+            direction: swipeDirectionRate?.direction,
+            swipeProgress: swipeDirectionRate?.rate ?? 0.0,
           ),
         );
         return _SwipablePositioned(
@@ -440,7 +424,11 @@ class _SwipableStackState extends State<SwipableStack>
           index: index,
           viewFraction: widget.viewFraction,
           swipeAnchor: widget.swipeAnchor,
-          swipeDirectionRate: swipeDirectionRate,
+          swipeDirectionRate: session.swipeDirectionRate(
+            constraints: constraints,
+            horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
+            verticalSwipeThreshold: widget.verticalSwipeThreshold,
+          ),
           areaConstraints: constraints,
           child: child,
         );
@@ -455,9 +443,8 @@ class _SwipableStackState extends State<SwipableStack>
             index: rewindTargetIndex,
             stackIndex: -1,
             constraints: constraints,
-            direction:
-                _currentSession == null ? null : swipeDirectionRate.direction,
-            swipeProgress: swipeDirectionRate.rate),
+            direction: swipeDirectionRate?.direction,
+            swipeProgress: swipeDirectionRate?.rate ?? 0.0),
       );
       final previousSession = widget.controller._previousSession;
       if (previousSession != null) {
@@ -472,7 +459,6 @@ class _SwipableStackState extends State<SwipableStack>
               constraints: constraints,
               horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
               verticalSwipeThreshold: widget.verticalSwipeThreshold,
-              allowedDirections: _allowedDirections,
             ),
             areaConstraints: constraints,
             child: child,
