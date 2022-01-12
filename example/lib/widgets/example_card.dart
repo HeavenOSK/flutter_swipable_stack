@@ -41,7 +41,7 @@ class ExampleCard extends StatelessWidget {
               height: 200,
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(
+                borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(14),
                 ),
                 gradient: LinearGradient(
@@ -68,7 +68,7 @@ class ExampleCard extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: BottomButtonsRow.height)
+                const SizedBox(height: BottomButtonsRow.height)
               ],
             ),
           ),

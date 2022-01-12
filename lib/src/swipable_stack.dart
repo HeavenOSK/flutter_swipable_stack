@@ -506,13 +506,14 @@ class _SwipableStackState extends State<SwipableStack>
       return null;
     }
     final overlay = widget.overlayBuilder?.call(
-        context,
-        OverlaySwipeProperties(
-          index: _currentIndex,
-          constraints: constraints,
-          direction: swipeDirectionRate.direction,
-          swipeProgress: swipeDirectionRate.rate,
-        ));
+      context,
+      OverlaySwipeProperties(
+        index: _currentIndex,
+        constraints: constraints,
+        direction: swipeDirectionRate.direction,
+        swipeProgress: swipeDirectionRate.rate,
+      ),
+    );
     if (overlay == null) {
       return null;
     }

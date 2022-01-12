@@ -15,7 +15,7 @@ class CardOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final opacity = math.min(swipeProgress, 1.0);
+    final opacity = math.min<double>(swipeProgress, 1);
 
     final isRight = direction == SwipeDirection.right;
     final isLeft = direction == SwipeDirection.left;
