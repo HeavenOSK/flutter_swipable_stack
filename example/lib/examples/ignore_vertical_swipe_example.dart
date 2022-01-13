@@ -59,6 +59,7 @@ class _IgnoreVerticalSwipeExampleState
                 child: SwipableStack(
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
+                  allowVerticalSwipe: false,
                   onWillMoveNext: (index, swipeDirection) {
                     // Return true for the desired swipe direction.
                     switch (swipeDirection) {
