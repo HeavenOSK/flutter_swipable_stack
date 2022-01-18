@@ -84,11 +84,7 @@ extension _SwipableStackPositionX on _SwipableStackPosition {
     if (rateList.isEmpty) {
       return null;
     }
-    return (rateList
-          ..sort(
-            (a, b) => a.rate > b.rate ? -1 : 1,
-          ))
-        .first;
+    return rateList.length == 1 || rateList[0].rate > rateList[1].rate ? rateList[0] : rateList[1];
   }
 
   SwipeDirection? swipeAssistDirection({
