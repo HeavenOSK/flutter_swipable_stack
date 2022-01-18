@@ -74,7 +74,7 @@ class SwipableStack extends StatefulWidget {
   /// The threshold for vertical swipes.
   final double verticalSwipeThreshold;
 
-  /// The direction list which you
+  //The set of `SwipeDirection`s you want to detect
   final Set<SwipeDirection> detectableSwipeDirections;
 
   static const _defaultDetectableSwipeDirections = <SwipeDirection>{

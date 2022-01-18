@@ -1,3 +1,6 @@
+## [1.2.0]
+- Add `detectableSwipeDirections` property.
+  - The set of `SwipeDirection`s you want to detect as white-list.
 ## [1.1.0]
 - Improve builder & overlayBuilder
   - You can get more information in builder from `SwipeProperties`(e.g. `stackIndex`)
