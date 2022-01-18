@@ -29,6 +29,7 @@ class SwipableStack extends StatefulWidget {
     this.viewFraction = _defaultViewFraction,
     this.swipeAssistDuration = _defaultSwipeAssistDuration,
     this.stackClipBehaviour = _defaultStackClipBehaviour,
+    this.detectableSwipeDirections = _defaultDetectableSwipeDirections,
     this.allowVerticalSwipe = true,
     Curve? cancelAnimationCurve,
     Curve? rewindAnimationCurve,
@@ -72,6 +73,16 @@ class SwipableStack extends StatefulWidget {
 
   /// The threshold for vertical swipes.
   final double verticalSwipeThreshold;
+
+  //The set of `SwipeDirection`s you want to detect
+  final Set<SwipeDirection> detectableSwipeDirections;
+
+  static const _defaultDetectableSwipeDirections = <SwipeDirection>{
+    SwipeDirection.right,
+    SwipeDirection.left,
+    SwipeDirection.up,
+    SwipeDirection.down,
+  };
 
   /// How fast should the widget be swiped out of the screen when letting go?
   /// The faster you set this, the faster you're able to swipe another Widget
@@ -343,6 +354,7 @@ class _SwipableStackState extends State<SwipableStack>
               constraints: constraints,
               horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
               verticalSwipeThreshold: widget.verticalSwipeThreshold,
+              detectableDirections: widget.detectableSwipeDirections,
             );
 
             if (swipeAssistDirection == null) {
@@ -401,6 +413,7 @@ class _SwipableStackState extends State<SwipableStack>
       constraints: constraints,
       horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
       verticalSwipeThreshold: widget.verticalSwipeThreshold,
+      detectableDirections: widget.detectableSwipeDirections,
     );
 
     final session = _currentSession ?? _SwipableStackPosition.notMoving();
@@ -424,11 +437,6 @@ class _SwipableStackState extends State<SwipableStack>
           index: index,
           viewFraction: widget.viewFraction,
           swipeAnchor: widget.swipeAnchor,
-          swipeDirectionRate: session.swipeDirectionRate(
-            constraints: constraints,
-            horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
-            verticalSwipeThreshold: widget.verticalSwipeThreshold,
-          ),
           areaConstraints: constraints,
           child: child,
         );
@@ -456,11 +464,6 @@ class _SwipableStackState extends State<SwipableStack>
             index: -1,
             viewFraction: widget.viewFraction,
             swipeAnchor: widget.swipeAnchor,
-            swipeDirectionRate: previousSession.swipeDirectionRate(
-              constraints: constraints,
-              horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
-              verticalSwipeThreshold: widget.verticalSwipeThreshold,
-            ),
             areaConstraints: constraints,
             child: child,
           ),
@@ -507,7 +510,6 @@ class _SwipableStackState extends State<SwipableStack>
     return _SwipablePositioned.overlay(
       viewFraction: widget.viewFraction,
       session: session,
-      swipeDirectionRate: swipeDirectionRate,
       areaConstraints: constraints,
       swipeAnchor: widget.swipeAnchor,
       child: overlay,
@@ -708,7 +710,6 @@ class _SwipablePositioned extends StatelessWidget {
     required this.session,
     required this.areaConstraints,
     required this.child,
-    required this.swipeDirectionRate,
     required this.viewFraction,
     required this.swipeAnchor,
     Key? key,
@@ -719,7 +720,6 @@ class _SwipablePositioned extends StatelessWidget {
     required _SwipableStackPosition session,
     required BoxConstraints areaConstraints,
     required Widget child,
-    required _SwipeRatePerThreshold swipeDirectionRate,
     required double viewFraction,
     required SwipeAnchor? swipeAnchor,
   }) {
@@ -729,7 +729,6 @@ class _SwipablePositioned extends StatelessWidget {
       index: 0,
       viewFraction: viewFraction,
       areaConstraints: areaConstraints,
-      swipeDirectionRate: swipeDirectionRate,
       swipeAnchor: swipeAnchor,
       child: IgnorePointer(
         child: child,
@@ -741,7 +740,6 @@ class _SwipablePositioned extends StatelessWidget {
   final _SwipableStackPosition session;
   final Widget child;
   final BoxConstraints areaConstraints;
-  final _SwipeRatePerThreshold swipeDirectionRate;
   final double viewFraction;
   final SwipeAnchor? swipeAnchor;
 

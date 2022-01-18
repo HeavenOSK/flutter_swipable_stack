@@ -1,5 +1,6 @@
-import 'package:example/examples/allow_swipe_direction.dart';
 import 'package:example/examples/basic_example.dart';
+import 'package:example/examples/detectable_directions_example.dart';
+import 'package:example/examples/ignore_vertical_swipe_example.dart';
 import 'package:example/examples/popup_on_swipe_example.dart';
 import 'package:example/examples/swipe_anchor_example.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,15 @@ class MyApp extends StatelessWidget {
                     Navigator.push(
                       context,
                       SwipeAnchorExample.route(),
+                    );
+                  },
+                ),
+                ListTile(
+                  title: const Text('DetectableDirectionsExample'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      DetectableDirectionsExample.route(),
                     );
                   },
                 ),

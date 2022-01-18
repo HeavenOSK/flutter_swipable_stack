@@ -11,20 +11,22 @@ const _images = [
   'images/image_4.jpg',
 ];
 
-class BasicExample extends StatefulWidget {
-  const BasicExample._({Key? key}) : super(key: key);
+class IgnoreVerticalSwipeExample extends StatefulWidget {
+  const IgnoreVerticalSwipeExample._({Key? key}) : super(key: key);
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => const BasicExample._(),
+      builder: (context) => const IgnoreVerticalSwipeExample._(),
     );
   }
 
   @override
-  _BasicExampleState createState() => _BasicExampleState();
+  _IgnoreVerticalSwipeExampleState createState() =>
+      _IgnoreVerticalSwipeExampleState();
 }
 
-class _BasicExampleState extends State<BasicExample> {
+class _IgnoreVerticalSwipeExampleState
+    extends State<IgnoreVerticalSwipeExample> {
   late final SwipableStackController _controller;
 
   void _listenController() {
@@ -55,36 +57,41 @@ class _BasicExampleState extends State<BasicExample> {
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: SwipableStack(
-                  detectableSwipeDirections: const {
-                    SwipeDirection.right,
-                    SwipeDirection.left,
-                  },
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
+                  allowVerticalSwipe: false,
+                  onWillMoveNext: (index, swipeDirection) {
+                    // Return true for the desired swipe direction.
+                    switch (swipeDirection) {
+                      case SwipeDirection.left:
+                      case SwipeDirection.right:
+                        return true;
+                      case SwipeDirection.up:
+                      case SwipeDirection.down:
+                        return false;
+                    }
+                  },
                   onSwipeCompleted: (index, direction) {
                     if (kDebugMode) {
                       print('$index, $direction');
                     }
                   },
                   horizontalSwipeThreshold: 0.8,
-                  verticalSwipeThreshold: 0.8,
+                  // Set max value to ignore vertical threshold.
+                  verticalSwipeThreshold: 1,
+                  overlayBuilder: (
+                    context,
+                    properties,
+                  ) =>
+                      CardOverlay(
+                    swipeProgress: properties.swipeProgress,
+                    direction: properties.direction,
+                  ),
                   builder: (context, properties) {
                     final itemIndex = properties.index % _images.length;
-
-                    return Stack(
-                      children: [
-                        ExampleCard(
-                          name: 'Sample No.${itemIndex + 1}',
-                          assetPath: _images[itemIndex],
-                        ),
-                        // more custom overlay possible than with overlayBuilder
-                        if (properties.stackIndex == 0 &&
-                            properties.direction != null)
-                          CardOverlay(
-                            swipeProgress: properties.swipeProgress,
-                            direction: properties.direction!,
-                          )
-                      ],
+                    return ExampleCard(
+                      name: 'Sample No.${itemIndex + 1}',
+                      assetPath: _images[itemIndex],
                     );
                   },
                 ),
