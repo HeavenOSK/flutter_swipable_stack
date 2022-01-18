@@ -11,20 +11,22 @@ const _images = [
   'images/image_4.jpg',
 ];
 
-class BasicExample extends StatefulWidget {
-  const BasicExample._({Key? key}) : super(key: key);
+class DetectableDirectionsExample extends StatefulWidget {
+  const DetectableDirectionsExample._({Key? key}) : super(key: key);
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => const BasicExample._(),
+      builder: (context) => const DetectableDirectionsExample._(),
     );
   }
 
   @override
-  _BasicExampleState createState() => _BasicExampleState();
+  _DetectableDirectionsExampleState createState() =>
+      _DetectableDirectionsExampleState();
 }
 
-class _BasicExampleState extends State<BasicExample> {
+class _DetectableDirectionsExampleState
+    extends State<DetectableDirectionsExample> {
   late final SwipableStackController _controller;
 
   void _listenController() {
