@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:sprung/sprung.dart';
 import 'package:swipable_stack/src/model/swipe_properties.dart';
@@ -34,6 +35,8 @@ class SwipableStack extends StatefulWidget {
     Curve? cancelAnimationCurve,
     Curve? rewindAnimationCurve,
     this.swipeAnchor,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.hitTestBehavior = HitTestBehavior.deferToChild,
   })  : controller = controller ?? SwipableStackController(),
         cancelAnimationCurve =
             cancelAnimationCurve ?? _defaultCancelAnimationCurve,
@@ -74,7 +77,7 @@ class SwipableStack extends StatefulWidget {
   /// The threshold for vertical swipes.
   final double verticalSwipeThreshold;
 
-  //The set of `SwipeDirection`s you want to detect
+  /// The set of [SwipeDirection]s you want to detect.
   final Set<SwipeDirection> detectableSwipeDirections;
 
   static const _defaultDetectableSwipeDirections = <SwipeDirection>{
@@ -102,6 +105,12 @@ class SwipableStack extends StatefulWidget {
 
   /// A curve to animate the card when rewinding the swipe.
   final Curve rewindAnimationCurve;
+
+  /// The [DragStartBehavior] of the swipes.
+  final DragStartBehavior dragStartBehavior;
+
+  /// The [HitTestBehavior] of the underlying [GestureDetector].
+  final HitTestBehavior hitTestBehavior;
 
   static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
@@ -304,6 +313,8 @@ class _SwipableStackState extends State<SwipableStack>
         _assertLayout(constraints);
         _areConstraints = constraints;
         return GestureDetector(
+          behavior: widget.hitTestBehavior,
+          dragStartBehavior: widget.dragStartBehavior,
           onPanStart: (d) {
             if (!canSwipe) {
               return;
