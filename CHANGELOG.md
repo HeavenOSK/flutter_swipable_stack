@@ -1,3 +1,7 @@
+## [1.3.0]
+- Add dragStartBehavior and hitTestBehavior 
+  - Thanks to [MaddinMade](https://github.com/MaddinMade)
+
 ## [1.2.0]
 - Add `detectableSwipeDirections` property.
   - The set of `SwipeDirection`s you want to detect as white-list.
