@@ -147,19 +147,19 @@ class SwipableStack extends StatefulWidget {
 class _SwipableStackState extends State<SwipableStack>
     with TickerProviderStateMixin {
   late final AnimationController _swipeCancelAnimationController =
-  AnimationController(
+      AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 500),
   );
 
   late final AnimationController _rewindAnimationController =
-  AnimationController(
+      AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 800),
   );
 
   late final AnimationController _swipeAnimationController =
-  AnimationController(
+      AnimationController(
     vsync: this,
   );
 
@@ -204,10 +204,10 @@ class _SwipableStackState extends State<SwipableStack>
         return diff < 1
             ? moveDistance
             : _remainingDistance(
-          moveDistance: moveDistance + diff,
-          maxWidth: maxWidth,
-          maxHeight: maxHeight,
-        );
+                moveDistance: moveDistance + diff,
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              );
       }
 
       final maxWidth = _areConstraints?.maxWidth ?? deviceSize.width;
@@ -275,14 +275,14 @@ class _SwipableStackState extends State<SwipableStack>
 
   bool get canSwipe =>
       !_swipeAssistController.animating &&
-          !_swipeAnimationController.animating &&
-          !_rewindAnimationController.animating;
+      !_swipeAnimationController.animating &&
+      !_rewindAnimationController.animating;
 
   bool get canAnimationStart =>
       !_swipeAssistController.animating &&
-          !_swipeAnimationController.animating &&
-          !_swipeCancelAnimationController.animating &&
-          !_rewindAnimationController.animating;
+      !_swipeAnimationController.animating &&
+      !_swipeCancelAnimationController.animating &&
+      !_rewindAnimationController.animating;
 
   bool get _rewinding => _rewindAnimationController.animating;
 
@@ -310,9 +310,9 @@ class _SwipableStackState extends State<SwipableStack>
       curve: widget.dragStartCurve,
       parent: _dragStartController,
     )..addListener(() {
-      widget.controller._updateSwipe(widget.controller._currentSessionState
-          ?.copyWith(animationValue: _dragStartAnimation.value));
-    });
+        widget.controller._updateSwipe(widget.controller._currentSessionState
+            ?.copyWith(animationValue: _dragStartAnimation.value));
+      });
   }
 
   @override
@@ -413,9 +413,9 @@ class _SwipableStackState extends State<SwipableStack>
               return;
             }
             final allowMoveNext = widget.onWillMoveNext?.call(
-              _currentIndex,
-              swipeAssistDirection,
-            ) ??
+                  _currentIndex,
+                  swipeAssistDirection,
+                ) ??
                 true;
             if (!allowMoveNext) {
               _cancelSwipe();
@@ -470,7 +470,7 @@ class _SwipableStackState extends State<SwipableStack>
     final session = _currentSession ?? _SwipableStackPosition.notMoving();
     final cards = List<Widget>.generate(
       stackCount,
-          (index) {
+      (index) {
         final itemIndex = _currentIndex + index;
         final child = widget.builder(
           context,
@@ -598,7 +598,7 @@ class _SwipableStackState extends State<SwipableStack>
 
     rewindAnimation.addListener(_animate);
     _rewindAnimationController.forward(from: 0).then(
-          (_) {
+      (_) {
         rewindAnimation.removeListener(_animate);
         widget.controller._initializeSessions();
       },
@@ -614,7 +614,7 @@ class _SwipableStackState extends State<SwipableStack>
       return;
     }
     final cancelAnimation =
-    _swipeCancelAnimationController.tweenCurvedAnimation(
+        _swipeCancelAnimationController.tweenCurvedAnimation(
       startPosition: currentSession.start,
       currentPosition: currentSession.current,
       curve: widget.cancelAnimationCurve,
@@ -625,7 +625,7 @@ class _SwipableStackState extends State<SwipableStack>
 
     cancelAnimation.addListener(_animate);
     _swipeCancelAnimationController.forward(from: 0).then(
-          (_) {
+      (_) {
         cancelAnimation.removeListener(_animate);
         widget.controller.cancelAction();
       },
@@ -671,7 +671,7 @@ class _SwipableStackState extends State<SwipableStack>
 
     animation.addListener(animate);
     _swipeAssistController.forward(from: 0).then(
-          (_) {
+      (_) {
         animation.removeListener(animate);
         widget.onSwipeCompleted?.call(
           _currentIndex,
@@ -697,9 +697,9 @@ class _SwipableStackState extends State<SwipableStack>
 
     if (!ignoreOnWillMoveNext) {
       final allowMoveNext = widget.onWillMoveNext?.call(
-        _currentIndex,
-        swipeDirection,
-      ) ??
+            _currentIndex,
+            swipeDirection,
+          ) ??
           true;
       if (!allowMoveNext) {
         return;
@@ -738,7 +738,7 @@ class _SwipableStackState extends State<SwipableStack>
 
     animation.addListener(animate);
     _swipeAnimationController.forward(from: 0).then(
-          (_) {
+      (_) {
         if (shouldCallCompletionCallback) {
           widget.onSwipeCompleted?.call(
             _currentIndex,

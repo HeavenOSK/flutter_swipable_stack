@@ -79,9 +79,9 @@ class _SwipableStackPosition {
   @override
   bool operator ==(Object other) =>
       other is _SwipableStackPosition &&
-          start == other.start &&
-          current == other.current &&
-          local == other.local;
+      start == other.start &&
+      current == other.current &&
+      local == other.local;
 
   @override
   int get hashCode =>
