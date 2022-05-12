@@ -26,7 +26,6 @@ class BottomButtonsRow extends StatelessWidget {
           height: height,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _BottomButton(
                 color: canRewind ? Colors.amberAccent : Colors.grey,

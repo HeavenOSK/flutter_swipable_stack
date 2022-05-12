@@ -18,7 +18,7 @@ class ExampleCard extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
                 image: DecorationImage(
