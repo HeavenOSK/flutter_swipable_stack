@@ -12,7 +12,7 @@ const _images = [
 ];
 
 class DetectableDirectionsExample extends StatefulWidget {
-  const DetectableDirectionsExample._({Key? key}) : super(key: key);
+  const DetectableDirectionsExample._();
 
   static Route<void> route() {
     return MaterialPageRoute(

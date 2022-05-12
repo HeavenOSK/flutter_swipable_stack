@@ -12,7 +12,7 @@ const _images = [
 ];
 
 class PopupOnSwipeExample extends StatefulWidget {
-  const PopupOnSwipeExample._({Key? key}) : super(key: key);
+  const PopupOnSwipeExample._();
 
   static Route<void> route() {
     return MaterialPageRoute(

@@ -12,7 +12,7 @@ const _images = [
 ];
 
 class SwipeAnchorExample extends StatefulWidget {
-  const SwipeAnchorExample._({Key? key}) : super(key: key);
+  const SwipeAnchorExample._();
 
   static Route<void> route() {
     return MaterialPageRoute(

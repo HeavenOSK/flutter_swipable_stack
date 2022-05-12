@@ -12,7 +12,7 @@ const _images = [
 ];
 
 class BasicExample extends StatefulWidget {
-  const BasicExample._({Key? key}) : super(key: key);
+  const BasicExample._();
 
   static Route<void> route() {
     return MaterialPageRoute(

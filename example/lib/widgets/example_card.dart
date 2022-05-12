@@ -5,8 +5,8 @@ class ExampleCard extends StatelessWidget {
   const ExampleCard({
     required this.name,
     required this.assetPath,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final String name;
   final String assetPath;

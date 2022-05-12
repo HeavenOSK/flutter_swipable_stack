@@ -12,7 +12,7 @@ const _images = [
 ];
 
 class IgnoreVerticalSwipeExample extends StatefulWidget {
-  const IgnoreVerticalSwipeExample._({Key? key}) : super(key: key);
+  const IgnoreVerticalSwipeExample._();
 
   static Route<void> route() {
     return MaterialPageRoute(
