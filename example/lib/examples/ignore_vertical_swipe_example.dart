@@ -1,6 +1,8 @@
 import 'package:example/widgets/bottom_buttons_row.dart';
 import 'package:example/widgets/card_overlay.dart';
 import 'package:example/widgets/example_card.dart';
+import 'package:example/widgets/fade_route.dart';
+import 'package:example/widgets/general_header.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
@@ -15,7 +17,7 @@ class IgnoreVerticalSwipeExample extends StatefulWidget {
   const IgnoreVerticalSwipeExample._();
 
   static Route<void> route() {
-    return MaterialPageRoute(
+    return FadeRoute(
       builder: (context) => const IgnoreVerticalSwipeExample._(),
     );
   }
@@ -104,6 +106,7 @@ class _IgnoreVerticalSwipeExampleState
               onRewindTap: _controller.rewind,
               canRewind: _controller.canRewind,
             ),
+            GeneralHeader.build(context, title: 'IgnoreVerticalSwipeExample'),
           ],
         ),
       ),
