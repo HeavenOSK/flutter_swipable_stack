@@ -2,7 +2,7 @@ import 'package:example/widgets/bottom_buttons_row.dart';
 import 'package:example/widgets/card_overlay.dart';
 import 'package:example/widgets/example_card.dart';
 import 'package:example/widgets/fade_route.dart';
-import 'package:example/widgets/general_header.dart';
+import 'package:example/widgets/general_drawer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
@@ -51,6 +51,10 @@ class _PopupOnSwipeExampleState extends State<PopupOnSwipeExample> {
   Widget build(BuildContext context) {
     const pointCount = 0;
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('PopupOnSwipeExample'),
+      ),
+      drawer: const GeneralDrawer(),
       body: SafeArea(
         child: Stack(
           children: [
@@ -103,7 +107,6 @@ class _PopupOnSwipeExampleState extends State<PopupOnSwipeExample> {
               onRewindTap: _controller.rewind,
               canRewind: _controller.canRewind,
             ),
-            GeneralHeader.build(context, title: 'PopupOnSwipeExample'),
           ],
         ),
       ),

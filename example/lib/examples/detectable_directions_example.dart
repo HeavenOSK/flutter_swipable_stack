@@ -2,7 +2,7 @@ import 'package:example/widgets/bottom_buttons_row.dart';
 import 'package:example/widgets/card_overlay.dart';
 import 'package:example/widgets/example_card.dart';
 import 'package:example/widgets/fade_route.dart';
-import 'package:example/widgets/general_header.dart';
+import 'package:example/widgets/general_drawer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:swipable_stack/swipable_stack.dart';
@@ -52,6 +52,10 @@ class _DetectableDirectionsExampleState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('DetectableDirectionsExample'),
+      ),
+      drawer: const GeneralDrawer(),
       body: SafeArea(
         child: Stack(
           children: [
@@ -101,7 +105,6 @@ class _DetectableDirectionsExampleState
               onRewindTap: _controller.rewind,
               canRewind: _controller.canRewind,
             ),
-            GeneralHeader.build(context, title: 'DetectableDirectionsExample'),
           ],
         ),
       ),
