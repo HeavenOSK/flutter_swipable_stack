@@ -13,6 +13,14 @@ part 'model/swipable_stack_position.dart';
 part 'model/swipe_rate_per_threshold.dart';
 part 'swipable_stack_controller.dart';
 
+/// This allows a value of type T or T?
+/// to be treated as a value of type T?.
+///
+/// We use this so that APIs that have become
+/// non-nullable can still be used with `!` and `?`
+/// to support older versions of the API as well.
+T? _ambiguate<T>(T? value) => value;
+
 const _kStackMaxCount = 3;
 
 /// A widget for stacking cards, which users can swipe horizontally and
@@ -290,7 +298,7 @@ class _SwipableStackState extends State<SwipableStack>
   void didUpdateWidget(covariant SwipableStack oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.itemCount != widget.itemCount) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
         setState(() {});
       });
     }
