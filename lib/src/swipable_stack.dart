@@ -27,6 +27,7 @@ class SwipableStack extends StatefulWidget {
     this.horizontalSwipeThreshold = _defaultHorizontalSwipeThreshold,
     this.verticalSwipeThreshold = _defaultVerticalSwipeThreshold,
     this.itemCount,
+    this.maxItemsToDisplay = _kStackMaxCount,
     this.viewFraction = _defaultViewFraction,
     this.swipeAssistDuration = _defaultSwipeAssistDuration,
     this.stackClipBehaviour = _defaultStackClipBehaviour,
@@ -65,8 +66,11 @@ class SwipableStack extends StatefulWidget {
   /// Builder for displaying an overlay on the most foreground card.
   final SwipableStackOverlayBuilder? overlayBuilder;
 
-  /// The count of items to display.
+  /// The total number of items.
   final int? itemCount;
+  
+  // The max number of items that are drawn at a time.
+  final int maxItemsToDisplay;
 
   /// The second child size rate.
   final double viewFraction;
@@ -411,10 +415,10 @@ class _SwipableStackState extends State<SwipableStack>
     final stackCount = () {
       final itemCount = widget.itemCount;
       if (itemCount == null) {
-        return _kStackMaxCount;
+        return widget.maxItemsToDisplay;
       }
       final remainingCount = itemCount - _currentIndex;
-      return math.min(remainingCount, _kStackMaxCount);
+      return math.min(remainingCount, widget.maxItemsToDisplay);
     }();
     if (stackCount <= 0) {
       return [];
