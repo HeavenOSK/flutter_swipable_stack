@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
@@ -466,12 +467,11 @@ class _SwipableStackState extends State<SwipableStack>
           swipeProgress: swipeDirectionRate?.rate ?? 0.0,
         ),
       );
-      final previousSession = widget.controller._previousSession;
-      if (previousSession != null) {
+      if (widget.controller._previousSessions.isNotEmpty) {
         cards.add(
           _SwipablePositioned(
             key: child.key ?? ValueKey(rewindTargetIndex),
-            session: previousSession,
+            session: widget.controller._previousSessions.last,
             index: -1,
             viewFraction: widget.viewFraction,
             swipeAnchor: widget.swipeAnchor,
@@ -541,15 +541,14 @@ class _SwipableStackState extends State<SwipableStack>
     if (!canAnimationStart) {
       return;
     }
-    final previousSession = widget.controller._previousSession;
-    if (previousSession == null) {
+    if (widget.controller._previousSessions.isEmpty) {
       return;
     }
     widget.controller._prepareRewind();
     _rewindAnimationController.duration = duration;
     final rewindAnimation = _rewindAnimationController.tweenCurvedAnimation(
-      startPosition: previousSession.start,
-      currentPosition: previousSession.current,
+      startPosition: widget.controller._previousSessions.last.start,
+      currentPosition: widget.controller._previousSessions.last.current,
       curve: widget.rewindAnimationCurve,
     );
     void _animate() {
@@ -560,11 +559,11 @@ class _SwipableStackState extends State<SwipableStack>
     _rewindAnimationController.forward(from: 0).then(
       (_) {
         rewindAnimation.removeListener(_animate);
-        widget.controller._initializeSessions();
+        widget.controller._completeRewind();
       },
     ).catchError((dynamic c) {
       rewindAnimation.removeListener(_animate);
-      widget.controller._initializeSessions();
+      widget.controller._completeRewind();
     });
   }
 

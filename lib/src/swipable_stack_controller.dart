@@ -4,6 +4,7 @@ part of 'swipable_stack.dart';
 class SwipableStackController extends ChangeNotifier {
   SwipableStackController({
     int initialIndex = 0,
+    this.maxRewindHistory = 1,
   })  : _currentIndex = initialIndex,
         assert(initialIndex >= 0);
 
@@ -11,6 +12,10 @@ class SwipableStackController extends ChangeNotifier {
   final _swipableStackStateKey = GlobalKey<_SwipableStackState>();
 
   int _currentIndex;
+
+  /// How many items undo items we store in memory.
+  /// Null means no limit on the number of history items.
+  final int? maxRewindHistory;
 
   /// Current index of [SwipableStack].
   int get currentIndex => _currentIndex;
@@ -38,14 +43,21 @@ class SwipableStackController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _initializeSessions() {
+  void _completeRewind() {
     _currentSessionState = null;
-    _previousSession = null;
+    _previousSessions.removeLast();
     notifyListeners();
   }
 
   void _completeAction() {
-    _previousSession = currentSession?.copyWith();
+    if (currentSession != null) {
+      _previousSessions.add(currentSession!);
+    }
+    if (maxRewindHistory != null &&
+        _previousSessions.length > maxRewindHistory!) {
+
+      _previousSessions.removeFirst();
+    }
     _currentIndex += 1;
     _currentSessionState = null;
     notifyListeners();
@@ -57,15 +69,16 @@ class SwipableStackController extends ChangeNotifier {
   }
 
   void _prepareRewind() {
-    _currentSessionState = _previousSession?.copyWith();
+    _currentSessionState = _previousSessions.last;
     _currentIndex -= 1;
     notifyListeners();
   }
 
-  _SwipableStackPosition? _previousSession;
+  final Queue<_SwipableStackPosition> _previousSessions =
+      Queue<_SwipableStackPosition>();
 
   /// Whether to rewind.
-  bool get canRewind => _previousSession != null && _currentIndex > 0;
+  bool get canRewind => _previousSessions.isNotEmpty && _currentIndex > 0;
 
   /// Advance to the next card with specified [swipeDirection].
   ///
