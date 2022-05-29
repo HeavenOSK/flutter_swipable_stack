@@ -328,6 +328,9 @@ class _SwipableStackState extends State<SwipableStack>
       _dragStartAnimation.curve = widget.dragStartCurve;
       _dragStartController.duration = widget.dragStartDuration;
     } else {
+      // The animation is deactivated by setting its duration to zero
+      // This way the listeners of the _dragStartAnimation are called
+      // in contrast to the approach of just not calling the controller.
       _dragStartController.duration = Duration.zero;
     }
   }
@@ -370,6 +373,9 @@ class _SwipableStackState extends State<SwipableStack>
               ),
             );
 
+            // This line must be executed in any case, so that the listeners of
+            // the animation are called. Even if the duration of the animation
+            // is zero.
             _dragStartController.forward(from: 0);
           },
           onPanUpdate: (d) {
