@@ -8,8 +8,8 @@ class CardOverlay extends StatelessWidget {
   const CardOverlay({
     required this.direction,
     required this.swipeProgress,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   final SwipeDirection direction;
   final double swipeProgress;
 

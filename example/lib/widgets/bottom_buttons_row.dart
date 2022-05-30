@@ -7,8 +7,8 @@ class BottomButtonsRow extends StatelessWidget {
     required this.onRewindTap,
     required this.onSwipe,
     required this.canRewind,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final bool canRewind;
   final VoidCallback onRewindTap;
@@ -26,7 +26,6 @@ class BottomButtonsRow extends StatelessWidget {
           height: height,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _BottomButton(
                 color: canRewind ? Colors.amberAccent : Colors.grey,
@@ -74,8 +73,7 @@ class _BottomButton extends StatelessWidget {
     required this.onPressed,
     required this.child,
     required this.color,
-    Key? key,
-  }) : super(key: key);
+  });
 
   final VoidCallback? onPressed;
   final Icon child;

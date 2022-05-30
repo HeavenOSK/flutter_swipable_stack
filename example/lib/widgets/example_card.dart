@@ -5,8 +5,8 @@ class ExampleCard extends StatelessWidget {
   const ExampleCard({
     required this.name,
     required this.assetPath,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final String name;
   final String assetPath;
@@ -18,7 +18,7 @@ class ExampleCard extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
                 image: DecorationImage(

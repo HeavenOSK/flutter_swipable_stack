@@ -11,8 +11,7 @@ class CardLabel extends StatelessWidget {
     required this.label,
     required this.angle,
     required this.alignment,
-    Key? key,
-  }) : super(key: key);
+  });
 
   factory CardLabel.right() {
     return const CardLabel._(
