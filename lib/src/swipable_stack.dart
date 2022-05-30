@@ -37,6 +37,8 @@ class SwipableStack extends StatefulWidget {
     this.swipeAnchor,
     this.dragStartBehavior = DragStartBehavior.start,
     this.hitTestBehavior = HitTestBehavior.deferToChild,
+    this.dragStartDuration = const Duration(milliseconds: 150),
+    this.dragStartCurve = Curves.easeOut,
   })  : controller = controller ?? SwipableStackController(),
         cancelAnimationCurve =
             cancelAnimationCurve ?? _defaultCancelAnimationCurve,
@@ -112,6 +114,16 @@ class SwipableStack extends StatefulWidget {
   /// The [HitTestBehavior] of the underlying [GestureDetector].
   final HitTestBehavior hitTestBehavior;
 
+  /// The [Duration] of the dragStartAnimation.
+  ///
+  /// Only relevant if [dragStartBehavior] is [DragStartBehavior.down].
+  final Duration dragStartDuration;
+
+  /// The [Curve] of the dragStartAnimation.
+  ///
+  /// Only relevant if [dragStartBehavior] is [DragStartBehavior.down].
+  final Curve dragStartCurve;
+
   static const double _defaultHorizontalSwipeThreshold = 0.44;
   static const double _defaultVerticalSwipeThreshold = 0.32;
   static const double _defaultViewFraction = 0.94;
@@ -154,6 +166,10 @@ class _SwipableStackState extends State<SwipableStack>
   late final AnimationController _swipeAssistController = AnimationController(
     vsync: this,
   );
+
+  late final AnimationController _dragStartController;
+
+  late final CurvedAnimation _dragStartAnimation;
 
   double _distanceToAssist({
     required BuildContext context,
@@ -284,6 +300,19 @@ class _SwipableStackState extends State<SwipableStack>
   void initState() {
     super.initState();
     widget.controller.addListener(_listenController);
+    _dragStartController = AnimationController(
+      vsync: this,
+      duration: widget.dragStartBehavior == DragStartBehavior.down
+          ? widget.dragStartDuration
+          : Duration.zero,
+    );
+    _dragStartAnimation = CurvedAnimation(
+      curve: widget.dragStartCurve,
+      parent: _dragStartController,
+    )..addListener(() {
+        widget.controller._updateSwipe(widget.controller._currentSessionState
+            ?.copyWith(animationValue: _dragStartAnimation.value));
+      });
   }
 
   @override
@@ -293,6 +322,16 @@ class _SwipableStackState extends State<SwipableStack>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {});
       });
+    }
+
+    if (widget.dragStartBehavior == DragStartBehavior.down) {
+      _dragStartAnimation.curve = widget.dragStartCurve;
+      _dragStartController.duration = widget.dragStartDuration;
+    } else {
+      // The animation is deactivated by setting its duration to zero
+      // This way the listeners of the _dragStartAnimation are called
+      // in contrast to the approach of just not calling the controller.
+      _dragStartController.duration = Duration.zero;
     }
   }
 
@@ -327,11 +366,17 @@ class _SwipableStackState extends State<SwipableStack>
             }
             widget.controller._updateSwipe(
               _SwipableStackPosition(
-                local: d.localPosition,
+                realLocal: d.localPosition,
                 start: d.globalPosition,
-                current: d.globalPosition,
+                real: d.globalPosition,
+                animationValue: 0,
               ),
             );
+
+            // This line must be executed in any case, so that the listeners of
+            // the animation are called. Even if the duration of the animation
+            // is zero.
+            _dragStartController.forward(from: 0);
           },
           onPanUpdate: (d) {
             if (!canSwipe) {
@@ -344,16 +389,17 @@ class _SwipableStackState extends State<SwipableStack>
             }
             //do not update dy if vertical swipe is not allowed
             final updated = _currentSession?.copyWith(
-              currentPosition: widget.allowVerticalSwipe
+              realPosition: widget.allowVerticalSwipe
                   ? d.globalPosition
                   : Offset(d.globalPosition.dx, _currentSession!.current.dy),
             );
             widget.controller._updateSwipe(
               updated ??
                   _SwipableStackPosition(
-                    local: d.localPosition,
+                    realLocal: d.localPosition,
                     start: d.globalPosition,
-                    current: d.globalPosition,
+                    real: d.globalPosition,
+                    animationValue: 1,
                   ),
             );
           },
@@ -530,7 +576,7 @@ class _SwipableStackState extends State<SwipableStack>
   void _animatePosition(Animation<Offset> positionAnimation) {
     widget.controller._updateSwipe(
       widget.controller.currentSession?.copyWith(
-        currentPosition: positionAnimation.value,
+        realPosition: positionAnimation.value,
       ),
     );
   }

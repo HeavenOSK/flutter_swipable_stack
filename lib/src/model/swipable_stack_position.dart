@@ -4,15 +4,17 @@ part of '../swipable_stack.dart';
 class _SwipableStackPosition {
   const _SwipableStackPosition({
     required this.start,
-    required this.current,
-    required this.local,
+    required this.real,
+    required this.realLocal,
+    required this.animationValue,
   });
 
   factory _SwipableStackPosition.notMoving() {
     return const _SwipableStackPosition(
       start: Offset.zero,
-      current: Offset.zero,
-      local: Offset.zero,
+      real: Offset.zero,
+      realLocal: Offset.zero,
+      animationValue: 1,
     );
   }
 
@@ -20,46 +22,59 @@ class _SwipableStackPosition {
     required SwipeDirection direction,
     required BoxConstraints areaConstraints,
   }) {
-    Offset localPosition() {
-      switch (direction) {
-        case SwipeDirection.left:
-          return Offset(
-            areaConstraints.maxWidth * 0.8,
-            areaConstraints.maxHeight * 0.4,
-          );
-        case SwipeDirection.right:
-          return Offset(
-            areaConstraints.maxWidth * 0.2,
-            areaConstraints.maxHeight * 0.4,
-          );
-        case SwipeDirection.up:
-          return Offset(
-            areaConstraints.maxWidth / 2,
-            areaConstraints.maxHeight,
-          );
-        case SwipeDirection.down:
-          return Offset(
-            areaConstraints.maxWidth / 2,
-            0,
-          );
-      }
+    Offset localPosition;
+    switch (direction) {
+      case SwipeDirection.left:
+        localPosition = Offset(
+          areaConstraints.maxWidth * 0.8,
+          areaConstraints.maxHeight * 0.4,
+        );
+        break;
+      case SwipeDirection.right:
+        localPosition = Offset(
+          areaConstraints.maxWidth * 0.2,
+          areaConstraints.maxHeight * 0.4,
+        );
+        break;
+      case SwipeDirection.up:
+        localPosition = Offset(
+          areaConstraints.maxWidth / 2,
+          areaConstraints.maxHeight,
+        );
+        break;
+      case SwipeDirection.down:
+        localPosition = Offset(
+          areaConstraints.maxWidth / 2,
+          0,
+        );
+        break;
     }
 
     return _SwipableStackPosition(
       start: Offset.zero,
-      current: Offset.zero,
-      local: localPosition(),
+      real: Offset.zero,
+      realLocal: localPosition,
+      animationValue: 1,
     );
   }
+
+  /// The value of _dragStartAnimation.
+  final double animationValue;
 
   /// The start point of swipe action.
   final Offset start;
 
   /// The current point of swipe action.
-  final Offset current;
+  Offset get current => start + (real - start) * animationValue;
+
+  /// The point which user is touching.
+  final Offset real;
+
+  /// The local point of swipe action.
+  Offset get local => realLocal * animationValue;
 
   /// The point which user is touching in the component.
-  final Offset local;
+  final Offset realLocal;
 
   @override
   bool operator ==(Object other) =>
@@ -76,18 +91,22 @@ class _SwipableStackPosition {
   String toString() => '$_SwipableStackPosition('
       'startPosition:$start,'
       'currentPosition:$current,'
-      'localPosition:$local'
+      'realPosition:$real,'
+      'localPosition:$local,'
+      'realLocalPosition:$realLocal'
       ')';
 
   _SwipableStackPosition copyWith({
     Offset? startPosition,
-    Offset? currentPosition,
-    Offset? localPosition,
+    Offset? realPosition,
+    Offset? realLocalPosition,
+    double? animationValue,
   }) =>
       _SwipableStackPosition(
         start: startPosition ?? start,
-        current: currentPosition ?? current,
-        local: localPosition ?? local,
+        real: realPosition ?? real,
+        realLocal: realLocalPosition ?? realLocal,
+        animationValue: animationValue ?? this.animationValue,
       );
 
   /// Difference offset from [start] to [current] .
