@@ -1,3 +1,12 @@
+## [2.0.0]
+- Update for Flutter V3
+- Improve touch & feelings in Scrollable
+  - adds `dragStartBehavior` and `hitTestBehavior`
+  - adds dragstart animation
+    - Thanks to [MaddinMade](https://github.com/MaddinMade)
+- adds readme badges
+  - Thanks to [MaddinMade](https://github.com/MaddinMade)
+
 ## [1.3.0]
 - Add dragStartBehavior and hitTestBehavior 
   - Thanks to [MaddinMade](https://github.com/MaddinMade)
