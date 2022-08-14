@@ -1,10 +1,10 @@
 # swipable_stack
-<a href="https://pub.dev/packages/swipable_stack"><img src="https://img.shields.io/pub/v/swipable_stack.svg?style=flat?logo=dart" alt="pub.dev"></a>
-<a href="https://github.com/HeavenOSK/flutter_swipable_stack"><img src="https://img.shields.io/static/v1?label=platform&message=flutter&color=1ebbfd" alt="github"></a>
-[![likes](https://badges.bar/swipable_stack/likes)](https://pub.dev/packages/swipable_stack/score)
-[![popularity](https://badges.bar/swipable_stack/popularity)](https://pub.dev/packages/swipable_stack/score)
-[![pub points](https://badges.bar/swipable_stack/pub%20points)](https://pub.dev/packages/swipable_stack/score)
-<a href="https://github.com/HeavenOSK/flutter_swipable_stack/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HeavenOSK/flutter_swipable_stack.svg" alt="license"></a>
+[![pub.dev](https://img.shields.io/pub/v/swipable_stack.svg?style=flat?logo=dart)](https://pub.dev/packages/swipable_stack)
+[![github](https://img.shields.io/static/v1?label=platform&message=flutter&color=1ebbfd)](https://github.com/HeavenOSK/flutter_swipable_stack)
+[![likes](https://img.shields.io/pub/likes/swipable_stack)](https://pub.dev/packages/swipable_stack/score)
+[![popularity](https://img.shields.io/pub/popularity/swipable_stack.svg)](https://pub.dev/packages/swipable_stack/score)
+[![pub points](https://img.shields.io/pub/points/swipable_stack)](https://pub.dev/packages/swipable_stack/score)
+[![license](https://img.shields.io/github/license/HeavenOSK/flutter_swipable_stack.svg)](https://github.com/HeavenOSK/flutter_swipable_stack/blob/main/LICENSE)
 
 A widget for stacking cards, which users can swipe horizontally and vertically with beautiful animations like Tinder UI.
 
