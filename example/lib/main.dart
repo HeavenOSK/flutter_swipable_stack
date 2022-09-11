@@ -68,14 +68,21 @@ class _HomeState extends State<Home> {
                 padding: const EdgeInsets.all(8),
                 child: SwipableStack(
                   detectableSwipeDirections: const {
-                    SwipeDirection.right,
-                    SwipeDirection.left,
+                    // SwipeDirection.right,
+                    // SwipeDirection.left,
+                    SwipeDirection.up,
+                    SwipeDirection.down,
                   },
                   controller: _controller,
                   stackClipBehaviour: Clip.none,
+                  onSwipeForbiden: (index, direction) {
+                    if (kDebugMode) {
+                      print('onSwipeForbiden $index, $direction');
+                    }
+                  },
                   onSwipeCompleted: (index, direction) {
                     if (kDebugMode) {
-                      print('$index, $direction');
+                      print('onSwipeCompleted $index, $direction');
                     }
                   },
                   horizontalSwipeThreshold: 0.8,

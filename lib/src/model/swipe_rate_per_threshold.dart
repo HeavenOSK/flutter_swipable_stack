@@ -94,6 +94,7 @@ extension _SwipableStackPositionX on _SwipableStackPosition {
     required double horizontalSwipeThreshold,
     required double verticalSwipeThreshold,
     required Set<SwipeDirection> detectableDirections,
+    required ValueChanged<SwipeDirection> isForbidden,
   }) {
     final directionRate = swipeDirectionRate(
       constraints: constraints,
@@ -101,10 +102,19 @@ extension _SwipableStackPositionX on _SwipableStackPosition {
       verticalSwipeThreshold: verticalSwipeThreshold,
       detectableDirections: detectableDirections,
     );
-    if (directionRate == null) {
-      return null;
-    }
-    if (directionRate.rate < 1) {
+
+    if (directionRate == null || directionRate.rate < 1) {
+      final directionRateForbid = swipeDirectionRate(
+        constraints: constraints,
+        horizontalSwipeThreshold: horizontalSwipeThreshold,
+        verticalSwipeThreshold: verticalSwipeThreshold,
+        detectableDirections: SwipeDirection.values.toSet(),
+      );
+
+      if (directionRateForbid != null && directionRateForbid.rate >= 1) {
+        isForbidden(directionRate!.direction);
+      }
+
       return null;
     } else {
       return directionRate.direction;

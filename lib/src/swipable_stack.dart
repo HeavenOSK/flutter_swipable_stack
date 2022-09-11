@@ -22,6 +22,7 @@ class SwipableStack extends StatefulWidget {
     required this.builder,
     SwipableStackController? controller,
     this.onSwipeCompleted,
+    this.onSwipeForbiden,
     this.onWillMoveNext,
     this.overlayBuilder,
     this.horizontalSwipeThreshold = _defaultHorizontalSwipeThreshold,
@@ -58,6 +59,7 @@ class SwipableStack extends StatefulWidget {
 
   /// Callback called when the Swipe is completed.
   final SwipeCompletionCallback? onSwipeCompleted;
+  final SwipeCompletionCallback? onSwipeForbiden;
 
   /// Callback called just before launching the Swipe action.
   ///
@@ -412,6 +414,12 @@ class _SwipableStackState extends State<SwipableStack>
               horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
               verticalSwipeThreshold: widget.verticalSwipeThreshold,
               detectableDirections: widget.detectableSwipeDirections,
+              isForbidden: (dir) {
+                widget.onSwipeForbiden?.call(
+                  _currentIndex,
+                  dir,
+                );
+              },
             );
 
             if (swipeAssistDirection == null) {
@@ -425,6 +433,7 @@ class _SwipableStackState extends State<SwipableStack>
                 true;
             if (!allowMoveNext) {
               _cancelSwipe();
+
               return;
             }
             _swipeNext(swipeAssistDirection);
