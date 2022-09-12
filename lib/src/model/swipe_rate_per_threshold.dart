@@ -112,7 +112,7 @@ extension _SwipableStackPositionX on _SwipableStackPosition {
       );
 
       if (directionRateForbid != null && directionRateForbid.rate >= 1) {
-        isForbidden(directionRate!.direction);
+        isForbidden(directionRateForbid.direction);
       }
 
       return null;
