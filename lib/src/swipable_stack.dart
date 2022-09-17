@@ -22,6 +22,7 @@ class SwipableStack extends StatefulWidget {
     required this.builder,
     SwipableStackController? controller,
     this.onSwipeCompleted,
+    this.onSwipeForbiden,
     this.onWillMoveNext,
     this.overlayBuilder,
     this.horizontalSwipeThreshold = _defaultHorizontalSwipeThreshold,
@@ -58,6 +59,7 @@ class SwipableStack extends StatefulWidget {
 
   /// Callback called when the Swipe is completed.
   final SwipeCompletionCallback? onSwipeCompleted;
+  final SwipeCompletionCallback? onSwipeForbiden;
 
   /// Callback called just before launching the Swipe action.
   ///
@@ -412,6 +414,12 @@ class _SwipableStackState extends State<SwipableStack>
               horizontalSwipeThreshold: widget.horizontalSwipeThreshold,
               verticalSwipeThreshold: widget.verticalSwipeThreshold,
               detectableDirections: widget.detectableSwipeDirections,
+              isForbidden: (dir) {
+                widget.onSwipeForbiden?.call(
+                  _currentIndex,
+                  dir,
+                );
+              },
             );
 
             if (swipeAssistDirection == null) {
@@ -425,6 +433,7 @@ class _SwipableStackState extends State<SwipableStack>
                 true;
             if (!allowMoveNext) {
               _cancelSwipe();
+
               return;
             }
             _swipeNext(swipeAssistDirection);
@@ -512,12 +521,11 @@ class _SwipableStackState extends State<SwipableStack>
           swipeProgress: swipeDirectionRate?.rate ?? 0.0,
         ),
       );
-      final previousSession = widget.controller._previousSession;
-      if (previousSession != null) {
+      if (widget.controller.history.isNotEmpty) {
         cards.add(
           _SwipablePositioned(
             key: child.key ?? ValueKey(rewindTargetIndex),
-            session: previousSession,
+            session: widget.controller.history.last,
             index: -1,
             viewFraction: widget.viewFraction,
             swipeAnchor: widget.swipeAnchor,
@@ -584,13 +592,11 @@ class _SwipableStackState extends State<SwipableStack>
   void _rewind({
     required Duration duration,
   }) {
-    if (!canAnimationStart) {
+    if (widget.controller.history.isEmpty || !canAnimationStart) {
       return;
     }
-    final previousSession = widget.controller._previousSession;
-    if (previousSession == null) {
-      return;
-    }
+    final previousSession = widget.controller.history.last;
+
     widget.controller._prepareRewind();
     _rewindAnimationController.duration = duration;
     final rewindAnimation = _rewindAnimationController.tweenCurvedAnimation(
