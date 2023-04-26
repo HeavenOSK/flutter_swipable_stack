@@ -3,13 +3,13 @@
 - Improve touch & feelings in Scrollable
   - adds `dragStartBehavior` and `hitTestBehavior`
   - adds dragstart animation
-    - Thanks to [MaddinMade](https://github.com/MaddinMade)
+    - Thanks to [maeddin](https://github.com/maeddin)
 - adds readme badges
-  - Thanks to [MaddinMade](https://github.com/MaddinMade)
+  - Thanks to [maeddin](https://github.com/maeddin)
 
 ## [1.3.0]
 - Add dragStartBehavior and hitTestBehavior 
-  - Thanks to [MaddinMade](https://github.com/MaddinMade)
+  - Thanks to [maeddin](https://github.com/maeddin)
 
 ## [1.2.0]
 - Add `detectableSwipeDirections` property.
@@ -18,7 +18,7 @@
 - Improve builder & overlayBuilder
   - You can get more information in builder from `SwipeProperties`(e.g. `stackIndex`)
   - BREAKING: bundled a lot of parameters of the builder into `SwipeProperties`.
-  - Thanks to [MaddinMade](https://github.com/MaddinMade)
+  - Thanks to [maeddin](https://github.com/maeddin)
 ## [1.0.0]
 - Add examples
 - Update README
