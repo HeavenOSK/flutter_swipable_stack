@@ -274,6 +274,7 @@ class _SwipableStackState extends State<SwipableStack>
   int get _currentIndex => widget.controller.currentIndex;
 
   bool get canSwipe =>
+      widget.detectableSwipeDirections.isNotEmpty &&
       !_swipeAssistController.animating &&
       !_swipeAnimationController.animating &&
       !_rewindAnimationController.animating;
