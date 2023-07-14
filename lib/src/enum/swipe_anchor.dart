@@ -4,4 +4,5 @@ part of '../swipable_stack.dart';
 enum SwipeAnchor {
   top,
   bottom,
+  none,
 }
