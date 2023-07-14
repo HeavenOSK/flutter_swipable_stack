@@ -34,6 +34,7 @@ class SwipableStack extends StatefulWidget {
     this.allowVerticalSwipe = true,
     Curve? cancelAnimationCurve,
     Curve? rewindAnimationCurve,
+    Curve? swipeAnimationCurve,
     this.swipeAnchor,
     this.dragStartBehavior = DragStartBehavior.start,
     this.hitTestBehavior = HitTestBehavior.deferToChild,
@@ -44,6 +45,8 @@ class SwipableStack extends StatefulWidget {
             cancelAnimationCurve ?? _defaultCancelAnimationCurve,
         rewindAnimationCurve =
             rewindAnimationCurve ?? _defaultRewindAnimationCurve,
+        swipeAnimationCurve =
+            swipeAnimationCurve ?? _defaultSwipeAnimationCurve,
         assert(0 <= viewFraction && viewFraction <= 1),
         assert(0 <= horizontalSwipeThreshold && horizontalSwipeThreshold <= 1),
         assert(0 <= verticalSwipeThreshold && verticalSwipeThreshold <= 1),
@@ -108,6 +111,9 @@ class SwipableStack extends StatefulWidget {
   /// A curve to animate the card when rewinding the swipe.
   final Curve rewindAnimationCurve;
 
+  ///  default curve to animate the card when programatically swiping cards.
+  final Curve swipeAnimationCurve;
+
   /// The [DragStartBehavior] of the swipes.
   final DragStartBehavior dragStartBehavior;
 
@@ -133,6 +139,8 @@ class SwipableStack extends StatefulWidget {
   static const _defaultSwipeAssistDuration = Duration(milliseconds: 650);
 
   static const _defaultStackClipBehaviour = Clip.hardEdge;
+
+  static final _defaultSwipeAnimationCurve = Cubic(0.7, 1, 0.73, 1);
 
   static final _defaultCancelAnimationCurve = Sprung.custom(
     damping: 17,
@@ -669,6 +677,7 @@ class _SwipableStackState extends State<SwipableStack>
             context: context,
             swipeDirection: swipeDirection,
           ),
+      curve: widget.swipeAnimationCurve,
     );
 
     void animate() {
@@ -736,6 +745,7 @@ class _SwipableStackState extends State<SwipableStack>
         context: context,
         swipeDirection: swipeDirection,
       ),
+      curve: widget.swipeAnimationCurve,
     );
 
     void animate() {

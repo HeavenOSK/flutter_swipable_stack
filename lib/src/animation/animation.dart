@@ -23,6 +23,7 @@ extension _AnimationControllerX on AnimationController {
   Animation<Offset> swipeAnimation({
     required Offset startPosition,
     required Offset endPosition,
+    required Curve curve,
   }) {
     return Tween<Offset>(
       begin: startPosition,
@@ -30,7 +31,7 @@ extension _AnimationControllerX on AnimationController {
     ).animate(
       CurvedAnimation(
         parent: this,
-        curve: const Cubic(0.7, 1, 0.73, 1),
+        curve: curve,
       ),
     );
   }
