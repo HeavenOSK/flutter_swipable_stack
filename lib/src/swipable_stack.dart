@@ -9,6 +9,7 @@ part 'animation/animation.dart';
 part 'callback/callbacks.dart';
 part 'enum/swipe_anchor.dart';
 part 'enum/swipe_direction.dart';
+part 'enum/swipe_reveal_side.dart';
 part 'model/swipable_stack_position.dart';
 part 'model/swipe_rate_per_threshold.dart';
 part 'swipable_stack_controller.dart';
@@ -35,6 +36,7 @@ class SwipableStack extends StatefulWidget {
     Curve? cancelAnimationCurve,
     Curve? rewindAnimationCurve,
     this.swipeAnchor,
+    this.swipeRevealSide = SwipeRevealSide.top,
     this.dragStartBehavior = DragStartBehavior.start,
     this.hitTestBehavior = HitTestBehavior.deferToChild,
     this.dragStartDuration = const Duration(milliseconds: 150),
@@ -101,6 +103,9 @@ class SwipableStack extends StatefulWidget {
 
   /// Where should the card be anchored on during swipe rotation
   final SwipeAnchor? swipeAnchor;
+
+  /// Where to reveal the next card in the stack
+  final SwipeRevealSide swipeRevealSide;
 
   /// A curve to animate the card when canceling the swipe.
   final Curve cancelAnimationCurve;
@@ -494,6 +499,7 @@ class _SwipableStackState extends State<SwipableStack>
           index: index,
           viewFraction: widget.viewFraction,
           swipeAnchor: widget.swipeAnchor,
+          revealSide: widget.swipeRevealSide,
           areaConstraints: constraints,
           child: child,
         );
@@ -521,6 +527,7 @@ class _SwipableStackState extends State<SwipableStack>
             index: -1,
             viewFraction: widget.viewFraction,
             swipeAnchor: widget.swipeAnchor,
+            revealSide: widget.swipeRevealSide,
             areaConstraints: constraints,
             child: child,
           ),
@@ -569,6 +576,7 @@ class _SwipableStackState extends State<SwipableStack>
       session: session,
       areaConstraints: constraints,
       swipeAnchor: widget.swipeAnchor,
+      revealSide: widget.swipeRevealSide,
       child: overlay,
     );
   }
@@ -769,6 +777,7 @@ class _SwipablePositioned extends StatelessWidget {
     required this.child,
     required this.viewFraction,
     required this.swipeAnchor,
+    required this.revealSide,
     Key? key,
   })  : assert(0 <= viewFraction && viewFraction <= 1),
         super(key: key);
@@ -779,6 +788,7 @@ class _SwipablePositioned extends StatelessWidget {
     required Widget child,
     required double viewFraction,
     required SwipeAnchor? swipeAnchor,
+    required SwipeRevealSide revealSide,
   }) {
     return _SwipablePositioned(
       key: const ValueKey('overlay'),
@@ -787,6 +797,7 @@ class _SwipablePositioned extends StatelessWidget {
       viewFraction: viewFraction,
       areaConstraints: areaConstraints,
       swipeAnchor: swipeAnchor,
+      revealSide: revealSide,
       child: IgnorePointer(
         child: child,
       ),
@@ -799,6 +810,7 @@ class _SwipablePositioned extends StatelessWidget {
   final BoxConstraints areaConstraints;
   final double viewFraction;
   final SwipeAnchor? swipeAnchor;
+  final SwipeRevealSide revealSide;
 
   Offset get _currentPositionDiff => session.difference;
 
@@ -861,25 +873,35 @@ class _SwipablePositioned extends StatelessWidget {
   Offset _preferredPosition(BuildContext context) {
     if (_isFirst) {
       return _currentPositionDiff;
-    } else if (_isSecond) {
-      final constraintsDiff =
-          areaConstraints * (1 - _animationProgress()) * _animationRate / 2;
-      return Offset(
-        constraintsDiff.maxWidth,
-        constraintsDiff.maxHeight,
-      );
-    } else {
-      final maxDiff = areaConstraints * _animationRate / 2;
-      return Offset(
-        maxDiff.maxWidth,
-        maxDiff.maxHeight,
-      );
     }
+
+    final BoxConstraints diff;
+
+    if (_isSecond) {
+      diff = areaConstraints * (1 - _animationProgress()) * _animationRate / 2;
+    } else {
+      diff = areaConstraints * _animationRate / 2;
+    }
+
+    final x = diff.maxWidth;
+    final double y;
+
+    switch (revealSide) {
+      case SwipeRevealSide.bottom:
+        y = diff.maxHeight;
+        break;
+      case SwipeRevealSide.top:
+        y = diff.maxHeight * -1;
+        break;
+    }
+
+    return Offset(x, y);
   }
 
   @override
   Widget build(BuildContext context) {
     final position = _preferredPosition(context);
+
     return Positioned(
       top: position.dy,
       left: position.dx,
