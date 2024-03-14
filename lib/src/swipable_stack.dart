@@ -21,6 +21,7 @@ class SwipableStack extends StatefulWidget {
   SwipableStack({
     required this.builder,
     SwipableStackController? controller,
+    this.onDragCompleted,
     this.onSwipeCompleted,
     this.onWillMoveNext,
     this.overlayBuilder,
@@ -32,6 +33,7 @@ class SwipableStack extends StatefulWidget {
     this.stackClipBehaviour = _defaultStackClipBehaviour,
     this.detectableSwipeDirections = _defaultDetectableSwipeDirections,
     this.allowVerticalSwipe = true,
+    Curve? nextAnimationCurve,
     Curve? cancelAnimationCurve,
     Curve? rewindAnimationCurve,
     this.swipeAnchor,
@@ -40,6 +42,7 @@ class SwipableStack extends StatefulWidget {
     this.dragStartDuration = const Duration(milliseconds: 150),
     this.dragStartCurve = Curves.easeOut,
   })  : controller = controller ?? SwipableStackController(),
+        nextAnimationCurve = nextAnimationCurve ?? _defaultNextAnimationCurve,
         cancelAnimationCurve =
             cancelAnimationCurve ?? _defaultCancelAnimationCurve,
         rewindAnimationCurve =
@@ -55,6 +58,9 @@ class SwipableStack extends StatefulWidget {
 
   /// An object to manipulate the [SwipableStack].
   final SwipableStackController controller;
+
+  /// Callback called when letting go of a card that will be swiped.
+  final DragReleaseCallback? onDragCompleted;
 
   /// Callback called when the Swipe is completed.
   final SwipeCompletionCallback? onSwipeCompleted;
@@ -102,6 +108,9 @@ class SwipableStack extends StatefulWidget {
   /// Where should the card be anchored on during swipe rotation
   final SwipeAnchor? swipeAnchor;
 
+  /// A curve to animate the card when a swipe is complete.
+  final Curve nextAnimationCurve;
+
   /// A curve to animate the card when canceling the swipe.
   final Curve cancelAnimationCurve;
 
@@ -139,6 +148,8 @@ class SwipableStack extends StatefulWidget {
     mass: 0.5,
   );
   static const _defaultRewindAnimationCurve = ElasticOutCurve(0.95);
+
+  static const _defaultNextAnimationCurve = Cubic(0.7, 1, 0.73, 1);
 
   @override
   _SwipableStackState createState() => _SwipableStackState();
@@ -649,6 +660,12 @@ class _SwipableStackState extends State<SwipableStack>
     if (currentSession == null) {
       return;
     }
+
+    widget.onDragCompleted?.call(
+      _currentIndex,
+      swipeDirection,
+    );
+
     final distToAssist = _distanceToAssist(
       swipeDirection: swipeDirection,
       context: context,
@@ -669,6 +686,7 @@ class _SwipableStackState extends State<SwipableStack>
             context: context,
             swipeDirection: swipeDirection,
           ),
+      curve: widget.nextAnimationCurve,
     );
 
     void animate() {
@@ -736,6 +754,7 @@ class _SwipableStackState extends State<SwipableStack>
         context: context,
         swipeDirection: swipeDirection,
       ),
+      curve: widget.nextAnimationCurve,
     );
 
     void animate() {

@@ -6,6 +6,11 @@ typedef SwipeCompletionCallback = void Function(
   SwipeDirection direction,
 );
 
+typedef DragReleaseCallback = void Function(
+  int index,
+  SwipeDirection direction,
+);
+
 /// Callback called just before launching the Swipe action.
 typedef OnWillMoveNext = bool Function(
   int index,
