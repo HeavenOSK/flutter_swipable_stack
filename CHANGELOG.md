@@ -1,3 +1,6 @@
+## [2.0.1]
+- Fix `ArgumentError: must not be NaN` when the stack is laid out with zero width or height
+
 ## [2.0.0]
 - Update for Flutter V3
 - Improve touch & feelings in Scrollable

@@ -51,6 +51,27 @@ void main() {
           }
         },
       );
+      testWidgets(
+        'can build with zero-sized constraints',
+        (tester) async {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: Center(
+                child: SizedBox.shrink(
+                  child: SwipableStack(
+                    itemCount: 3,
+                    builder: (context, properties) => _buildCard(
+                      color: _cardColors.first,
+                      index: properties.index,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+          expect(tester.takeException(), isNull);
+        },
+      );
     },
   );
 }
