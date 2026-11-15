@@ -15,6 +15,9 @@ part 'swipable_stack_controller.dart';
 
 const _kStackMaxCount = 3;
 
+double _safeDivide(double numerator, double denominator) =>
+    denominator == 0 ? 0 : numerator / denominator;
+
 /// A widget for stacking cards, which users can swipe horizontally and
 /// vertically with beautiful animations.
 class SwipableStack extends StatefulWidget {
@@ -829,7 +832,7 @@ class _SwipablePositioned extends StatelessWidget {
   }
 
   static double calculateAngle(double differenceX, double areaWidth) {
-    return -differenceX / areaWidth * math.pi / 180 * 15;
+    return -_safeDivide(differenceX, areaWidth) * math.pi / 180 * 15;
   }
 
   Offset get _rotationOrigin => _isFirst ? session.local : Offset.zero;
@@ -841,7 +844,10 @@ class _SwipablePositioned extends StatelessWidget {
       areaConstraints.maxWidth / 2,
       0,
     );
-    final rate = _currentPositionDiff.distanceSquared / offset.distanceSquared;
+    final rate = _safeDivide(
+      _currentPositionDiff.distanceSquared,
+      offset.distanceSquared,
+    );
     return Curves.easeOutCubic.transform(
       math.min(rate, 1),
     );

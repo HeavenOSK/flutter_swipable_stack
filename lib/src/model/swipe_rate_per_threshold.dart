@@ -32,10 +32,10 @@ extension _SwipableStackPositionX on _SwipableStackPosition {
     required double verticalSwipeThreshold,
     required Set<SwipeDirection> detectableDirections,
   }) {
-    final horizontalRate =
-        (difference.dx / constraints.maxWidth) / (horizontalSwipeThreshold / 2);
-    final verticalRate =
-        (difference.dy / constraints.maxHeight) / (verticalSwipeThreshold / 2);
+    final horizontalRate = _safeDivide(difference.dx, constraints.maxWidth) /
+        (horizontalSwipeThreshold / 2);
+    final verticalRate = _safeDivide(difference.dy, constraints.maxHeight) /
+        (verticalSwipeThreshold / 2);
 
     _SwipeRatePerThreshold? horizontalRatePerThreshold() {
       final filteredDirs = [SwipeDirection.left, SwipeDirection.right]
